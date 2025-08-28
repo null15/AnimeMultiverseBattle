@@ -18,4 +18,5 @@ You also earn Points from killing the enemy heroes, winning tournaments that are
 - _Strategic Depth_
 
 Feel free to become a part of the community by joining our Discord
+
 ![Discord Banner](https://discord.com/api/guilds/1265059821439287369/widget.png?style=banner3)
