@@ -3,7 +3,9 @@ import DraftAPI
 
 //                                                      To-Do
 //
-// 1.   Instead of hard-limit of 2 categories per hero, use vararg, so a hero can have one tag, or two, or even three
+// X.   Add Github Repo, setup project. [DONE]
+//
+// 1.   Instead of hard-limit of 2 categories per hero, use vararg, so a hero can have one tag, or two, or even three [DONE]
 //
 // 2.   Fix animation so hero icons always animate when coming into vision. Perhaps when "updating" grid, remove all and display new "cells" from position 1 to end?
 //      Then on Row 2, assign position 11 as the start and have it just pop up out of nowhere like position 1, and for Row 3, position 21.
