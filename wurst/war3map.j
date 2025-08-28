@@ -123,7 +123,7 @@ function config takes nothing returns nothing
     call SetTeams( 1 )
     call SetGamePlacement( MAP_PLACEMENT_USE_MAP_SETTINGS )
 
-    call DefineStartLocation( 0, 808.7, -3214.4 )
+    call DefineStartLocation( 0, 832.0, -3200.0 )
 
     // Player setup
     call InitCustomPlayerSlots(  )
