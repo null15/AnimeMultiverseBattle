@@ -1,0 +1,85 @@
+---
+projectName: ACRL
+dependencies:
+- https://github.com/wurstscript/wurstStdlib2
+- https://github.com/null15/InventoryUtils
+- https://github.com/Frotty/wurst-table-layout
+- https://github.com/Frotty/wurst-bonus-handler
+buildMapData:
+  name: '|cff81b862ACRL v1.0.0|r'
+  fileName: ACRL v1.0.0
+  author: Community
+  scenarioData:
+    description: "|cff81b862Anime map, where the goal is to kill the enemy heroes\
+      \ to score a point.\n\nFirst team to reach the required points wins the game\
+      \ (adjustable by team 1 captain). \n\nFeatures several characters from different\
+      \ anime franchises, including skins to a few.\n\n|cff5a35ffDiscord: link here"
+    suggestedPlayers: Anime Lovers
+    loadingScreen:
+      background: loadingScreen
+  players:
+  - id: 0
+    name: Player 0
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 1
+    name: Player 1
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 2
+    name: Player 2
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 3
+    name: Player 3
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 4
+    name: Player 4
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 5
+    name: Player 5
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 6
+    name: Player 6
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 7
+    name: Player 7
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 8
+    name: Player 8
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 9
+    name: Player 9
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  forces:
+  - name: Vongola
+    playerIds:
+    - 0
+    - 2
+    - 3
+    - 4
+  - name: Millefiore
+    playerIds:
+    - 1
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9

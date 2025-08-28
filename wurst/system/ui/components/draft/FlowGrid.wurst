@@ -1,0 +1,186 @@
+package FlowGrid
+
+import ClosureTimers
+import Interpolation
+import FramePos
+import LinkedList
+
+/*
+ * FlowGrid: A simple animated grid layout with FramePos tracking.  
+ * 
+ * Features:  
+ * - Top-left origin defined in relative coords (`originX`, `originY`).  
+ * - Items flow left → right, wrapping after `cols` columns.  
+ * - Use `layoutInstant()` after setup to place items.  
+ * - Use `layoutAnimated(duration)` after add/remove for smooth movement.  
+ * - Supports optional container frames for grouping items visually.  
+ * - Active animations can be globally cancelled.  
+*/
+
+/** Global registry of all active grid animations (periodic timers). */
+public constant activePeriodicTimers = new LinkedList<CallbackPeriodic>()
+
+
+/** Cancel and clear all ongoing grid animations. */
+public function cancelGridAnimations()
+    for t in activePeriodicTimers
+        destroy t
+    activePeriodicTimers.clear()
+
+/** 
+ * SimpleGrid: An animated grid with optional container.  
+ * 
+ * - `originX`, `originY`: top-left corner of the grid (relative coordinates).  
+ * - `cols`: number of columns before wrapping to a new row.  
+ * - `cellW`, `cellH`: width and height of each cell.  
+ * - `gapX`, `gapY`: spacing between cells.  
+ * - `items`: list of frames currently inside the grid.  
+ * - `containerFrame`: optional parent frame.  
+ * - `useContainer`: true if frames are auto-parented to `containerFrame`.  
+ */
+public class SimpleGrid
+    real originX
+    real originY
+    real cellW
+    real cellH
+    real gapX
+    real gapY
+    int cols
+    constant items = new LinkedList<framehandle>()
+    framehandle containerFrame = null
+    boolean useContainer = false
+
+    /** Create a new grid at (originX, originY). */
+    construct(real originX, real originY, int cols, real cellW, real cellH, real gap)
+        this.originX = originX
+        this.originY = originY
+        this.cols    = cols
+        this.cellW   = cellW
+        this.cellH   = cellH
+        this.gapX    = gap
+        this.gapY    = gap
+
+    /** Optionally create a container frame for grouping grid items. */
+    function createContainer(framehandle parent) returns framehandle
+        containerFrame = createFrame("FRAME", "GridContainer", parent, null, 0)
+        useContainer = true
+        return containerFrame
+
+    /** Add a frame to the grid. Will be re-parented to container if available. */
+    function add(framehandle f)
+        items.add(f)
+        if containerFrame != null
+            f.setParent(containerFrame)
+
+    /** Remove a frame from the grid. */
+    function remove(framehandle f)
+        items.remove(f)
+
+    /** Insert a frame at the given index (0 = first). */
+    function insert(int index, framehandle f)
+        if index <= 0
+            items.addAt(f, 0)
+        else if index >= items.size()
+            items.add(f)
+        else
+            items.addAt(f, index)
+
+        if containerFrame != null
+            f.setParent(containerFrame)
+
+    /** Compute grid position of an item index as (x, y). */
+    function indexPos(int idx) returns vec2
+        let col = idx % cols
+        let row = idx div cols
+        let x = originX + col * (cellW + gapX)
+        let y = originY - row * (cellH + gapY)
+        return vec2(x, y)
+
+    /** Place all items instantly (no animation). */
+    function layoutInstant()
+        var i = 0
+        for f in items
+            let pos = indexPos(i)
+            if containerFrame != null
+                setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, pos.x, pos.y)
+            else
+                setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, pos.x, pos.y)
+            i++
+
+    /** Animate all items into their slots over a duration (seconds). */
+    function layoutAnimated(real duration)
+        var i = 0
+        for f in items
+            let targetPos = indexPos(i)
+            animateTo(f, targetPos.x, targetPos.y, duration)
+            i++
+
+    /** 
+     * Animate a single frame to (tx, ty).  
+     * - `duration`: total animation time in seconds.  
+     * - Internally splits into steps (~24fps, minimum 12 steps).  
+     * - Uses quartic ease-out interpolation for smooth deceleration.  
+     */
+    function animateTo(framehandle f, real tx, real ty, real duration)
+        if duration <= 0.
+            if containerFrame != null
+                setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
+            else
+                setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
+            return
+
+        let start = getPos(f)
+        if start == null
+            if containerFrame != null
+                setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
+            else
+                setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
+            return
+
+        // Skip if movement is negligible
+        let deltaX = (tx - start.x).abs()
+        let deltaY = (ty - start.y).abs()
+        if deltaX < 0.001 and deltaY < 0.001
+            return
+
+        var iter = 0
+        let steps = max(12, (duration * 24.0).toInt()) // ~24 fps, at least 12
+        let dt = duration / steps.toReal()             // time per step
+
+        let cb = doPeriodically(dt) (CallbackPeriodic cb) ->
+            iter++
+            let t = iter.toReal() / steps.toReal()     // normalized progress (0..1)
+            let easedT = easeOutQuart(t)               // smoother easing
+
+            let nx = linear(start.x, tx, easedT)
+            let ny = linear(start.y, ty, easedT)
+
+            if containerFrame != null
+                setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, nx, ny)
+            else
+                setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, nx, ny)
+
+            if iter >= steps
+                if containerFrame != null
+                    setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
+                else
+                    setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
+                destroy cb
+                activePeriodicTimers.remove(cb)
+
+        activePeriodicTimers.add(cb)
+
+    /** Quartic ease-out function for smooth deceleration. */
+    function easeOutQuart(real t) returns real
+        let oneMinusT = 1.0 - t
+        return 1.0 - oneMinusT * oneMinusT * oneMinusT * oneMinusT
+
+    /** Total width of the grid (including gaps). */
+    function getGridWidth() returns real
+        return cols.toReal() * cellW + (cols - 1).toReal() * gapX
+
+    /** Total height of the grid (including gaps). */
+    function getGridHeight() returns real
+        let totalItems = items.size()
+        let rows = (totalItems + cols - 1) div cols
+        return rows.toReal() * cellH + (rows - 1).toReal() * gapY

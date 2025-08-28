@@ -1,0 +1,73 @@
+package TableLayoutExt
+
+import LinkedList
+import TableLayout
+
+/*
+ * Extensions for TableLayout that support "cascading layouts".  
+ *
+ * Cascading means: when a parent container is resized,  
+ * all nested containers (children, grandchildren, etc.)  
+ * automatically resize and relayout as well.  
+ *
+ * Useful when building multi-level UI with frames inside frames. 
+*/
+
+/** Simple pair of (frame, TableLayout) for registry tracking. */
+public class TLReg
+    framehandle f
+    TableLayout t
+    construct(framehandle f, TableLayout t)
+        this.f = f
+        this.t = t
+
+/** Global registry of all container ↔ table pairs. */
+constant _regs = new LinkedList<TLReg>()
+
+/** Register a container frame with its TableLayout for cascading. */
+public function registerTable(framehandle f, TableLayout t)
+    _regs.add(new TLReg(f, t))
+
+/** 
+ * Create a container with a backdrop frame.  
+ * - Calls `applyTo` to size/place children.  
+ * - Registers the container for cascading.  
+ * - Returns the created container frame. 
+ */
+public function TableLayout.createFramedContainer(framehandle parent) returns framehandle
+    let f = layoutFrame(parent)
+    this.applyTo(f)
+    createFrame("HeroPickMenuBackdrop", f, 0, 0)..setAllPoints(f)
+    registerTable(f, this)
+    return f
+
+/** 
+ * Create a plain container (no backdrop).  
+ * Registers it for cascading and returns it. 
+ */
+public function TableLayout.createContainerRegistered(framehandle parent) returns framehandle
+    let f = this.createContainer(parent)
+    registerTable(f, this)
+    return f
+
+/** 
+ * Relayouts all registered nested tables.  
+ * Runs up to 2 passes (enough for most nesting depths).  
+ * Keeps child sizes in sync with their parent containers. 
+ */
+public function relayoutNestedTables()
+    for i = 0 to 1
+        for reg in _regs
+            let f = reg.f
+            let t = reg.t
+            t.width = f.getWidth()
+            t.height = f.getHeight()
+            t.layout()
+
+/** 
+ * Apply this layout to a base frame,  
+ * then cascade updates to any nested tables. 
+ */
+public function TableLayout.applyToCascade(framehandle baseFrame)
+    this.applyTo(baseFrame)
+    relayoutNestedTables()
