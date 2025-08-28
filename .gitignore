@@ -1,10 +1,3 @@
 /.vscode
-WurstRunMap.w3x
-war3mapj_with_config.j.txt
-war3map.w3i
-compiled.j.txt
-common.j
-blizzard.j
-ACRL v1.0.0.w3x
-/objectEditingOutput
-.gitkeep
+wurst.dependencies
+/_build
