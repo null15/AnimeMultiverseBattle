@@ -4,7 +4,7 @@ import DraftAPI
 import TableLayout
 import TableLayoutExt
 import GridTableWrapper
-import ClosureTimers
+// import ClosureTimers
 import DraftHeroData
 
 function setupCategoryButtons()
@@ -100,9 +100,9 @@ function draftScreen()
     defaultFrameParent = GAME_UI
 
 init
-    setupCategoryButtons()
-    setupPageButtons()
+    // setupCategoryButtons()
+    // setupPageButtons()
 
-    // Slight delay before creating draft UI, avoids any frame issues since creating frames at init can cause bugs
-    doAfter(0.1) ->
-        draftScreen()
+    // // Slight delay before creating draft UI, avoids any frame issues since creating frames at init can cause bugs
+    // doAfter(0.1) ->
+    //     draftScreen()
