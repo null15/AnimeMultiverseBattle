@@ -6,6 +6,7 @@ import LinkedList
 import HashMap
 import FlowGrid
 import FramePos
+import ClosureTimers
 
 /* 
  * Core draft setup system.  
@@ -56,8 +57,40 @@ LinkedList<HeroPickListener> pickListeners = new LinkedList<HeroPickListener>()
 
 CategoryType array categoryTypeArray
 
+/** Debounce time to coalesce spam clicks (seconds). */
+public constant real DRAFT_REFRESH_DEBOUNCE = 0.12
+
+/** Per-player "a refresh is already scheduled" flag. */
+HashMap<int, boolean> refreshScheduled = new HashMap<int, boolean>()
+
 /** For category/hero button text base labels (so we can toggle visuals). */
 public string array categoryLabelByIndex
+
+/** Schedule one refresh for this player after a small delay. */
+public function scheduleRefresh(int pid)
+    // If already scheduled, just let the queued one run (state has already been updated)
+    if refreshScheduled.has(pid) and refreshScheduled.get(pid)
+        return
+
+    refreshScheduled.put(pid, true)
+    doAfter(DRAFT_REFRESH_DEBOUNCE) ->
+        refreshScheduled.put(pid, false)
+        refreshGrid(pid)
+
+/** Temporarily disables category/page buttons locally to avoid hammering. */
+public function lockInputsLocal(int pid, real seconds)
+    if GetLocalPlayer() != Player(pid)
+        return
+    for i = 1 to MAX_CATEGORIES
+        if categoryBtns[i] != null
+            BlzFrameSetEnable(categoryBtns[i], false)
+    for i = 1 to MAX_PAGES
+        if pageBtns[i] != null
+            BlzFrameSetEnable(pageBtns[i], false)
+    doAfter(seconds) ->
+        updateCategoryButtonsUX(pid)
+        updateCategoryButtonsVisual(pid)
+        updatePageButtons(pid)
 
 /** Remember category label text for index (1..MAX_CATEGORIES). */
 public function registerCategoryLabel(int idx, string label)
@@ -438,9 +471,12 @@ public function wireCategoryButtons()
                 else
                     st.categories.add(cname)
                 st.currentPage = 1
+                // Local UX updates are fine immediately
                 updateCategoryButtonsUX(pid)
                 updateCategoryButtonsVisual(pid)
-                refreshGrid(pid)
+                // Debounce the actual grid rebuild/animation
+                scheduleRefresh(pid)
+                // lockInputsLocal(pid, 0.10) // we can add this if spamming buttons start to cause bugs, this will disable button from being clickable x seconds
 
 /** 
  * Wire page buttons to change pages.  
@@ -455,7 +491,8 @@ public function wirePageButtons()
                 let st = getOrCreateState(pid)
                 if idx <= st.maxPage
                     st.currentPage = idx
-                    refreshGrid(pid)
+                    scheduleRefresh(pid)
+                    // lockInputsLocal(pid, 0.08) // we can add this if spamming buttons start to cause bugs, this will disable button from being clickable x seconds
 
 public function setupHeroButtons()
     buildHeroButtons()

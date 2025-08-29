@@ -39,6 +39,7 @@ public function cancelGridAnimations()
  * - `useContainer`: true if frames are auto-parented to `containerFrame`.  
  */
 public class SimpleGrid
+    int layoutGen = 0
     real originX
     real originY
     real cellW
@@ -109,41 +110,48 @@ public class SimpleGrid
 
     /** Animate all items into their slots over a duration (seconds). */
     function layoutAnimated(real duration)
+        this.layoutGen++                  // invalidate all older animations
+        let gen = this.layoutGen
         var i = 0
         for f in items
-            animateToIndex(f, i, duration)
+            animateToIndex(f, i, duration, gen)
             i++
 
-    function animateToIndex(framehandle f, int idx, real duration)
+    function animateToIndex(framehandle f, int idx, real duration, int gen)
         let targetPos = indexPos(idx)
         var start = getPos(f)
 
         let col = idx % cols
         let row = idx div cols
 
-        // New frames: spawn at row head (leftmost) and fade in
+        // New frames: spawn at row head (alpha 0)
         if start == null
             let spawnX = originX
             let spawnY = originY - row * (cellH + gapY)
             BlzFrameSetAlpha(f, 0)
-
             if containerFrame != null
                 setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, spawnX, spawnY)
             else
                 setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, spawnX, spawnY)
-
+            // First column: appear instantly
             if col == 0
-                // First column appears instantly, fully visible
                 if containerFrame != null
                     setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
                 else
                     setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
                 BlzFrameSetAlpha(f, 255)
                 return
+            start = getPos(f)
 
-            start = getPos(f) // now defined
+        // If duration is tiny, just snap
+        if duration <= 0.0
+            if containerFrame != null
+                setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
+            else
+                setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
+            BlzFrameSetAlpha(f, 255)
+            return
 
-        // Skip trivial movement
         let dx = (targetPos.x - start.x).abs()
         let dy = (targetPos.y - start.y).abs()
         if dx < 0.001 and dy < 0.001
@@ -154,35 +162,43 @@ public class SimpleGrid
         let dt = duration / steps.toReal()
         var iter = 0
 
-        doPeriodically(dt) (CallbackPeriodic cb) ->
-            iter++
-            let t = iter.toReal() / steps.toReal()
-            let easedT = easeOutQuart(t)
+        let cb = doPeriodically(dt) (CallbackPeriodic cb) ->
+            if gen == this.layoutGen
+                iter++
+                let t = iter.toReal() / steps.toReal()
+                let easedT = easeOutQuart(t)
 
-            let nx = linear(start.x, targetPos.x, easedT)
-            let ny = linear(start.y, targetPos.y, easedT)
+                let nx = linear(start.x, targetPos.x, easedT)
+                let ny = linear(start.y, targetPos.y, easedT)
 
-            if containerFrame != null
-                setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, nx, ny)
-            else
-                setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, nx, ny)
-
-            // Fade-in for new frames (or keep opaque for existing)
-            let curAlpha = BlzFrameGetAlpha(f)
-            if curAlpha < 255
-                var a = (255.0 * t).toInt()
-                if a > 255
-                    a = 255
-                BlzFrameSetAlpha(f, a)
-
-            if iter >= steps
                 if containerFrame != null
-                    setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
+                    setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, nx, ny)
                 else
-                    setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
-                BlzFrameSetAlpha(f, 255)
+                    setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, nx, ny)
+
+                // Fade with the same easing as motion (looks nicer)
+                let curAlpha = BlzFrameGetAlpha(f)
+                if curAlpha < 255
+                    var a = (255.0 * easedT).toInt()
+                    if a > 255
+                        a = 255
+                    BlzFrameSetAlpha(f, a)
+
+                if iter >= steps
+                    if containerFrame != null
+                        setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
+                    else
+                        setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
+                    BlzFrameSetAlpha(f, 255)
+                    destroy cb
+                    activePeriodicTimers.remove(cb)
+            else
+                // Newer layout started -> stop this one
                 destroy cb
                 activePeriodicTimers.remove(cb)
+
+        // Track so cancelGridAnimations() can kill all running animations
+        activePeriodicTimers.add(cb)
 
     /** Quartic ease-out function for smooth deceleration. */
     function easeOutQuart(real t) returns real
