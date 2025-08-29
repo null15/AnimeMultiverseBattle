@@ -9,20 +9,20 @@ import heroDefinitions
 // 1.   Instead of hard-limit of 2 categories per hero, use vararg, so a hero can have one tag, or two, or even three [DONE]
 //
 // 2.   Fix animation so hero icons always animate when coming into vision. Perhaps when "updating" grid, remove all and display new "cells" from position 1 to end?
-//      Then on Row 2, assign position 11 as the start and have it just pop up out of nowhere like position 1, and for Row 3, position 21.
+//      Then on Row 2, assign position 11 as the start and have it just pop up out of nowhere like position 1, and for Row 3, position 21. [DONE]
 //   
 // 3.   Team 1 Picked heroes and Team 2 Picked heroes, the way they are structured, can't display PlayerName, find best fix. Perhaps h1 row img row pad h1 row img, rinse repeat?      
 //
-// 4.   How about disabling category buttons that would display 0 heroes? If you selected {Intelligence} and {Support}, {Strength} then gets disabled because it would show 0 heroes.
+// 4.   How about disabling category buttons that would display 0 heroes? If you selected {Intelligence} and {Support}, {Strength} then gets disabled because it would show 0 heroes. [DONE]
 //
 // 5.   Add "UnitID" to "addHero" class. [DONE]
 //
-// 6.   Alphabetic sort, perhaps a list that is manually sorted already, and use ID to check their "sorting order". AI can easily manually sort a list.
-//      I noticed that moving to a new page displays the list in the correct order again.
+// 6.   Alphabetic sort, perhaps a list that is manually sorted already, and use ID to check their "sorting order". AI can easily manually sort a list. [DONE]
+//
 //
 
 public function defineHeroes()
-    // === Keep this list sorted alphabetically by (Name, Aftername) ===
+    // ===> Keep this list sorted alphabetically by (Name, Aftername) <===
 
     new HeroDraft()
     ..addHero(EDWARD_ELRIC, "Edward", "Elric", "Fullmetal Alchemist")
