@@ -5,7 +5,6 @@ import GridTableWrapper
 import LinkedList
 import HashMap
 import FlowGrid
-import FramePos
 
 /* 
  * Core draft setup system.  
@@ -56,12 +55,59 @@ LinkedList<HeroPickListener> pickListeners = new LinkedList<HeroPickListener>()
 
 CategoryType array categoryTypeArray
 
-/** Comparator to sort heroes by full name (case-insensitive). */
-constant Comparator<HeroDraft> heroNameComparator = (a, b) -> stringCompare(a.fullName().toLowerCase(), b.fullName().toLowerCase())
+/** For category/hero button text base labels (so we can toggle visuals). */
+public string array categoryLabelByIndex
 
-/** Sort the global hero list by name. */
-public function sortAllHeroesByName()
-    allHeroes.sortWith(heroNameComparator)
+/** Remember category label text for index (1..MAX_CATEGORIES). */
+public function registerCategoryLabel(int idx, string label)
+    categoryLabelByIndex[idx] = label
+
+/** Compare two heroes by full name (case-insensitive). */
+public function compareFullNames(HeroDraft a, HeroDraft b) returns int
+    return stringCompare(a.fullName().toLowerCase(), b.fullName().toLowerCase())
+
+/** Insert hero into a LinkedList keeping alphabetical order by full name. */
+public function insertOrdered(LinkedList<HeroDraft> list, HeroDraft h)
+    var i = 0
+    for cur in list
+        if compareFullNames(h, cur) < 0
+            list.addAt(h, i)
+            return
+        i++
+    list.add(h)
+
+/** Selected hero per player (for ON/TRUE highlight). */
+HashMap<int, int> selectedHeroByPid = new HashMap<int, int>()
+
+/** Mark hero button selected/unselected by text color + check glyph. */
+public function setButtonSelected(framehandle f, string baseText, boolean on)
+    if on
+        BlzFrameSetText(f, "|cff81b862✓ " + baseText + "|r")
+    else
+        BlzFrameSetText(f, baseText)
+
+/** Refresh ON/TRUE visuals for category buttons. */
+public function updateCategoryButtonsVisual(int pid)
+    let st = getOrCreateState(pid)
+    if GetLocalPlayer() == Player(pid)
+        for i = 1 to MAX_CATEGORIES
+            let f = categoryBtns[i]
+            if f != null
+                let cat = categoryTypeArray[i]
+                let on = st.categories.has(cat)
+                let base = categoryLabelByIndex[i]
+                setButtonSelected(f, base, on)
+
+/** Refresh ON/TRUE visuals for hero buttons for the local player. */
+public function updateHeroSelectionVisual(int pid)
+    if GetLocalPlayer() != Player(pid)
+        return
+    let sel = selectedHeroByPid.get(pid)
+    for h in allHeroes
+        let f = getHeroButton(h.unitID)
+        if f != null
+            let on = sel != 0 and sel == h.unitID
+            setButtonSelected(f, h.fullName(), on)
 
 /** 
  * Per-player draft UI state.  
@@ -151,9 +197,8 @@ public class HeroDraft
             print("|cffff0000Duplicate hero id:|r " + id.toString() + " — ignoring second registration.")
             return
 
-        allHeroes.add(this)
+        insertOrdered(allHeroes, this)
         heroById.put(this.unitID, this)
-        sortAllHeroesByName()
 
 public interface HeroPickListener
     function onHeroPicked(int pid, int unitID)
@@ -307,6 +352,7 @@ public function refreshGrid(int pid)
 
     updatePageButtons(pid)
     updateCategoryButtonsUX(pid)
+    updateCategoryButtonsVisual(pid)
 
     if GetLocalPlayer() != Player(pid)
         return
@@ -334,19 +380,15 @@ public function refreshGrid(int pid)
                 shouldShow.add(f)
         idx++
 
-    // remove old
     for f in shownNow
         if not shouldShow.has(f)
             heroGrid.remove(f)
             BlzFrameSetVisible(f, false)
 
-    // important: clear running animations before re-layout
     cancelGridAnimations()
 
-    // add new (ensure appearance anim triggers)
     for f in shouldShow
         if not shownNow.has(f)
-            clearTrackedPos(f)
             BlzFrameSetVisible(f, true)
             heroGrid.add(f)
 
@@ -356,6 +398,10 @@ public function refreshGrid(int pid)
 
     heroGrid.layoutAnimated(0.20)
 
+    // after layout, refresh hero ON/TRUE visuals for local player
+    updateHeroSelectionVisual(pid)
+
+
 /** Connect all hero buttons to notifyHeroPicked. Safe to call after buildHeroButtons(). */
 public function wireHeroButtons()
     for h in allHeroes
@@ -364,6 +410,8 @@ public function wireHeroButtons()
             let hid = h.unitID
             f.onClick() ->
                 let pid = GetPlayerId(GetTriggerPlayer())
+                selectedHeroByPid.put(pid, hid)
+                updateHeroSelectionVisual(pid)
                 notifyHeroPicked(pid, hid)
 
 /** Toggle categories and refresh; also updates button enabled-states. */
@@ -381,6 +429,7 @@ public function wireCategoryButtons()
                     st.categories.add(cname)
                 st.currentPage = 1
                 updateCategoryButtonsUX(pid)
+                updateCategoryButtonsVisual(pid)
                 refreshGrid(pid)
 
 /** 

@@ -111,49 +111,53 @@ public class SimpleGrid
     function layoutAnimated(real duration)
         var i = 0
         for f in items
-            let targetPos = indexPos(i)
-            animateTo(f, targetPos.x, targetPos.y, duration)
+            animateToIndex(f, i, duration)
             i++
 
-    /** 
-     * Animate a single frame to (tx, ty).  
-     * - `duration`: total animation time in seconds.  
-     * - Internally splits into steps (~24fps, minimum 12 steps).  
-     * - Uses quartic ease-out interpolation for smooth deceleration.  
-     */
-    function animateTo(framehandle f, real tx, real ty, real duration)
-        if duration <= 0.
-            if containerFrame != null
-                setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
-            else
-                setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
-            return
+    function animateToIndex(framehandle f, int idx, real duration)
+        let targetPos = indexPos(idx)
+        var start = getPos(f)
 
-        let start = getPos(f)
+        // If this frame has never been placed before, spawn at row head
         if start == null
-            if containerFrame != null
-                setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
-            else
-                setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
-            return
+            let col = idx % cols
+            let row = idx div cols
+            let spawnX = originX           // row head (leftmost)
+            let spawnY = originY - row * (cellH + gapY)
 
-        // Skip if movement is negligible
-        let deltaX = (tx - start.x).abs()
-        let deltaY = (ty - start.y).abs()
+            if containerFrame != null
+                setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, spawnX, spawnY)
+            else
+                setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, spawnX, spawnY)
+
+            // If it's the very first column, appear instantly (no slide)
+            if col == 0
+                if containerFrame != null
+                    setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
+                else
+                    setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
+                return
+            // otherwise fall through to animate horizontally
+            // (we already placed it at spawn; "start" is now defined)
+            start = getPos(f)
+
+        // Skip trivial movement
+        let deltaX = (targetPos.x - start.x).abs()
+        let deltaY = (targetPos.y - start.y).abs()
         if deltaX < 0.001 and deltaY < 0.001
             return
 
+        let steps = max(12, (duration * 24.0).toInt())
+        let dt = duration / steps.toReal()
         var iter = 0
-        let steps = max(12, (duration * 24.0).toInt()) // ~24 fps, at least 12
-        let dt = duration / steps.toReal()             // time per step
 
-        let cb = doPeriodically(dt) (CallbackPeriodic cb) ->
+        doPeriodically(dt) (CallbackPeriodic cb) ->
             iter++
-            let t = iter.toReal() / steps.toReal()     // normalized progress (0..1)
-            let easedT = easeOutQuart(t)               // smoother easing
+            let t = iter.toReal() / steps.toReal()
+            let easedT = easeOutQuart(t)
 
-            let nx = linear(start.x, tx, easedT)
-            let ny = linear(start.y, ty, easedT)
+            let nx = linear(start.x, targetPos.x, easedT)
+            let ny = linear(start.y, targetPos.y, easedT)
 
             if containerFrame != null
                 setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, nx, ny)
@@ -162,13 +166,11 @@ public class SimpleGrid
 
             if iter >= steps
                 if containerFrame != null
-                    setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
+                    setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
                 else
-                    setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, tx, ty)
+                    setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
                 destroy cb
                 activePeriodicTimers.remove(cb)
-
-        activePeriodicTimers.add(cb)
 
     /** Quartic ease-out function for smooth deceleration. */
     function easeOutQuart(real t) returns real
