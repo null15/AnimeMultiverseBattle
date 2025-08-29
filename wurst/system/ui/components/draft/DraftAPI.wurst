@@ -4,6 +4,8 @@ import TableLayout
 import GridTableWrapper
 import LinkedList
 import HashMap
+import FlowGrid
+import FramePos
 
 /* 
  * Core draft setup system.  
@@ -31,9 +33,6 @@ LinkedList<HeroDraft> allHeroes = new LinkedList<HeroDraft>()
 /** Lookup from hero id → HeroDraft. */
 HashMap<int, HeroDraft> heroById = new HashMap<int, HeroDraft>()
 
-/** Text labels used for category buttons. */
-public CategoryType array categoryName
-
 /** References to category buttons (1..MAX_CATEGORIES). */
 public framehandle array categoryBtns   
 
@@ -46,7 +45,24 @@ public GridCell heroGrid = null
 /** Frames currently visible in the grid (local player only). */
 public LinkedList<framehandle> shownNow = new LinkedList<framehandle>()
 
+/** Map hero id -> its button frame (decouples data from view). */
+public HashMap<int, framehandle> heroBtnById = new HashMap<int, framehandle>()
+
+/** Optional: per-player search query (kept outside DraftUIState to avoid class edits). */
+HashMap<int, string> searchByPid = new HashMap<int, string>()
+
+/** Registered listeners for hero pick events. */
+LinkedList<HeroPickListener> pickListeners = new LinkedList<HeroPickListener>()
+
 CategoryType array categoryTypeArray
+
+/** Comparator to sort heroes by full name (case-insensitive). */
+constant Comparator<HeroDraft> heroNameComparator = (a, b) -> stringCompare(a.fullName().toLowerCase(), b.fullName().toLowerCase())
+
+/** Sort the global hero list by name. */
+public function sortAllHeroesByName()
+    allHeroes.sortWith(heroNameComparator)
+
 /** 
  * Per-player draft UI state.  
  * Stores which categories are selected,  
@@ -108,25 +124,88 @@ public class HeroDraft
             return name + " " + aftername
         return name
 
-    /** Adds Category to chosen hero, up to 30 categories. */
+    /** Adds categories to this hero, up to 30 unique categories. */
     function addCategory(vararg CategoryType categories) returns LinkedList<CategoryType>
         for category in categories
-            this.categories.add(category)
+            if this.categories.size() >= 30
+                return this.categories
+            if not this.categories.has(category)
+                this.categories.add(category)
         return this.categories
 
-    /** 
-    * Register a hero into the draft pool.  
-    * Creates its button, wraps it in HeroDraft,  
-    * and inserts into global lists and lookup maps. 
+    /**
+    * Register a hero into the draft pool (data only).
+    * Button creation is handled separately via buildHeroButtons().
     */
-    function addHero(int unitID, string name, string aftername, string franchise)
-        this.unitID = unitID
+    function addHero(int id, string name, string aftername, string franchise)
+        this.unitID = id
         this.name = name
         this.aftername = aftername
         this.franchise = franchise
-        this.btn = btn(name)..setHeight(heroIconSize)..setWidth(heroIconSize)
+
+        if name == ""
+            print("|cffff0000addHero: name cannot be empty.|r")
+            return
+
+        if heroById.has(id)
+            print("|cffff0000Duplicate hero id:|r " + id.toString() + " — ignoring second registration.")
+            return
+
         allHeroes.add(this)
         heroById.put(this.unitID, this)
+        sortAllHeroesByName()
+
+public interface HeroPickListener
+    function onHeroPicked(int pid, int unitID)
+
+public function addHeroPickListener(HeroPickListener l)
+    if l != null
+        pickListeners.add(l)
+
+public function notifyHeroPicked(int pid, int unitID)
+    for l in pickListeners
+        l.onHeroPicked(pid, unitID)
+
+/** Associate a pre-created button with a hero id. */
+public function setHeroButton(int id, framehandle f)
+    if f != null
+        heroBtnById.put(id, f)
+
+/** Get the button frame for a hero id, or null if not set. */
+public function getHeroButton(int id) returns framehandle
+    return heroBtnById.get(id)
+
+/** Creates simple buttons for every registered hero and stores them in heroBtnById. */
+public function buildHeroButtons()
+    for h in allHeroes
+        if getHeroButton(h.unitID) == null
+            let b = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
+            setHeroButton(h.unitID, b)
+
+public function setSearchQuery(int pid, string q)
+    var s = q
+    if s == null
+        s = ""
+    searchByPid.put(pid, s)
+
+public function getSearchQuery(int pid) returns string
+    let s = searchByPid.get(pid)
+    if s == null
+        return ""
+    return s
+
+/** Name/franchise substring match (case-insensitive). Empty query always matches. */
+public function heroMatchesQuery(HeroDraft h, string q) returns bool
+    if q == ""
+        return true
+    let s = q.toLowerCase()
+    if h.name.toLowerCase().contains(s)
+        return true
+    if h.aftername.toLowerCase().contains(s)
+        return true
+    if h.franchise.toLowerCase().contains(s)
+        return true
+    return false
 
 /** 
  * Ensure a DraftUIState exists for a player.  
@@ -152,14 +231,42 @@ public function matchesAll(HeroDraft h, LinkedList<CategoryType> selected) retur
             return false
     return true
 
-/** Count heroes matching filters for a player. */
+/** Count heroes matching current filters (categories + search) for a player. */
 public function countFiltered(int pid) returns int
     let st = getOrCreateState(pid)
+    let q = getSearchQuery(pid)
     var n = 0
     for h in allHeroes
-        if matchesAll(h, st.categories)
+        if matchesAll(h, st.categories) and heroMatchesQuery(h, q)
             n++
     return n
+
+/** Preview how many heroes would show if we (also) had `cat` selected. */
+public function countIfAdded(int pid, CategoryType cat) returns int
+    let st = getOrCreateState(pid)
+    let tmp = new LinkedList<CategoryType>()
+    for c in st.categories
+        tmp.add(c)
+    if not tmp.has(cat)
+        tmp.add(cat)
+    let q = getSearchQuery(pid)
+
+    var n = 0
+    for h in allHeroes
+        if matchesAll(h, tmp) and heroMatchesQuery(h, q)
+            n++
+    return n
+
+/** Enable/disable category buttons based on whether they would produce any results. */
+public function updateCategoryButtonsUX(int pid)
+    let st = getOrCreateState(pid)
+    if GetLocalPlayer() == Player(pid)
+        for i = 1 to MAX_CATEGORIES
+            if categoryBtns[i] != null
+                let cname = categoryTypeArray[i]
+                let selected = st.categories.has(cname)
+                let cnt = countIfAdded(pid, cname)
+                BlzFrameSetEnable(categoryBtns[i], selected or cnt > 0)
 
 /** Clamp a page number into range [1..maxP]. */
 public function clampPage(int page, int maxP) returns int
@@ -183,13 +290,10 @@ public function updatePageButtons(int pid)
                 else
                     BlzFrameSetEnable(pageBtns[i], false)
 
-/** 
- * Refresh hero grid for a player.  
- * Steps:  
- *  - Filter heroes by categories.  
- *  - Slice heroes by page.  
- *  - Update grid: hide old, show new.  
- *  - Run animated layout transition. 
+/**
+ * Refresh hero grid for a player.
+ * Now uses heroBtnById instead of h.btn, cancels old anims,
+ * and clears tracked pos for new frames so they animate in.
  */
 public function refreshGrid(int pid)
     let st = getOrCreateState(pid)
@@ -202,23 +306,32 @@ public function refreshGrid(int pid)
     st.currentPage = clampPage(st.currentPage, st.maxPage)
 
     updatePageButtons(pid)
+    updateCategoryButtonsUX(pid)
 
     if GetLocalPlayer() != Player(pid)
         return
 
     let filtered = new LinkedList<HeroDraft>()
+    let q = getSearchQuery(pid)
     for h in allHeroes
-        if matchesAll(h, st.categories)
+        if matchesAll(h, st.categories) and heroMatchesQuery(h, q)
             filtered.add(h)
 
-    let startIdx = (st.currentPage - 1) * PER_PAGE
-    let endIdx = startIdx + PER_PAGE - 1
+    var startIdx = (st.currentPage - 1) * PER_PAGE
+    if startIdx < 0
+        startIdx = 0
+    var endIdx = startIdx + PER_PAGE - 1
+    let lastIdx = filtered.size() - 1
+    if endIdx > lastIdx
+        endIdx = lastIdx
 
     let shouldShow = new LinkedList<framehandle>()
     var idx = 0
     for h in filtered
         if idx >= startIdx and idx <= endIdx
-            shouldShow.add(h.btn)
+            let f = getHeroButton(h.unitID)
+            if f != null
+                shouldShow.add(f)
         idx++
 
     // remove old
@@ -227,9 +340,13 @@ public function refreshGrid(int pid)
             heroGrid.remove(f)
             BlzFrameSetVisible(f, false)
 
-    // add new
+    // important: clear running animations before re-layout
+    cancelGridAnimations()
+
+    // add new (ensure appearance anim triggers)
     for f in shouldShow
         if not shownNow.has(f)
+            clearTrackedPos(f)
             BlzFrameSetVisible(f, true)
             heroGrid.add(f)
 
@@ -239,23 +356,31 @@ public function refreshGrid(int pid)
 
     heroGrid.layoutAnimated(0.20)
 
-/** 
- * Wire category buttons to filtering logic.  
- * Clicking toggles category in/out, resets to page 1, and refreshes grid. 
- */
+/** Connect all hero buttons to notifyHeroPicked. Safe to call after buildHeroButtons(). */
+public function wireHeroButtons()
+    for h in allHeroes
+        let f = getHeroButton(h.unitID)
+        if f != null
+            let hid = h.unitID
+            f.onClick() ->
+                let pid = GetPlayerId(GetTriggerPlayer())
+                notifyHeroPicked(pid, hid)
+
+/** Toggle categories and refresh; also updates button enabled-states. */
 public function wireCategoryButtons()
     for i = 1 to MAX_CATEGORIES
         if categoryBtns[i] != null
             let idx = i
-            categoryBtns[idx].onClick() -> 
+            categoryBtns[idx].onClick() ->
                 let pid = GetPlayerId(GetTriggerPlayer())
                 let st = getOrCreateState(pid)
-                let categoryType = categoryTypeArray[idx]
-                if st.categories.has(categoryType)
-                    st.categories.remove(categoryType)
+                let cname = categoryTypeArray[idx]
+                if st.categories.has(cname)
+                    st.categories.remove(cname)
                 else
-                    st.categories.add(categoryType)
+                    st.categories.add(cname)
                 st.currentPage = 1
+                updateCategoryButtonsUX(pid)
                 refreshGrid(pid)
 
 /** 
@@ -272,6 +397,10 @@ public function wirePageButtons()
                 if idx <= st.maxPage
                     st.currentPage = idx
                     refreshGrid(pid)
+
+public function setupHeroButtons()
+    buildHeroButtons()
+    wireHeroButtons()
 
 init
     categoryTypeArray[1] = CategoryType.STRENGTH

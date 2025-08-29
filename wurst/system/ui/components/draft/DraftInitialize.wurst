@@ -39,6 +39,8 @@ function draftScreen()
 
     // Create hero objects to display (its the hero icons on Draft)
     defineHeroes()
+    buildHeroButtons()
+    setupHeroButtons()
 
     // Timer Frame
     let timerTable = new TableLayout(0.1, 0.05)
@@ -95,6 +97,7 @@ function draftScreen()
     st.currentPage = 1
     shownNow.clear()
     refreshGrid(pidLocal)
+    buildHeroButtons()
     // To here
 
     // Reset defaultFrameParent back to the GAME_UI
