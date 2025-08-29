@@ -8,12 +8,13 @@ import ClosureTimers
 import DraftHeroData
 
 function setupCategoryButtons()
+    string array categoryName
     categoryName[1] = "Strength"
     categoryName[2] = "Agility"
     categoryName[3] = "Intelligence"
-    categoryName[4] = "Carry"
-    categoryName[5] = "Support"
-    categoryName[6] = "Nuker"
+    categoryName[4] = "Bruiser"
+    categoryName[5] = "Carry"
+    categoryName[6] = "Support"
     categoryName[7] = "Melee"
     categoryName[8] = "Range"
 

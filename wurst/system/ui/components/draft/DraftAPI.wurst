@@ -32,7 +32,7 @@ LinkedList<HeroDraft> allHeroes = new LinkedList<HeroDraft>()
 HashMap<int, HeroDraft> heroById = new HashMap<int, HeroDraft>()
 
 /** Text labels used for category buttons. */
-public string array categoryName
+public CategoryType array categoryName
 
 /** References to category buttons (1..MAX_CATEGORIES). */
 public framehandle array categoryBtns   
@@ -52,14 +52,24 @@ public LinkedList<framehandle> shownNow = new LinkedList<framehandle>()
  * current page index, and max page available. 
  */
 class DraftUIState
-    LinkedList<string> categories
+    LinkedList<CategoryType> categories
     int currentPage
     int maxPage
 
     construct()
-        categories = new LinkedList<string>()
+        categories = new LinkedList<CategoryType>()
         currentPage = 1
         maxPage = 1
+
+public enum CategoryType
+    STRENGTH
+    AGILITY
+    INTELLIGENCE
+    BRUISER
+    CARRY
+    SUPPORT
+    MELEE
+    RANGE
 
 /** 
  * Hero draft entry.  
@@ -67,30 +77,27 @@ class DraftUIState
  * and stores a reference to the button frame. 
  */
 public class HeroDraft
-    int sortOrder
     int unitID
     string name
     string aftername
     string franchise
-    LinkedList<string> categories
+    LinkedList<CategoryType> categories
     framehandle btn
 
     construct()
-        this.sortOrder = 0
         this.unitID = 0
         this.name = ""
         this.aftername = ""
         this.franchise = ""
-        this.categories = new LinkedList<string>()
+        this.categories = new LinkedList<CategoryType>()
         this.btn = null
 
-    construct(int sortOrder, int unitID, string name, string aftername, string franchise)
-        this.sortOrder = sortOrder
+    construct(int unitID, string name, string aftername, string franchise)
         this.unitID = unitID
         this.name = name
         this.aftername = aftername
         this.franchise = franchise
-        this.categories = new LinkedList<string>()
+        this.categories = new LinkedList<CategoryType>()
         this.btn = btn(name)..setHeight(heroIconSize)..setWidth(heroIconSize)
 
     /** Returns hero full name (name + aftername if present). */
@@ -100,7 +107,7 @@ public class HeroDraft
         return name
 
     /** Adds Category to chosen hero, up to 30 categories. */
-    function addCategory(vararg string categories) returns LinkedList<string>
+    function addCategory(vararg CategoryType categories) returns LinkedList<CategoryType>
         for category in categories
             this.categories.add(category)
         return this.categories
@@ -110,15 +117,14 @@ public class HeroDraft
     * Creates its button, wraps it in HeroDraft,  
     * and inserts into global lists and lookup maps. 
     */
-    function addHero(int sortOrder, int unitID, string name, string aftername, string franchise)
-        this.sortOrder = sortOrder
+    function addHero(int unitID, string name, string aftername, string franchise)
         this.unitID = unitID
         this.name = name
         this.aftername = aftername
         this.franchise = franchise
         this.btn = btn(name)..setHeight(heroIconSize)..setWidth(heroIconSize)
         allHeroes.add(this)
-        heroById.put(this.sortOrder, this)
+        heroById.put(this.unitID, this)
 
 /** 
  * Ensure a DraftUIState exists for a player.  
@@ -136,7 +142,7 @@ public function getOrCreateState(int pid) returns DraftUIState
  * Checks if hero matches all selected categories.  
  * Empty selection always matches. 
  */
-public function matchesAll(HeroDraft h, LinkedList<string> selected) returns bool
+public function matchesAll(HeroDraft h, LinkedList<CategoryType> selected) returns bool
     if selected.isEmpty()
         return true
     for cat in selected
