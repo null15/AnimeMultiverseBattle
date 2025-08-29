@@ -5,6 +5,7 @@ import GridTableWrapper
 import LinkedList
 import HashMap
 import FlowGrid
+import FramePos
 
 /* 
  * Core draft setup system.  
@@ -62,9 +63,16 @@ public string array categoryLabelByIndex
 public function registerCategoryLabel(int idx, string label)
     categoryLabelByIndex[idx] = label
 
-/** Compare two heroes by full name (case-insensitive). */
+/** Compare two heroes by (name, aftername), case-insensitive. */
 public function compareFullNames(HeroDraft a, HeroDraft b) returns int
-    return stringCompare(a.fullName().toLowerCase(), b.fullName().toLowerCase())
+    let an = a.name.toLowerCase()
+    let bn = b.name.toLowerCase()
+    let c1 = stringCompare(an, bn)
+    if c1 != 0
+        return c1
+    let aa = a.aftername.toLowerCase()
+    let ba = b.aftername.toLowerCase()
+    return stringCompare(aa, ba)
 
 /** Insert hero into a LinkedList keeping alphabetical order by full name. */
 public function insertOrdered(LinkedList<HeroDraft> list, HeroDraft h)
@@ -357,6 +365,7 @@ public function refreshGrid(int pid)
     if GetLocalPlayer() != Player(pid)
         return
 
+    // Build filtered list in the order of allHeroes (already kept sorted)
     let filtered = new LinkedList<HeroDraft>()
     let q = getSearchQuery(pid)
     for h in allHeroes
@@ -380,26 +389,27 @@ public function refreshGrid(int pid)
                 shouldShow.add(f)
         idx++
 
+    // 1) Remove everything currently in the grid (so order is guaranteed)
     for f in shownNow
-        if not shouldShow.has(f)
-            heroGrid.remove(f)
-            BlzFrameSetVisible(f, false)
+        heroGrid.remove(f)
+        BlzFrameSetVisible(f, false)
 
     cancelGridAnimations()
 
+    // 2) Add in correct order; force spawn-at-row-head by clearing tracked pos
     for f in shouldShow
-        if not shownNow.has(f)
-            BlzFrameSetVisible(f, true)
-            heroGrid.add(f)
+        BlzFrameSetVisible(f, true)
+        clearTrackedPos(f)        // makes FlowGrid treat it as "new"
+        heroGrid.add(f)
 
+    // 3) Update local tracking and animate
     shownNow.clear()
     for f in shouldShow
         shownNow.add(f)
 
     heroGrid.layoutAnimated(0.20)
 
-    // after layout, refresh hero ON/TRUE visuals for local player
-    updateHeroSelectionVisual(pid)
+    updateHeroSelectionVisual(pid) // refresh ON/TRUE marks after layout
 
 
 /** Connect all hero buttons to notifyHeroPicked. Safe to call after buildHeroButtons(). */

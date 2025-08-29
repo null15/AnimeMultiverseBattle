@@ -118,33 +118,36 @@ public class SimpleGrid
         let targetPos = indexPos(idx)
         var start = getPos(f)
 
-        // If this frame has never been placed before, spawn at row head
+        let col = idx % cols
+        let row = idx div cols
+
+        // New frames: spawn at row head (leftmost) and fade in
         if start == null
-            let col = idx % cols
-            let row = idx div cols
-            let spawnX = originX           // row head (leftmost)
+            let spawnX = originX
             let spawnY = originY - row * (cellH + gapY)
+            BlzFrameSetAlpha(f, 0)
 
             if containerFrame != null
                 setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, spawnX, spawnY)
             else
                 setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, spawnX, spawnY)
 
-            // If it's the very first column, appear instantly (no slide)
             if col == 0
+                // First column appears instantly, fully visible
                 if containerFrame != null
                     setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
                 else
                     setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
+                BlzFrameSetAlpha(f, 255)
                 return
-            // otherwise fall through to animate horizontally
-            // (we already placed it at spawn; "start" is now defined)
-            start = getPos(f)
+
+            start = getPos(f) // now defined
 
         // Skip trivial movement
-        let deltaX = (targetPos.x - start.x).abs()
-        let deltaY = (targetPos.y - start.y).abs()
-        if deltaX < 0.001 and deltaY < 0.001
+        let dx = (targetPos.x - start.x).abs()
+        let dy = (targetPos.y - start.y).abs()
+        if dx < 0.001 and dy < 0.001
+            BlzFrameSetAlpha(f, 255)
             return
 
         let steps = max(12, (duration * 24.0).toInt())
@@ -164,11 +167,20 @@ public class SimpleGrid
             else
                 setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, nx, ny)
 
+            // Fade-in for new frames (or keep opaque for existing)
+            let curAlpha = BlzFrameGetAlpha(f)
+            if curAlpha < 255
+                var a = (255.0 * t).toInt()
+                if a > 255
+                    a = 255
+                BlzFrameSetAlpha(f, a)
+
             if iter >= steps
                 if containerFrame != null
                     setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
                 else
                     setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, targetPos.x, targetPos.y)
+                BlzFrameSetAlpha(f, 255)
                 destroy cb
                 activePeriodicTimers.remove(cb)
 

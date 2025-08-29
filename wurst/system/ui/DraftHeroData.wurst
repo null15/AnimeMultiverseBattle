@@ -22,11 +22,7 @@ import heroDefinitions
 //
 
 public function defineHeroes()
-    // === Keep this list alphabetically sorted by Full Name (Name + Aftername) ===
-
-    new HeroDraft()
-    ..addHero(AZAKANA_YONE, "Yone", "Azakana", "League of Legends")
-    ..addCategory(CategoryType.AGILITY)
+    // === Keep this list sorted alphabetically by (Name, Aftername) ===
 
     new HeroDraft()
     ..addHero(EDWARD_ELRIC, "Edward", "Elric", "Fullmetal Alchemist")
@@ -63,3 +59,7 @@ public function defineHeroes()
     new HeroDraft()
     ..addHero(WENDY_MARVELL, "Wendy", "Marvell", "Fairy Tail")
     ..addCategory(CategoryType.INTELLIGENCE, CategoryType.SUPPORT, CategoryType.CARRY)
+
+    new HeroDraft()
+    ..addHero(AZAKANA_YONE, "Yone", "Azakana", "League of Legends")
+    ..addCategory(CategoryType.AGILITY)
