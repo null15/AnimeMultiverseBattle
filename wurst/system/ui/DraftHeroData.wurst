@@ -15,7 +15,7 @@ import heroDefinitions
 //
 // 4.   How about disabling category buttons that would display 0 heroes? If you selected {Intelligence} and {Support}, {Strength} then gets disabled because it would show 0 heroes.
 //
-// 5.   Add "UnitID" to "addHero" class.
+// 5.   Add "UnitID" to "addHero" class. [DONE]
 //
 // 6.   Alphabetic sort, perhaps a list that is manually sorted already, and use ID to check their "sorting order". AI can easily manually sort a list.
 //      I noticed that moving to a new page displays the list in the correct order again.
