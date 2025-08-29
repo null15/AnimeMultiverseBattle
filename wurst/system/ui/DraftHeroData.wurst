@@ -28,8 +28,36 @@ public function defineHeroes()
 
     new HeroDraft()
     ..addHero(AZAKANA_YONE, "Yone", "Azakana", "League of Legends")
-    ..addCategory(CategoryType.AGILITY, CategoryType.MELEE)
+    ..addCategory(CategoryType.AGILITY)
 
     new HeroDraft()
     ..addHero(SAITAMA, "Saitama", "", "One Punch Man")
-    ..addCategory(CategoryType.STRENGTH)
+    ..addCategory(CategoryType.STRENGTH, CategoryType.MELEE, CategoryType.CARRY)
+
+    new HeroDraft()
+    ..addHero(EDWARD_ELRIC, "Edward", "Elric", "Fullmetal Alchemist")
+    ..addCategory(CategoryType.INTELLIGENCE, CategoryType.MELEE, CategoryType.CARRY)
+
+    new HeroDraft()
+    ..addHero(MIKASA_ACKERMAN, "Mikasa", "Ackerman", "Attack on Titan")
+    ..addCategory(CategoryType.AGILITY, CategoryType.MELEE)
+
+    new HeroDraft()
+    ..addHero(SENKU_ISHIGAMI, "Senku", "Ishigami", "Dr. Stone")
+    ..addCategory(CategoryType.INTELLIGENCE, CategoryType.SUPPORT, CategoryType.RANGE)
+
+    new HeroDraft()
+    ..addHero(JOTARO_KUJO, "Jotaro", "Kujo", "JoJo's Bizarre Adventure")
+    ..addCategory(CategoryType.STRENGTH, CategoryType.BRUISER, CategoryType.MELEE)
+
+    new HeroDraft()
+    ..addHero(RIMURU_TEMPEST, "Rimuru", "Tempest", "That Time I Got Reincarnated as a Slime")
+    ..addCategory(CategoryType.INTELLIGENCE, CategoryType.SUPPORT, CategoryType.CARRY)
+
+    new HeroDraft()
+    ..addHero(TANJIRO_KAMADO, "Tanjiro", "Kamado", "Demon Slayer")
+    ..addCategory(CategoryType.AGILITY, CategoryType.MELEE)
+
+    new HeroDraft()
+    ..addHero(SHIGEO_KAGEYAMA, "Shigeo", "Kageyama", "Mob Psycho 100")
+    ..addCategory(CategoryType.INTELLIGENCE)

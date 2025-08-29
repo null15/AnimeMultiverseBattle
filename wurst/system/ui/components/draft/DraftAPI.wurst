@@ -46,6 +46,7 @@ public GridCell heroGrid = null
 /** Frames currently visible in the grid (local player only). */
 public LinkedList<framehandle> shownNow = new LinkedList<framehandle>()
 
+CategoryType array categoryTypeArray
 /** 
  * Per-player draft UI state.  
  * Stores which categories are selected,  
@@ -61,6 +62,7 @@ class DraftUIState
         currentPage = 1
         maxPage = 1
 
+/** Add Category Type to Hero */
 public enum CategoryType
     STRENGTH
     AGILITY
@@ -248,11 +250,11 @@ public function wireCategoryButtons()
             categoryBtns[idx].onClick() -> 
                 let pid = GetPlayerId(GetTriggerPlayer())
                 let st = getOrCreateState(pid)
-                let cname = categoryName[idx]
-                if st.categories.has(cname)
-                    st.categories.remove(cname)
+                let categoryType = categoryTypeArray[idx]
+                if st.categories.has(categoryType)
+                    st.categories.remove(categoryType)
                 else
-                    st.categories.add(cname)
+                    st.categories.add(categoryType)
                 st.currentPage = 1
                 refreshGrid(pid)
 
@@ -270,3 +272,13 @@ public function wirePageButtons()
                 if idx <= st.maxPage
                     st.currentPage = idx
                     refreshGrid(pid)
+
+init
+    categoryTypeArray[1] = CategoryType.STRENGTH
+    categoryTypeArray[2] = CategoryType.AGILITY
+    categoryTypeArray[3] = CategoryType.INTELLIGENCE
+    categoryTypeArray[4] = CategoryType.BRUISER
+    categoryTypeArray[5] = CategoryType.CARRY
+    categoryTypeArray[6] = CategoryType.SUPPORT
+    categoryTypeArray[7] = CategoryType.MELEE
+    categoryTypeArray[8] = CategoryType.RANGE
