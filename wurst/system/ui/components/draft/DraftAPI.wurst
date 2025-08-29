@@ -67,7 +67,8 @@ class DraftUIState
  * and stores a reference to the button frame. 
  */
 public class HeroDraft
-    int id
+    int sortOrder
+    int unitID
     string name
     string aftername
     string franchise
@@ -75,15 +76,17 @@ public class HeroDraft
     framehandle btn
 
     construct()
-        this.id = 0
+        this.sortOrder = 0
+        this.unitID = 0
         this.name = ""
         this.aftername = ""
         this.franchise = ""
         this.categories = new LinkedList<string>()
         this.btn = null
 
-    construct(int id, string name, string aftername, string franchise)
-        this.id = id
+    construct(int sortOrder, int unitID, string name, string aftername, string franchise)
+        this.sortOrder = sortOrder
+        this.unitID = unitID
         this.name = name
         this.aftername = aftername
         this.franchise = franchise
@@ -107,14 +110,15 @@ public class HeroDraft
     * Creates its button, wraps it in HeroDraft,  
     * and inserts into global lists and lookup maps. 
     */
-    function addHero(int id, string name, string aftername, string franchise)
-        this.id = id
+    function addHero(int sortOrder, int unitID, string name, string aftername, string franchise)
+        this.sortOrder = sortOrder
+        this.unitID = unitID
         this.name = name
         this.aftername = aftername
         this.franchise = franchise
         this.btn = btn(name)..setHeight(heroIconSize)..setWidth(heroIconSize)
         allHeroes.add(this)
-        heroById.put(this.id, this)
+        heroById.put(this.sortOrder, this)
 
 /** 
  * Ensure a DraftUIState exists for a player.  
@@ -260,14 +264,3 @@ public function wirePageButtons()
                 if idx <= st.maxPage
                     st.currentPage = idx
                     refreshGrid(pid)
-
-/** Create a LinkedList from up to 2 category strings. */
-public function makeCats(string s1, string s2, string rangeOrMelee) returns LinkedList<string>
-    let categoryList = new LinkedList<string>()
-    if s1 != ""
-        categoryList.add(s1)
-    if s2 != ""
-        categoryList.add(s2)
-    if rangeOrMelee != ""
-        categoryList.add(rangeOrMelee)
-    return categoryList

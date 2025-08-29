@@ -1,0 +1,97 @@
+package FrameLerp
+
+import Interpolation
+import ClosureTimers
+import FramePos // uses: setAbsPointTracked(..), getPos(..)
+
+/** Internal helper: compute number of animation steps.
+ *  Scales with duration to roughly 24 frames per second, but never less than 12.
+ */
+function calcSteps(real duration) returns int
+    return max(12, (duration * 24.0).toInt())
+
+/** Smoothly moves a frame from a starting position to an ending position over time.
+ *  - start: where the frame begins (vec2).
+ *  - stop: where the frame should end (vec2).
+ *  - duration: how many seconds the animation lasts.
+ *  - point: which framepoint to place (e.g. FRAMEPOINT_CENTER).
+ *
+ *  The frame is placed at `start` immediately, then interpolated step by step.
+ *  At the end it is snapped exactly to `stop`.
+ */
+public function moveLinear(framehandle f, vec2 start, vec2 stop, real duration, framepointtype point)
+    if duration <= 0.
+        setAbsPointTracked(f, point, stop.x, stop.y)
+        return
+
+    let steps = calcSteps(duration)
+    let dt = duration / steps.toReal()
+    var i = 0
+
+    setAbsPointTracked(f, point, start.x, start.y) // place at start first
+
+    doPeriodically(dt) cb ->
+        i++
+        let t = i.toReal() / steps.toReal()    // interpolation factor (0 → 1)
+        let pos = start.lerp(stop, t)
+        setAbsPointTracked(f, point, pos.x, pos.y)
+
+        if i >= steps
+            setAbsPointTracked(f, point, stop.x, stop.y) // snap to end
+            destroy cb
+
+/** Same as moveLinear, but always uses FRAMEPOINT_CENTER. */
+public function moveLinearCenter(framehandle f, vec2 start, vec2 stop, real duration)
+    moveLinear(f, start, stop, duration, FRAMEPOINT_CENTER)
+
+/** Moves a frame from its last tracked position to a new position over time.
+ *  - stop: target vec2 position.
+ *  If no tracked position exists yet, the frame snaps to `stop` immediately.
+ */
+public function moveLinearFromTracked(framehandle f, vec2 stop, real duration, framepointtype point)
+    let p = getPos(f)
+    if p == null
+        setAbsPointTracked(f, point, stop.x, stop.y)
+        return
+    moveLinear(f, vec2(p.x, p.y), stop, duration, point)
+
+/** Convenience overload: uses FRAMEPOINT_CENTER as anchor. */
+public function moveLinearFromTrackedCenter(framehandle f, vec2 stop, real duration)
+    moveLinearFromTracked(f, stop, duration, FRAMEPOINT_CENTER)
+
+/** Moves a frame by a “delta” from its tracked position.
+ *  - delta: the change in position (difference vector).
+ *           Example: delta = vec2(0.02, 0) moves the frame slightly to the right.
+ *  If no tracked position exists yet, nothing happens.
+ */
+public function moveLinearBy(framehandle f, vec2 delta, real duration, framepointtype point)
+    let p = getPos(f)
+    if p == null
+        return
+    let start = vec2(p.x, p.y)
+    let stop  = start + delta
+    moveLinear(f, start, stop, duration, point)
+
+/** Convenience overload: uses FRAMEPOINT_CENTER as anchor. */
+public function moveLinearByCenter(framehandle f, vec2 delta, real duration)
+    moveLinearBy(f, delta, duration, FRAMEPOINT_CENTER)
+
+/** Moves a frame between two FramePos objects (absolute placement).
+ *  Useful if you already have tracked positions stored.
+ */
+public function animateFrameMove(framehandle f, FramePos start, FramePos target, real duration)
+    let steps = calcSteps(duration)
+    let dt = duration / steps.toReal()
+    var i = 0
+
+    doPeriodically(dt) cb ->
+        i++
+        let t = i.toReal() / steps.toReal()
+        let cur = start.lerp(target, t)
+        BlzFrameClearAllPoints(f)
+        BlzFrameSetAbsPoint(f, FRAMEPOINT_CENTER, cur.x, cur.y)
+
+        if i >= steps
+            BlzFrameClearAllPoints(f)
+            BlzFrameSetAbsPoint(f, FRAMEPOINT_CENTER, target.x, target.y)
+            destroy cb

@@ -1,0 +1,40 @@
+---
+layout: compress
+---
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+
+{% include head.html %}
+
+<body class="landing-page">
+
+    <div class="page-wrapper">
+
+        {% include fullheader.html %}
+
+        <div class="cards-section text-center">
+            <div class="container text-center">
+
+                <h2 class="title">{{ page.heading }}</h2>
+
+                <!-- INTRO -->
+                <div class="intro">{{ content }}</div>
+
+                {% include navigation.html navigation=page.navigation %}
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+    {% include footer.html %}
+
+</body>
+
+</html>

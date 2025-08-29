@@ -22,13 +22,13 @@ import DraftAPI
 
 public function defineHeroes()
     new HeroDraft()
-    ..addHero(1, "Wendy", "Marvell", "Fairy Tail")
+    ..addHero(1, 0, "Wendy", "Marvell", "Fairy Tail")
     ..addCategory("Intelligence", "Carry", "Range")
 
     new HeroDraft()
-    ..addHero(2, "Yone", "Azakana", "League of Legends")
+    ..addHero(2, 0, "Yone", "Azakana", "League of Legends")
     ..addCategory("Agility", "Melee")
 
     new HeroDraft()
-    ..addHero(3, "Saitama", "", "One Punch Man")
+    ..addHero(3, 0, "Saitama", "", "One Punch Man")
     ..addCategory("Strength")
