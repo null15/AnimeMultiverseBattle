@@ -15,8 +15,6 @@
 //***************************************************************************
 
 globals
-    // Generated
-    trigger                 gg_trg_Melee_Initialization = null
 endglobals
 
 function InitGlobals takes nothing returns nothing
@@ -27,44 +25,6 @@ endfunction
 //*  Custom Script Code
 //*
 //***************************************************************************
-
-//***************************************************************************
-//*
-//*  Triggers
-//*
-//***************************************************************************
-
-//===========================================================================
-// Trigger: Melee Initialization
-//
-// Default melee game initialization for all players
-//===========================================================================
-function Trig_Melee_Initialization_Actions takes nothing returns nothing
-    call MeleeStartingVisibility(  )
-    call MeleeStartingHeroLimit(  )
-    call MeleeGrantHeroItems(  )
-    call MeleeStartingResources(  )
-    call MeleeClearExcessUnits(  )
-    call MeleeStartingUnits(  )
-    call MeleeStartingAI(  )
-    call MeleeInitVictoryDefeat(  )
-endfunction
-
-//===========================================================================
-function InitTrig_Melee_Initialization takes nothing returns nothing
-    set gg_trg_Melee_Initialization = CreateTrigger(  )
-    call TriggerAddAction( gg_trg_Melee_Initialization, function Trig_Melee_Initialization_Actions )
-endfunction
-
-//===========================================================================
-function InitCustomTriggers takes nothing returns nothing
-    call InitTrig_Melee_Initialization(  )
-endfunction
-
-//===========================================================================
-function RunInitializationTriggers takes nothing returns nothing
-    call ConditionalTriggerExecute( gg_trg_Melee_Initialization )
-endfunction
 
 //***************************************************************************
 //*
@@ -81,12 +41,316 @@ function InitCustomPlayerSlots takes nothing returns nothing
     call SetPlayerRaceSelectable( Player(0), true )
     call SetPlayerController( Player(0), MAP_CONTROL_USER )
 
+    // Player 1
+    call SetPlayerStartLocation( Player(1), 1 )
+    call SetPlayerColor( Player(1), ConvertPlayerColor(1) )
+    call SetPlayerRacePreference( Player(1), RACE_PREF_ORC )
+    call SetPlayerRaceSelectable( Player(1), true )
+    call SetPlayerController( Player(1), MAP_CONTROL_USER )
+
+    // Player 2
+    call SetPlayerStartLocation( Player(2), 2 )
+    call SetPlayerColor( Player(2), ConvertPlayerColor(2) )
+    call SetPlayerRacePreference( Player(2), RACE_PREF_UNDEAD )
+    call SetPlayerRaceSelectable( Player(2), true )
+    call SetPlayerController( Player(2), MAP_CONTROL_USER )
+
+    // Player 3
+    call SetPlayerStartLocation( Player(3), 3 )
+    call SetPlayerColor( Player(3), ConvertPlayerColor(3) )
+    call SetPlayerRacePreference( Player(3), RACE_PREF_NIGHTELF )
+    call SetPlayerRaceSelectable( Player(3), true )
+    call SetPlayerController( Player(3), MAP_CONTROL_USER )
+
+    // Player 4
+    call SetPlayerStartLocation( Player(4), 4 )
+    call SetPlayerColor( Player(4), ConvertPlayerColor(4) )
+    call SetPlayerRacePreference( Player(4), RACE_PREF_HUMAN )
+    call SetPlayerRaceSelectable( Player(4), true )
+    call SetPlayerController( Player(4), MAP_CONTROL_USER )
+
+    // Player 5
+    call SetPlayerStartLocation( Player(5), 5 )
+    call SetPlayerColor( Player(5), ConvertPlayerColor(5) )
+    call SetPlayerRacePreference( Player(5), RACE_PREF_ORC )
+    call SetPlayerRaceSelectable( Player(5), true )
+    call SetPlayerController( Player(5), MAP_CONTROL_USER )
+
+    // Player 6
+    call SetPlayerStartLocation( Player(6), 6 )
+    call SetPlayerColor( Player(6), ConvertPlayerColor(6) )
+    call SetPlayerRacePreference( Player(6), RACE_PREF_UNDEAD )
+    call SetPlayerRaceSelectable( Player(6), true )
+    call SetPlayerController( Player(6), MAP_CONTROL_USER )
+
+    // Player 7
+    call SetPlayerStartLocation( Player(7), 7 )
+    call SetPlayerColor( Player(7), ConvertPlayerColor(7) )
+    call SetPlayerRacePreference( Player(7), RACE_PREF_NIGHTELF )
+    call SetPlayerRaceSelectable( Player(7), true )
+    call SetPlayerController( Player(7), MAP_CONTROL_USER )
+
+    // Player 8
+    call SetPlayerStartLocation( Player(8), 8 )
+    call SetPlayerColor( Player(8), ConvertPlayerColor(8) )
+    call SetPlayerRacePreference( Player(8), RACE_PREF_HUMAN )
+    call SetPlayerRaceSelectable( Player(8), true )
+    call SetPlayerController( Player(8), MAP_CONTROL_USER )
+
+    // Player 9
+    call SetPlayerStartLocation( Player(9), 9 )
+    call SetPlayerColor( Player(9), ConvertPlayerColor(9) )
+    call SetPlayerRacePreference( Player(9), RACE_PREF_ORC )
+    call SetPlayerRaceSelectable( Player(9), true )
+    call SetPlayerController( Player(9), MAP_CONTROL_USER )
+
+    // Player 10
+    call SetPlayerStartLocation( Player(10), 10 )
+    call SetPlayerColor( Player(10), ConvertPlayerColor(10) )
+    call SetPlayerRacePreference( Player(10), RACE_PREF_UNDEAD )
+    call SetPlayerRaceSelectable( Player(10), true )
+    call SetPlayerController( Player(10), MAP_CONTROL_COMPUTER )
+
+    // Player 11
+    call SetPlayerStartLocation( Player(11), 11 )
+    call SetPlayerColor( Player(11), ConvertPlayerColor(11) )
+    call SetPlayerRacePreference( Player(11), RACE_PREF_NIGHTELF )
+    call SetPlayerRaceSelectable( Player(11), true )
+    call SetPlayerController( Player(11), MAP_CONTROL_COMPUTER )
+
 endfunction
 
 function InitCustomTeams takes nothing returns nothing
     // Force: TRIGSTR_006
     call SetPlayerTeam( Player(0), 0 )
+    call SetPlayerState( Player(0), PLAYER_STATE_ALLIED_VICTORY, 1 )
+    call SetPlayerTeam( Player(1), 0 )
+    call SetPlayerState( Player(1), PLAYER_STATE_ALLIED_VICTORY, 1 )
+    call SetPlayerTeam( Player(2), 0 )
+    call SetPlayerState( Player(2), PLAYER_STATE_ALLIED_VICTORY, 1 )
+    call SetPlayerTeam( Player(3), 0 )
+    call SetPlayerState( Player(3), PLAYER_STATE_ALLIED_VICTORY, 1 )
+    call SetPlayerTeam( Player(4), 0 )
+    call SetPlayerState( Player(4), PLAYER_STATE_ALLIED_VICTORY, 1 )
+    call SetPlayerTeam( Player(10), 0 )
+    call SetPlayerState( Player(10), PLAYER_STATE_ALLIED_VICTORY, 1 )
 
+    //   Allied
+    call SetPlayerAllianceStateAllyBJ( Player(0), Player(1), true )
+    call SetPlayerAllianceStateAllyBJ( Player(0), Player(2), true )
+    call SetPlayerAllianceStateAllyBJ( Player(0), Player(3), true )
+    call SetPlayerAllianceStateAllyBJ( Player(0), Player(4), true )
+    call SetPlayerAllianceStateAllyBJ( Player(0), Player(10), true )
+    call SetPlayerAllianceStateAllyBJ( Player(1), Player(0), true )
+    call SetPlayerAllianceStateAllyBJ( Player(1), Player(2), true )
+    call SetPlayerAllianceStateAllyBJ( Player(1), Player(3), true )
+    call SetPlayerAllianceStateAllyBJ( Player(1), Player(4), true )
+    call SetPlayerAllianceStateAllyBJ( Player(1), Player(10), true )
+    call SetPlayerAllianceStateAllyBJ( Player(2), Player(0), true )
+    call SetPlayerAllianceStateAllyBJ( Player(2), Player(1), true )
+    call SetPlayerAllianceStateAllyBJ( Player(2), Player(3), true )
+    call SetPlayerAllianceStateAllyBJ( Player(2), Player(4), true )
+    call SetPlayerAllianceStateAllyBJ( Player(2), Player(10), true )
+    call SetPlayerAllianceStateAllyBJ( Player(3), Player(0), true )
+    call SetPlayerAllianceStateAllyBJ( Player(3), Player(1), true )
+    call SetPlayerAllianceStateAllyBJ( Player(3), Player(2), true )
+    call SetPlayerAllianceStateAllyBJ( Player(3), Player(4), true )
+    call SetPlayerAllianceStateAllyBJ( Player(3), Player(10), true )
+    call SetPlayerAllianceStateAllyBJ( Player(4), Player(0), true )
+    call SetPlayerAllianceStateAllyBJ( Player(4), Player(1), true )
+    call SetPlayerAllianceStateAllyBJ( Player(4), Player(2), true )
+    call SetPlayerAllianceStateAllyBJ( Player(4), Player(3), true )
+    call SetPlayerAllianceStateAllyBJ( Player(4), Player(10), true )
+    call SetPlayerAllianceStateAllyBJ( Player(10), Player(0), true )
+    call SetPlayerAllianceStateAllyBJ( Player(10), Player(1), true )
+    call SetPlayerAllianceStateAllyBJ( Player(10), Player(2), true )
+    call SetPlayerAllianceStateAllyBJ( Player(10), Player(3), true )
+    call SetPlayerAllianceStateAllyBJ( Player(10), Player(4), true )
+
+    //   Shared Vision
+    call SetPlayerAllianceStateVisionBJ( Player(0), Player(1), true )
+    call SetPlayerAllianceStateVisionBJ( Player(0), Player(2), true )
+    call SetPlayerAllianceStateVisionBJ( Player(0), Player(3), true )
+    call SetPlayerAllianceStateVisionBJ( Player(0), Player(4), true )
+    call SetPlayerAllianceStateVisionBJ( Player(0), Player(10), true )
+    call SetPlayerAllianceStateVisionBJ( Player(1), Player(0), true )
+    call SetPlayerAllianceStateVisionBJ( Player(1), Player(2), true )
+    call SetPlayerAllianceStateVisionBJ( Player(1), Player(3), true )
+    call SetPlayerAllianceStateVisionBJ( Player(1), Player(4), true )
+    call SetPlayerAllianceStateVisionBJ( Player(1), Player(10), true )
+    call SetPlayerAllianceStateVisionBJ( Player(2), Player(0), true )
+    call SetPlayerAllianceStateVisionBJ( Player(2), Player(1), true )
+    call SetPlayerAllianceStateVisionBJ( Player(2), Player(3), true )
+    call SetPlayerAllianceStateVisionBJ( Player(2), Player(4), true )
+    call SetPlayerAllianceStateVisionBJ( Player(2), Player(10), true )
+    call SetPlayerAllianceStateVisionBJ( Player(3), Player(0), true )
+    call SetPlayerAllianceStateVisionBJ( Player(3), Player(1), true )
+    call SetPlayerAllianceStateVisionBJ( Player(3), Player(2), true )
+    call SetPlayerAllianceStateVisionBJ( Player(3), Player(4), true )
+    call SetPlayerAllianceStateVisionBJ( Player(3), Player(10), true )
+    call SetPlayerAllianceStateVisionBJ( Player(4), Player(0), true )
+    call SetPlayerAllianceStateVisionBJ( Player(4), Player(1), true )
+    call SetPlayerAllianceStateVisionBJ( Player(4), Player(2), true )
+    call SetPlayerAllianceStateVisionBJ( Player(4), Player(3), true )
+    call SetPlayerAllianceStateVisionBJ( Player(4), Player(10), true )
+    call SetPlayerAllianceStateVisionBJ( Player(10), Player(0), true )
+    call SetPlayerAllianceStateVisionBJ( Player(10), Player(1), true )
+    call SetPlayerAllianceStateVisionBJ( Player(10), Player(2), true )
+    call SetPlayerAllianceStateVisionBJ( Player(10), Player(3), true )
+    call SetPlayerAllianceStateVisionBJ( Player(10), Player(4), true )
+
+    // Force: TRIGSTR_018
+    call SetPlayerTeam( Player(5), 1 )
+    call SetPlayerState( Player(5), PLAYER_STATE_ALLIED_VICTORY, 1 )
+    call SetPlayerTeam( Player(6), 1 )
+    call SetPlayerState( Player(6), PLAYER_STATE_ALLIED_VICTORY, 1 )
+    call SetPlayerTeam( Player(7), 1 )
+    call SetPlayerState( Player(7), PLAYER_STATE_ALLIED_VICTORY, 1 )
+    call SetPlayerTeam( Player(8), 1 )
+    call SetPlayerState( Player(8), PLAYER_STATE_ALLIED_VICTORY, 1 )
+    call SetPlayerTeam( Player(9), 1 )
+    call SetPlayerState( Player(9), PLAYER_STATE_ALLIED_VICTORY, 1 )
+    call SetPlayerTeam( Player(11), 1 )
+    call SetPlayerState( Player(11), PLAYER_STATE_ALLIED_VICTORY, 1 )
+
+    //   Allied
+    call SetPlayerAllianceStateAllyBJ( Player(5), Player(6), true )
+    call SetPlayerAllianceStateAllyBJ( Player(5), Player(7), true )
+    call SetPlayerAllianceStateAllyBJ( Player(5), Player(8), true )
+    call SetPlayerAllianceStateAllyBJ( Player(5), Player(9), true )
+    call SetPlayerAllianceStateAllyBJ( Player(5), Player(11), true )
+    call SetPlayerAllianceStateAllyBJ( Player(6), Player(5), true )
+    call SetPlayerAllianceStateAllyBJ( Player(6), Player(7), true )
+    call SetPlayerAllianceStateAllyBJ( Player(6), Player(8), true )
+    call SetPlayerAllianceStateAllyBJ( Player(6), Player(9), true )
+    call SetPlayerAllianceStateAllyBJ( Player(6), Player(11), true )
+    call SetPlayerAllianceStateAllyBJ( Player(7), Player(5), true )
+    call SetPlayerAllianceStateAllyBJ( Player(7), Player(6), true )
+    call SetPlayerAllianceStateAllyBJ( Player(7), Player(8), true )
+    call SetPlayerAllianceStateAllyBJ( Player(7), Player(9), true )
+    call SetPlayerAllianceStateAllyBJ( Player(7), Player(11), true )
+    call SetPlayerAllianceStateAllyBJ( Player(8), Player(5), true )
+    call SetPlayerAllianceStateAllyBJ( Player(8), Player(6), true )
+    call SetPlayerAllianceStateAllyBJ( Player(8), Player(7), true )
+    call SetPlayerAllianceStateAllyBJ( Player(8), Player(9), true )
+    call SetPlayerAllianceStateAllyBJ( Player(8), Player(11), true )
+    call SetPlayerAllianceStateAllyBJ( Player(9), Player(5), true )
+    call SetPlayerAllianceStateAllyBJ( Player(9), Player(6), true )
+    call SetPlayerAllianceStateAllyBJ( Player(9), Player(7), true )
+    call SetPlayerAllianceStateAllyBJ( Player(9), Player(8), true )
+    call SetPlayerAllianceStateAllyBJ( Player(9), Player(11), true )
+    call SetPlayerAllianceStateAllyBJ( Player(11), Player(5), true )
+    call SetPlayerAllianceStateAllyBJ( Player(11), Player(6), true )
+    call SetPlayerAllianceStateAllyBJ( Player(11), Player(7), true )
+    call SetPlayerAllianceStateAllyBJ( Player(11), Player(8), true )
+    call SetPlayerAllianceStateAllyBJ( Player(11), Player(9), true )
+
+    //   Shared Vision
+    call SetPlayerAllianceStateVisionBJ( Player(5), Player(6), true )
+    call SetPlayerAllianceStateVisionBJ( Player(5), Player(7), true )
+    call SetPlayerAllianceStateVisionBJ( Player(5), Player(8), true )
+    call SetPlayerAllianceStateVisionBJ( Player(5), Player(9), true )
+    call SetPlayerAllianceStateVisionBJ( Player(5), Player(11), true )
+    call SetPlayerAllianceStateVisionBJ( Player(6), Player(5), true )
+    call SetPlayerAllianceStateVisionBJ( Player(6), Player(7), true )
+    call SetPlayerAllianceStateVisionBJ( Player(6), Player(8), true )
+    call SetPlayerAllianceStateVisionBJ( Player(6), Player(9), true )
+    call SetPlayerAllianceStateVisionBJ( Player(6), Player(11), true )
+    call SetPlayerAllianceStateVisionBJ( Player(7), Player(5), true )
+    call SetPlayerAllianceStateVisionBJ( Player(7), Player(6), true )
+    call SetPlayerAllianceStateVisionBJ( Player(7), Player(8), true )
+    call SetPlayerAllianceStateVisionBJ( Player(7), Player(9), true )
+    call SetPlayerAllianceStateVisionBJ( Player(7), Player(11), true )
+    call SetPlayerAllianceStateVisionBJ( Player(8), Player(5), true )
+    call SetPlayerAllianceStateVisionBJ( Player(8), Player(6), true )
+    call SetPlayerAllianceStateVisionBJ( Player(8), Player(7), true )
+    call SetPlayerAllianceStateVisionBJ( Player(8), Player(9), true )
+    call SetPlayerAllianceStateVisionBJ( Player(8), Player(11), true )
+    call SetPlayerAllianceStateVisionBJ( Player(9), Player(5), true )
+    call SetPlayerAllianceStateVisionBJ( Player(9), Player(6), true )
+    call SetPlayerAllianceStateVisionBJ( Player(9), Player(7), true )
+    call SetPlayerAllianceStateVisionBJ( Player(9), Player(8), true )
+    call SetPlayerAllianceStateVisionBJ( Player(9), Player(11), true )
+    call SetPlayerAllianceStateVisionBJ( Player(11), Player(5), true )
+    call SetPlayerAllianceStateVisionBJ( Player(11), Player(6), true )
+    call SetPlayerAllianceStateVisionBJ( Player(11), Player(7), true )
+    call SetPlayerAllianceStateVisionBJ( Player(11), Player(8), true )
+    call SetPlayerAllianceStateVisionBJ( Player(11), Player(9), true )
+
+endfunction
+
+function InitAllyPriorities takes nothing returns nothing
+
+    call SetStartLocPrioCount( 0, 9 )
+    call SetStartLocPrio( 0, 0, 1, MAP_LOC_PRIO_LOW )
+    call SetStartLocPrio( 0, 1, 2, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 0, 2, 3, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 0, 3, 4, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 0, 4, 5, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 0, 5, 6, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 0, 6, 7, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 0, 7, 8, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 0, 8, 9, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 1, 2 )
+    call SetStartLocPrio( 1, 0, 2, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 1, 1, 3, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 2, 1 )
+    call SetStartLocPrio( 2, 0, 1, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 3, 4 )
+    call SetStartLocPrio( 3, 0, 0, MAP_LOC_PRIO_LOW )
+    call SetStartLocPrio( 3, 1, 1, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 3, 2, 2, MAP_LOC_PRIO_LOW )
+    call SetStartLocPrio( 3, 3, 4, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 4, 2 )
+    call SetStartLocPrio( 4, 0, 3, MAP_LOC_PRIO_LOW )
+    call SetStartLocPrio( 4, 1, 5, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 5, 2 )
+    call SetStartLocPrio( 5, 0, 4, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 5, 1, 6, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 6, 2 )
+    call SetStartLocPrio( 6, 0, 5, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 6, 1, 7, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 7, 2 )
+    call SetStartLocPrio( 7, 0, 6, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 7, 1, 8, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 8, 2 )
+    call SetStartLocPrio( 8, 0, 7, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 8, 1, 9, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 9, 1 )
+    call SetStartLocPrio( 9, 0, 8, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 10, 3 )
+    call SetStartLocPrio( 10, 0, 1, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 10, 1, 5, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 10, 2, 6, MAP_LOC_PRIO_HIGH )
+
+    call SetEnemyStartLocPrioCount( 10, 4 )
+    call SetEnemyStartLocPrio( 10, 0, 4, MAP_LOC_PRIO_HIGH )
+    call SetEnemyStartLocPrio( 10, 1, 7, MAP_LOC_PRIO_HIGH )
+    call SetEnemyStartLocPrio( 10, 2, 11, MAP_LOC_PRIO_HIGH )
+
+    call SetStartLocPrioCount( 11, 3 )
+    call SetStartLocPrio( 11, 0, 1, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 11, 1, 2, MAP_LOC_PRIO_HIGH )
+    call SetStartLocPrio( 11, 2, 3, MAP_LOC_PRIO_LOW )
+
+    call SetEnemyStartLocPrioCount( 11, 7 )
+    call SetEnemyStartLocPrio( 11, 0, 1, MAP_LOC_PRIO_HIGH )
+    call SetEnemyStartLocPrio( 11, 1, 3, MAP_LOC_PRIO_LOW )
+    call SetEnemyStartLocPrio( 11, 2, 6, MAP_LOC_PRIO_HIGH )
+    call SetEnemyStartLocPrio( 11, 3, 7, MAP_LOC_PRIO_HIGH )
+    call SetEnemyStartLocPrio( 11, 4, 8, MAP_LOC_PRIO_HIGH )
+    call SetEnemyStartLocPrio( 11, 5, 9, MAP_LOC_PRIO_HIGH )
+    call SetEnemyStartLocPrio( 11, 6, 10, MAP_LOC_PRIO_HIGH )
 endfunction
 
 //***************************************************************************
@@ -105,8 +369,6 @@ function main takes nothing returns nothing
     call SetMapMusic( "Music", true, 0 )
     call InitBlizzard(  )
     call InitGlobals(  )
-    call InitCustomTriggers(  )
-    call RunInitializationTriggers(  )
 
 endfunction
 
@@ -119,15 +381,26 @@ endfunction
 function config takes nothing returns nothing
     call SetMapName( "TRIGSTR_001" )
     call SetMapDescription( "TRIGSTR_003" )
-    call SetPlayers( 1 )
-    call SetTeams( 1 )
-    call SetGamePlacement( MAP_PLACEMENT_USE_MAP_SETTINGS )
+    call SetPlayers( 12 )
+    call SetTeams( 12 )
+    call SetGamePlacement( MAP_PLACEMENT_TEAMS_TOGETHER )
 
-    call DefineStartLocation( 0, 832.0, -3200.0 )
+    call DefineStartLocation( 0, 320.0, 576.0 )
+    call DefineStartLocation( 1, -3904.0, 2304.0 )
+    call DefineStartLocation( 2, -3328.0, 256.0 )
+    call DefineStartLocation( 3, -1600.0, 3136.0 )
+    call DefineStartLocation( 4, 1024.0, 3648.0 )
+    call DefineStartLocation( 5, 2880.0, 2688.0 )
+    call DefineStartLocation( 6, 3968.0, 1088.0 )
+    call DefineStartLocation( 7, 3904.0, -640.0 )
+    call DefineStartLocation( 8, 2176.0, -1856.0 )
+    call DefineStartLocation( 9, 512.0, -2688.0 )
+    call DefineStartLocation( 10, -3456.0, -2944.0 )
+    call DefineStartLocation( 11, -5632.0, -2176.0 )
 
     // Player setup
     call InitCustomPlayerSlots(  )
-    call SetPlayerSlotAvailable( Player(0), MAP_CONTROL_USER )
-    call InitGenericPlayerSlots(  )
+    call InitCustomTeams(  )
+    call InitAllyPriorities(  )
 endfunction
 
