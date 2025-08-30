@@ -1,8 +1,34 @@
-G - Full Cowling: Deku's abilities cost Health instead of mana. When at low HP (below 30%(or other value)), gains "Danger Sense" - increase movement speed and deals damage to nearby enemies every xxx seconds, but abilities cost more HP, during danger sense.
-Q - Blackwhip: Long-range whip that pulls deku to target location/enemy / Enhanced: Short-range whip that pulls enemy to deku. Scales with mising hp.
-W - Smokescreen: Small smoke cloud around deku, that damages and grants invisibility for x seconds / Enhanced: Large area smokescreen damages and blinds enemies and gives deku a burst of movement speed. Scales with mising hp.
-E - Fa Jin: Deku gains energy charges by moving (x charge per X units traveled). Theres a limit of charges. Other abilities consume charges to become enhanced.
-R - Float: Deku floats giving massive movement speed (perhaps max speed) / Enhanced: Extended float duration and can pass through units
-T - Delaware Smash (Air Force): Ranged air projectile / Enhanced: Detroit Smash 100%: Massive AoE nuke that damages deku. Scales with missing hp.
+# Hero Kit – <Name>
 
-Suggestions/Changes:
+**Franchise:** <Anime>  
+**Role/Tags:** <Carry / Support / Melee / etc>  
+**Resource:** HP / Mana / Charges
+
+## G – Full Cowling
+- Abilities cost **Health** instead of mana.
+- **Danger Sense** at <30% HP: +Move Speed, pulse damage every Xs; abilities cost extra HP.
+
+## Q – Blackwhip
+- Base: Long-range whip pulls Deku to target point/target.
+- **Enhanced** (Fa Jin charges): Short-range whip pulls enemy to Deku. Scales with **missing HP**.
+
+## W – Smokescreen
+- Base: Small cloud, damages + invisibility for Xs.
+- **Enhanced**: Larger AoE, blinds, MS burst. Scales with **missing HP**.
+
+## E – Fa Jin
+- Gains charges by moving (1 per X units). Cap = N.
+- Other abilities consume charges to **Enhance**.
+
+## R – Float
+- Base: Float + huge move speed.
+- **Enhanced**: Longer duration, unit-walk.
+
+## T – Delaware Smash (Air Force)
+- Base: Ranged air projectile.
+- **Enhanced**: **Detroit Smash 100%** — big AoE nuke, self-damage. Scales with **missing HP**.
+
+---
+
+### Suggestions / Changes
+- <your notes here>

@@ -5,19 +5,18 @@ import TableLayout
 import TableLayoutExt
 import GridTableWrapper
 import DraftHeroData
+import ClosureTimers
 
 function setupCategoryButtons()
     string array categoryName
-    // categoryName[1] = "Strength"
-    // categoryName[2] = "Agility"
     categoryName[1] = "AgiIcon.dds"
-    categoryName[2] = "AgiIcon2.dds"
-    categoryName[3] = "AgiIcon3.dds"
-    categoryName[4] = "AgiIcon4.dds"
-    categoryName[5] = "AgiIcon5.dds"
-    categoryName[6] = "AgiIcon6.dds"
-    categoryName[7] = "AgiIcon7.dds"
-    categoryName[8] = "AgiIcon8.dds"
+    categoryName[2] = "AgiIcon.dds"
+    categoryName[3] = "AgiIcon.dds"
+    categoryName[4] = "AgiIcon.dds"
+    categoryName[5] = "AgiIcon.dds"
+    categoryName[6] = "AgiIcon.dds"
+    categoryName[7] = "AgiIcon.dds"
+    categoryName[8] = "AgiIcon.dds"
 
     for i = 1 to MAX_CATEGORIES
         categoryBtns[i] = imgBtn(categoryName[i])
@@ -92,9 +91,9 @@ function draftScreen()
     defaultFrameParent = GAME_UI
 
 init
-    // setupCategoryButtons()
-    // setupPageButtons()
+    setupCategoryButtons()
+    setupPageButtons()
 
-    // // Slight delay before creating draft UI, avoids any frame issues since creating frames at init can cause bugs
-    // doAfter(0.1) ->
-    //     draftScreen()
+    // Slight delay before creating draft UI, avoids any frame issues since creating frames at init can cause bugs
+    doAfter(0.1) ->
+        draftScreen()

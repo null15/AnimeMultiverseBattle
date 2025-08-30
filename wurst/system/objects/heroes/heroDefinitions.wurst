@@ -7,7 +7,9 @@ import Icons
 import AbilityIds
 import ObjectIds
 import Units
+import Sounds
 
+// Example, fill out rest, until we have 30 Characters in Total
 public constant         WENDY_MARVELL           = compiletime(HERO_ID_GEN.next())
 public constant         AZAKANA_YONE            = compiletime(HERO_ID_GEN.next())
 public constant         SAITAMA                 = compiletime(HERO_ID_GEN.next())
@@ -19,203 +21,79 @@ public constant         RIMURU_TEMPEST          = compiletime(HERO_ID_GEN.next()
 public constant         TANJIRO_KAMADO          = compiletime(HERO_ID_GEN.next())
 public constant         SHIGEO_KAGEYAMA         = compiletime(HERO_ID_GEN.next())
 
+function makeProto(
+	// Unit General Info
+	int heroID, int baseID, string icon, string displayName, string properName, string description, string model, real modelScale,
+	// Unit Attributes
+	int strBase, real strPerLevel,
+	int agiBase, real agiPerLevel,
+	int intBase, real intPerLevel,
+	// Unit HP, MP, Armor
+	int hpMax, real hpReg,
+	int mpBase, int mpMax, real mpReg,
+	int armorBase, int armorPerLevel,
+	// Unit Misc
+	string normalSpells, string heroSpells,
+	int attack1DamageBase, int attack1Range, string attack1ProjectileArt, int attack1ProjectileSpeed,
+	int attack2DamageBase, int attack2Range, string attack2ProjectileArt, int attack2ProjectileSpeed)
+	new HeroDefinition(heroID, baseID)
+	..setIconGameInterface(icon)..setIconScoreScreen(icon)
+	..setName(displayName)..setProperNames(properName)..setDescription(description)
+	..setModelFile(model)..setScalingValue(modelScale)
+	..setStartingStrength(strBase)..setStrengthPerLevel(strPerLevel)
+	..setStartingAgility(agiBase)..setAgilityPerLevel(agiPerLevel)
+	..setStartingIntelligence(intBase)..setIntelligencePerLevel(intPerLevel)
+	..setHitPointsMaximumBase(hpMax)..setHitPointsRegenerationRate(hpReg)
+	..setManaInitialAmount(mpBase)..setManaMaximum(mpMax)..setManaRegeneration(mpReg)
+	..setDefenseBase(armorBase)..setDefenseUpgradeBonus(armorPerLevel)
+	..setNormalAbilities(commaList(normalSpells))..setHeroAbilities(commaList(heroSpells))
+	..setAttack1DamageBase(attack1DamageBase)..setAttack1Range(attack1Range)..setAttack1ProjectileArt(attack1ProjectileArt)..setAttack1ProjectileSpeed(attack1ProjectileSpeed)
+	..setAttack2DamageBase(attack2DamageBase)..setAttack2Range(attack2Range)..setAttack2ProjectileArt(attack2ProjectileArt)..setAttack2ProjectileSpeed(attack2ProjectileSpeed)
+	// Hardcoded values, consistent across all heroes
+	..setAcquisitionRange(600) 					// and so on, example to you
+	..hideHeroDeathMsg(true) 					// another example for you
+	..setAttacksEnabled(3)						// Is 3 correct here, to have Attack1 and Attack2 enabled?
+	..setArmorType(ArmorType.Hero)				// Another hardcoded example
+	..setArmorSoundType(ArmorSoundType.Flesh)	// another example
+	..setMovementType(MovementType.Foot)		// another example
+	..setMovementSound(Sounds.footmanPissed1)	// another example
+	..setSpeedBase(250)							// another example
+	..setSpeedMaximum(522)						// another example
+	..setSpeedMinimum(0)						// another example
+	..setTurnRate(150)							// another example
+	..setCollisionSize(150)						// another example
+	..setDeathType(1)							// I do not know what this is, investigate this
+	..setCanFlee(true)							// another example
+	..setTargetedAs(commaList("Hero", "Ground"))// another example
+	..setAttack1TargetsAllowed(commaList("Hero", "Ground", "Vulnerable", "Enemy", "Neutral", "Organic")) 	// I want this attack to only be able to attack these and ground, not AIR
+	..setAttack2TargetsAllowed(commaList("Hero", "Air", "Vulnerable", "Enemy", "Neutral", "Organic"))		// Same as above, but only for AIR
+	// and so on, fill out the rest
+
 @compiletime function generateHeroObject()
-	new HeroDefinition(WENDY_MARVELL, UnitIds.paladin)
-		..setIconGameInterface(Icons.bTNFootman)
-		..setIconScoreScreen("")
-		..setModelFile(Units.theCaptain1)
-		..setCollisionSize(0)
-		..setNormalAbilities(commaList(GHOST_VIS_ID, AbilityIds.inventory))
-		..setHotkey("")
-		..setProperNames(commaList("Mike", "Jason", "Rocky", "Herold", "Arthur", "Chev"))
-		..setProperNamesUsed(6)
-		..setName("|cff084294Wendy Marvell")
-		..setManaInitialAmount(0)
-		..setStartingAgility(0)
-		..setStartingIntelligence(0)
-		..setStartingStrength(0)
-		..setHitPointsMaximumBase(300)
-		..setAgilityPerLevel(0)
-		..setStrengthPerLevel(0)
-		..setIntelligencePerLevel(0)
-		..hideHeroDeathMsg(true)
-
-	new HeroDefinition(AZAKANA_YONE, UnitIds.paladin)
-		..setIconGameInterface(Icons.bTNFootman)
-		..setIconScoreScreen("")
-		..setModelFile(Units.theCaptain1)
-		..setCollisionSize(0)
-		..setNormalAbilities(commaList(GHOST_VIS_ID, AbilityIds.inventory))
-		..setHotkey("")
-		..setProperNames(commaList("Mike", "Jason", "Rocky", "Herold", "Arthur", "Chev"))
-		..setProperNamesUsed(6)
-		..setName("|cffd85757Azakana Yone")
-		..setManaInitialAmount(0)
-		..setStartingAgility(0)
-		..setStartingIntelligence(0)
-		..setStartingStrength(0)
-		..setHitPointsMaximumBase(300)
-		..setAgilityPerLevel(0)
-		..setStrengthPerLevel(0)
-		..setIntelligencePerLevel(0)
-		..hideHeroDeathMsg(true)
-
-	new HeroDefinition(SAITAMA, UnitIds.paladin)
-		..setIconGameInterface(Icons.bTNFootman)
-		..setIconScoreScreen("")
-		..setModelFile(Units.theCaptain1)
-		..setCollisionSize(0)
-		..setNormalAbilities(commaList(GHOST_VIS_ID, AbilityIds.inventory))
-		..setHotkey("")
-		..setProperNames(commaList("Mike", "Jason", "Rocky", "Herold", "Arthur", "Chev"))
-		..setProperNamesUsed(6)
-		..setName("|cffd8e43aSaitama")
-		..setManaInitialAmount(0)
-		..setStartingAgility(0)
-		..setStartingIntelligence(0)
-		..setStartingStrength(0)
-		..setHitPointsMaximumBase(300)
-		..setAgilityPerLevel(0)
-		..setStrengthPerLevel(0)
-		..setIntelligencePerLevel(0)
-		..hideHeroDeathMsg(true)
-
-	new HeroDefinition(EDWARD_ELRIC, UnitIds.paladin)
-		..setIconGameInterface(Icons.bTNFootman)
-		..setIconScoreScreen("")
-		..setModelFile(Units.theCaptain1)
-		..setCollisionSize(0)
-		..setNormalAbilities(commaList(GHOST_VIS_ID, AbilityIds.inventory))
-		..setHotkey("")
-		..setProperNames(commaList("Mike", "Jason", "Rocky", "Herold", "Arthur", "Chev"))
-		..setProperNamesUsed(6)
-		..setName("|cffd8e43aEdward Elric")
-		..setManaInitialAmount(0)
-		..setStartingAgility(0)
-		..setStartingIntelligence(0)
-		..setStartingStrength(0)
-		..setHitPointsMaximumBase(300)
-		..setAgilityPerLevel(0)
-		..setStrengthPerLevel(0)
-		..setIntelligencePerLevel(0)
-		..hideHeroDeathMsg(true)
-
-	new HeroDefinition(MIKASA_ACKERMAN, UnitIds.paladin)
-		..setIconGameInterface(Icons.bTNFootman)
-		..setIconScoreScreen("")
-		..setModelFile(Units.theCaptain1)
-		..setCollisionSize(0)
-		..setNormalAbilities(commaList(GHOST_VIS_ID, AbilityIds.inventory))
-		..setHotkey("")
-		..setProperNames(commaList("Mike", "Jason", "Rocky", "Herold", "Arthur", "Chev"))
-		..setProperNamesUsed(6)
-		..setName("|cffd8e43aMikasa Ackerman")
-		..setManaInitialAmount(0)
-		..setStartingAgility(0)
-		..setStartingIntelligence(0)
-		..setStartingStrength(0)
-		..setHitPointsMaximumBase(300)
-		..setAgilityPerLevel(0)
-		..setStrengthPerLevel(0)
-		..setIntelligencePerLevel(0)
-		..hideHeroDeathMsg(true)
-
-	new HeroDefinition(SENKU_ISHIGAMI, UnitIds.paladin)
-		..setIconGameInterface(Icons.bTNFootman)
-		..setIconScoreScreen("")
-		..setModelFile(Units.theCaptain1)
-		..setCollisionSize(0)
-		..setNormalAbilities(commaList(GHOST_VIS_ID, AbilityIds.inventory))
-		..setHotkey("")
-		..setProperNames(commaList("Mike", "Jason", "Rocky", "Herold", "Arthur", "Chev"))
-		..setProperNamesUsed(6)
-		..setName("|cffd8e43aSenku Ishigami")
-		..setManaInitialAmount(0)
-		..setStartingAgility(0)
-		..setStartingIntelligence(0)
-		..setStartingStrength(0)
-		..setHitPointsMaximumBase(300)
-		..setAgilityPerLevel(0)
-		..setStrengthPerLevel(0)
-		..setIntelligencePerLevel(0)
-		..hideHeroDeathMsg(true)
-
-	new HeroDefinition(JOTARO_KUJO, UnitIds.paladin)
-		..setIconGameInterface(Icons.bTNFootman)
-		..setIconScoreScreen("")
-		..setModelFile(Units.theCaptain1)
-		..setCollisionSize(0)
-		..setNormalAbilities(commaList(GHOST_VIS_ID, AbilityIds.inventory))
-		..setHotkey("")
-		..setProperNames(commaList("Mike", "Jason", "Rocky", "Herold", "Arthur", "Chev"))
-		..setProperNamesUsed(6)
-		..setName("|cffd8e43aJotaro Kujo")
-		..setManaInitialAmount(0)
-		..setStartingAgility(0)
-		..setStartingIntelligence(0)
-		..setStartingStrength(0)
-		..setHitPointsMaximumBase(300)
-		..setAgilityPerLevel(0)
-		..setStrengthPerLevel(0)
-		..setIntelligencePerLevel(0)
-		..hideHeroDeathMsg(true)
-
-	new HeroDefinition(RIMURU_TEMPEST, UnitIds.paladin)
-		..setIconGameInterface(Icons.bTNFootman)
-		..setIconScoreScreen("")
-		..setModelFile(Units.theCaptain1)
-		..setCollisionSize(0)
-		..setNormalAbilities(commaList(GHOST_VIS_ID, AbilityIds.inventory))
-		..setHotkey("")
-		..setProperNames(commaList("Mike", "Jason", "Rocky", "Herold", "Arthur", "Chev"))
-		..setProperNamesUsed(6)
-		..setName("|cffd8e43aRimuru Tempest")
-		..setManaInitialAmount(0)
-		..setStartingAgility(0)
-		..setStartingIntelligence(0)
-		..setStartingStrength(0)
-		..setHitPointsMaximumBase(300)
-		..setAgilityPerLevel(0)
-		..setStrengthPerLevel(0)
-		..setIntelligencePerLevel(0)
-		..hideHeroDeathMsg(true)
-
-	new HeroDefinition(TANJIRO_KAMADO, UnitIds.paladin)
-		..setIconGameInterface(Icons.bTNFootman)
-		..setIconScoreScreen("")
-		..setModelFile(Units.theCaptain1)
-		..setCollisionSize(0)
-		..setNormalAbilities(commaList(GHOST_VIS_ID, AbilityIds.inventory))
-		..setHotkey("")
-		..setProperNames(commaList("Mike", "Jason", "Rocky", "Herold", "Arthur", "Chev"))
-		..setProperNamesUsed(6)
-		..setName("|cffd8e43aTanjiro Kamado")
-		..setManaInitialAmount(0)
-		..setStartingAgility(0)
-		..setStartingIntelligence(0)
-		..setStartingStrength(0)
-		..setHitPointsMaximumBase(300)
-		..setAgilityPerLevel(0)
-		..setStrengthPerLevel(0)
-		..setIntelligencePerLevel(0)
-		..hideHeroDeathMsg(true)
-
-	new HeroDefinition(SHIGEO_KAGEYAMA, UnitIds.paladin)
-		..setIconGameInterface(Icons.bTNFootman)
-		..setIconScoreScreen("")
-		..setModelFile(Units.theCaptain1)
-		..setCollisionSize(0)
-		..setNormalAbilities(commaList(GHOST_VIS_ID, AbilityIds.inventory))
-		..setHotkey("")
-		..setProperNames(commaList("Mike", "Jason", "Rocky", "Herold", "Arthur", "Chev"))
-		..setProperNamesUsed(6)
-		..setName("|cffd8e43aShigeo Kageyama")
-		..setManaInitialAmount(0)
-		..setStartingAgility(0)
-		..setStartingIntelligence(0)
-		..setStartingStrength(0)
-		..setHitPointsMaximumBase(300)
-		..setAgilityPerLevel(0)
-		..setStrengthPerLevel(0)
-		..setIntelligencePerLevel(0)
-		..hideHeroDeathMsg(true)
+	makeProto(AZAKANA_YONE, UnitIds.paladin,
+	// Icon, Display Name, Proper Name
+	Icons.bTNAcorn, "Yone", "The Dreamwalker",
+	// Description
+	"A spirit walking in the Human realm, wielding two swords, also known as The Dreamwalker",
+	// Model, Model Scale
+	Units.theCaptain1, 1.2,
+	// Strength Base, Strength Per Level
+	9, 1,
+	// Agility Base, Agility Per Level
+	24, 4,
+	// Intelligence Base, Intelligence Per Level
+	14, 2,
+	// Health, Health Regeneration
+	650, 3,
+	// Initial Mana, Max Mana, Mana Regeneration
+	300, 300, 5,
+	// Armor Base, Armor Per Level
+	1, 1,
+	// Normal Abilities
+	commaList(AbilityIds.inventory),
+	// Hero Abilities
+	commaList(AbilityIds.thunderClap, AbilityIds.mirrorImage, AbilityIds.criticalStrike),
+	// Attack 1 Base, Attack 1 Range, Attack 1 Range Art, Attack 1 Range Projectile Speed
+	24, 150, null, 0,
+	// Attack 2 Base, Attack 2 Range, Attack 2 Range Art, Attack 2 Range Projectile Speed
+	12, 175, null, 0)
