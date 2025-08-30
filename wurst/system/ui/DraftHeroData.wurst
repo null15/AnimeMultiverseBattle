@@ -1,5 +1,6 @@
 package DraftHeroData
 import DraftAPI
+import heroDefinitions
 
 //                                                      To-Do
 //
@@ -8,27 +9,57 @@ import DraftAPI
 // 1.   Instead of hard-limit of 2 categories per hero, use vararg, so a hero can have one tag, or two, or even three [DONE]
 //
 // 2.   Fix animation so hero icons always animate when coming into vision. Perhaps when "updating" grid, remove all and display new "cells" from position 1 to end?
-//      Then on Row 2, assign position 11 as the start and have it just pop up out of nowhere like position 1, and for Row 3, position 21.
+//      Then on Row 2, assign position 11 as the start and have it just pop up out of nowhere like position 1, and for Row 3, position 21. [DONE]
 //   
 // 3.   Team 1 Picked heroes and Team 2 Picked heroes, the way they are structured, can't display PlayerName, find best fix. Perhaps h1 row img row pad h1 row img, rinse repeat?      
 //
-// 4.   How about disabling category buttons that would display 0 heroes? If you selected {Intelligence} and {Support}, {Strength} then gets disabled because it would show 0 heroes.
+// 4.   How about disabling category buttons that would display 0 heroes? If you selected {Intelligence} and {Support}, {Strength} then gets disabled because it would show 0 heroes. [DONE]
 //
-// 5.   Add "UnitID" to "addHero" class.
+// 5.   Add "UnitID" to "addHero" class. [DONE]
 //
-// 6.   Alphabetic sort, perhaps a list that is manually sorted already, and use ID to check their "sorting order". AI can easily manually sort a list.
-//      I noticed that moving to a new page displays the list in the correct order again.
+// 6.   Alphabetic sort, perhaps a list that is manually sorted already, and use ID to check their "sorting order". AI can easily manually sort a list. [DONE]
+//
 //
 
 public function defineHeroes()
-    new HeroDraft()
-    ..addHero(1, 0, "Wendy", "Marvell", "Fairy Tail")
-    ..addCategory("Intelligence", "Carry", "Range")
+    // ===> Keep this list sorted alphabetically by (Name, Aftername) <===
 
     new HeroDraft()
-    ..addHero(2, 0, "Yone", "Azakana", "League of Legends")
-    ..addCategory("Agility", "Melee")
+    ..addHero(EDWARD_ELRIC, "Edward", "Elric", "Fullmetal Alchemist")
+    ..addCategory(CategoryType.INTELLIGENCE, CategoryType.MELEE, CategoryType.CARRY)
 
     new HeroDraft()
-    ..addHero(3, 0, "Saitama", "", "One Punch Man")
-    ..addCategory("Strength")
+    ..addHero(JOTARO_KUJO, "Jotaro", "Kujo", "JoJo's Bizarre Adventure")
+    ..addCategory(CategoryType.STRENGTH, CategoryType.BRUISER, CategoryType.MELEE)
+
+    new HeroDraft()
+    ..addHero(MIKASA_ACKERMAN, "Mikasa", "Ackerman", "Attack on Titan")
+    ..addCategory(CategoryType.AGILITY, CategoryType.MELEE)
+
+    new HeroDraft()
+    ..addHero(RIMURU_TEMPEST, "Rimuru", "Tempest", "That Time I Got Reincarnated as a Slime")
+    ..addCategory(CategoryType.INTELLIGENCE, CategoryType.SUPPORT, CategoryType.CARRY)
+
+    new HeroDraft()
+    ..addHero(SAITAMA, "Saitama", "", "One Punch Man")
+    ..addCategory(CategoryType.STRENGTH, CategoryType.MELEE, CategoryType.CARRY)
+
+    new HeroDraft()
+    ..addHero(SENKU_ISHIGAMI, "Senku", "Ishigami", "Dr. Stone")
+    ..addCategory(CategoryType.INTELLIGENCE, CategoryType.SUPPORT, CategoryType.RANGE)
+
+    new HeroDraft()
+    ..addHero(SHIGEO_KAGEYAMA, "Shigeo", "Kageyama", "Mob Psycho 100")
+    ..addCategory(CategoryType.INTELLIGENCE)
+
+    new HeroDraft()
+    ..addHero(TANJIRO_KAMADO, "Tanjiro", "Kamado", "Demon Slayer")
+    ..addCategory(CategoryType.AGILITY, CategoryType.MELEE)
+
+    new HeroDraft()
+    ..addHero(WENDY_MARVELL, "Wendy", "Marvell", "Fairy Tail")
+    ..addCategory(CategoryType.INTELLIGENCE, CategoryType.SUPPORT, CategoryType.CARRY)
+
+    new HeroDraft()
+    ..addHero(AZAKANA_YONE, "Yone", "Azakana", "League of Legends")
+    ..addCategory(CategoryType.AGILITY)

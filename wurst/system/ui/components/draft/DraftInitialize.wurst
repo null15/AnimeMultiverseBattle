@@ -8,12 +8,13 @@ import ClosureTimers
 import DraftHeroData
 
 function setupCategoryButtons()
+    string array categoryName
     categoryName[1] = "Strength"
     categoryName[2] = "Agility"
     categoryName[3] = "Intelligence"
-    categoryName[4] = "Carry"
-    categoryName[5] = "Support"
-    categoryName[6] = "Nuker"
+    categoryName[4] = "Bruiser"
+    categoryName[5] = "Carry"
+    categoryName[6] = "Support"
     categoryName[7] = "Melee"
     categoryName[8] = "Range"
 
@@ -21,6 +22,7 @@ function setupCategoryButtons()
         categoryBtns[i] = btn(categoryName[i])
             ..setWidth(categoryPageSize)
             ..setHeight(categoryPageSize)
+        registerCategoryLabel(i, categoryName[i])
 
 function setupPageButtons()
     for i = 1 to MAX_PAGES
@@ -32,18 +34,16 @@ function draftScreen()
     hideOriginFrames()
     getFrame("ConsoleUIBackdrop", 0).setSize(0, 0.0001)
 
-    // Create parent frame to bypass 4:3 restriction
     let parent = createFrame("FRAME", "DraftParent", getFrame("ConsoleUIBackdrop", 0), "", 0)
     defaultFrameParent = parent
 
-    // Create hero objects to display (its the hero icons on Draft)
     defineHeroes()
+    buildHeroButtons()
+    setupHeroButtons()
 
-    // Timer Frame
     let timerTable = new TableLayout(0.1, 0.05)
         ..row()..add(p("Timer"))..growX()
 
-    // Category and Paged buttons Table
     let categoryPageButtonsTable = new TableLayout(0.2, 0.07)
         ..row()
         ..add(categoryBtns[1])..add(categoryBtns[2])..add(categoryBtns[3])..add(categoryBtns[4])
@@ -51,25 +51,20 @@ function draftScreen()
         ..add(h1(""))..growX()
         ..add(pageBtns[1])..add(pageBtns[2])..add(pageBtns[3])
 
-    // Team 1 picked heroes Table
     let team1PickedTable = new TableLayout(0.125, 0.5)
         ..row()..add(p("Header L"))..growX()
 
-    // Team 2 picked heroes table
     let team2PickedTable = new TableLayout(0.125, 0.5)
         ..row()..add(p("Header R"))..growX()
 
-    // Grid displaying the Hero Icons
     heroGrid = new GridCell(0.4, 0.25, 10, heroIconSize, heroIconSize, 0.006)
 
-    // Main Table that displays Category and Page buttons, and the Hero Icons
     let mainTable = new TableLayout(0.8, 0.5)
         ..row()..center()
         ..add(categoryPageButtonsTable.createFramedContainer(parent))..growX()
         ..row()
         ..add(heroGrid.createFramedContainer(parent))..growX()
 
-    // Table containing all the Draft Tables
     let rootTable = new TableLayout(1.0, 0.6)
         ..row()..center()
         ..add(timerTable.createFramedContainer(parent))..padBot(0.005)
@@ -78,25 +73,21 @@ function draftScreen()
         ..add(mainTable.createFramedContainer(parent))..growX()
         ..add(team2PickedTable.createFramedContainer(parent))
 
-    // Root frame of the Root Table
     let rootFrame = rootTable.createFrame()
         ..clearAllPoints()
         ..setAbsPoint(FRAMEPOINT_CENTER, 0.4, 0.3)
     rootTable.applyToCascade(rootFrame)
 
-    // Create the onClick Events for Category and Page buttons
     wireCategoryButtons()
     wirePageButtons()
 
-    // Investigate this, and re-code it potentially:
     let pidLocal = GetPlayerId(GetLocalPlayer())
     let st = getOrCreateState(pidLocal)
     st.currentPage = 1
     shownNow.clear()
     refreshGrid(pidLocal)
-    // To here
+    updateCategoryButtonsVisual(pidLocal) // initial ON/TRUE visuals
 
-    // Reset defaultFrameParent back to the GAME_UI
     defaultFrameParent = GAME_UI
 
 init
