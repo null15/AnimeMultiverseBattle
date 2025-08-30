@@ -7,9 +7,8 @@ import Icons
 import AbilityIds
 import ObjectIds
 import Units
-import Sounds
 
-// Example, fill out rest, until we have 30 Characters in Total
+// === Constants: 30 unique hero ids ===
 public constant         WENDY_MARVELL           = compiletime(HERO_ID_GEN.next())
 public constant         AZAKANA_YONE            = compiletime(HERO_ID_GEN.next())
 public constant         SAITAMA                 = compiletime(HERO_ID_GEN.next())
@@ -21,7 +20,32 @@ public constant         RIMURU_TEMPEST          = compiletime(HERO_ID_GEN.next()
 public constant         TANJIRO_KAMADO          = compiletime(HERO_ID_GEN.next())
 public constant         SHIGEO_KAGEYAMA         = compiletime(HERO_ID_GEN.next())
 
-function makeProto(
+// +20 more to reach 30 total
+public constant         NARUTO_UZUMAKI          = compiletime(HERO_ID_GEN.next())
+public constant         SASUKE_UCHIHA           = compiletime(HERO_ID_GEN.next())
+public constant         SAKURA_HARUNO           = compiletime(HERO_ID_GEN.next())
+public constant         KAKASHI_HATAKE          = compiletime(HERO_ID_GEN.next())
+public constant         MONKEY_D_LUFFY          = compiletime(HERO_ID_GEN.next())
+public constant         RORONOA_ZORO            = compiletime(HERO_ID_GEN.next())
+public constant         NAMI                     = compiletime(HERO_ID_GEN.next())
+public constant         SANJI_VINSMOKE          = compiletime(HERO_ID_GEN.next())
+public constant         ICHIGO_KUROSAKI         = compiletime(HERO_ID_GEN.next())
+public constant         RUKIA_KUCHIKI           = compiletime(HERO_ID_GEN.next())
+public constant         GOJO_SATORU             = compiletime(HERO_ID_GEN.next())
+public constant         YUJI_ITADORI            = compiletime(HERO_ID_GEN.next())
+public constant         MEGUMI_FUSHIGURO        = compiletime(HERO_ID_GEN.next())
+public constant         NOBARA_KUGISAKI         = compiletime(HERO_ID_GEN.next())
+public constant         LIGHT_YAGAMI            = compiletime(HERO_ID_GEN.next())
+public constant         LEVI_ACKERMAN           = compiletime(HERO_ID_GEN.next())
+public constant         EREN_YEAGER             = compiletime(HERO_ID_GEN.next())
+public constant         GOKU_SON                = compiletime(HERO_ID_GEN.next())
+public constant         VEGETA_PRINCE           = compiletime(HERO_ID_GEN.next())
+public constant         NATSU_DRAGNEEL          = compiletime(HERO_ID_GEN.next())
+public constant         ERZA_SCARLET            = compiletime(HERO_ID_GEN.next())
+
+// === Helper: create a fully-initialized hero prototype ===
+// Note: not annotated; called by the @compiletime driver below
+function makeHero(
 	// Unit General Info
 	int heroID, int baseID, string icon, string displayName, string properName, string description, string model, real modelScale,
 	// Unit Attributes
@@ -36,64 +60,590 @@ function makeProto(
 	string normalSpells, string heroSpells,
 	int attack1DamageBase, int attack1Range, string attack1ProjectileArt, int attack1ProjectileSpeed,
 	int attack2DamageBase, int attack2Range, string attack2ProjectileArt, int attack2ProjectileSpeed)
-	new HeroDefinition(heroID, baseID)
+	let h = new HeroDefinition(heroID, baseID)
 	..setIconGameInterface(icon)..setIconScoreScreen(icon)
-	..setName(displayName)..setProperNames(properName)..setDescription(description)
+	..setName("|cffd8e43a" + displayName)
+	..setProperNames(properName)
+	..setDescription(description)
 	..setModelFile(model)..setScalingValue(modelScale)
+	// Stats
 	..setStartingStrength(strBase)..setStrengthPerLevel(strPerLevel)
 	..setStartingAgility(agiBase)..setAgilityPerLevel(agiPerLevel)
 	..setStartingIntelligence(intBase)..setIntelligencePerLevel(intPerLevel)
+	// HP/MP/Armor
 	..setHitPointsMaximumBase(hpMax)..setHitPointsRegenerationRate(hpReg)
 	..setManaInitialAmount(mpBase)..setManaMaximum(mpMax)..setManaRegeneration(mpReg)
 	..setDefenseBase(armorBase)..setDefenseUpgradeBonus(armorPerLevel)
-	..setNormalAbilities(commaList(normalSpells))..setHeroAbilities(commaList(heroSpells))
-	..setAttack1DamageBase(attack1DamageBase)..setAttack1Range(attack1Range)..setAttack1ProjectileArt(attack1ProjectileArt)..setAttack1ProjectileSpeed(attack1ProjectileSpeed)
-	..setAttack2DamageBase(attack2DamageBase)..setAttack2Range(attack2Range)..setAttack2ProjectileArt(attack2ProjectileArt)..setAttack2ProjectileSpeed(attack2ProjectileSpeed)
-	// Hardcoded values, consistent across all heroes
-	..setAcquisitionRange(600) 					// and so on, example to you
-	..hideHeroDeathMsg(true) 					// another example for you
-	..setAttacksEnabled(3)						// Is 3 correct here, to have Attack1 and Attack2 enabled?
-	..setArmorType(ArmorType.Hero)				// Another hardcoded example
-	..setArmorSoundType(ArmorSoundType.Flesh)	// another example
-	..setMovementType(MovementType.Foot)		// another example
-	..setMovementSound(Sounds.footmanPissed1)	// another example
-	..setSpeedBase(250)							// another example
-	..setSpeedMaximum(522)						// another example
-	..setSpeedMinimum(0)						// another example
-	..setTurnRate(150)							// another example
-	..setCollisionSize(150)						// another example
-	..setDeathType(1)							// I do not know what this is, investigate this
-	..setCanFlee(true)							// another example
-	..setTargetedAs(commaList("Hero", "Ground"))// another example
-	..setAttack1TargetsAllowed(commaList("Hero", "Ground", "Vulnerable", "Enemy", "Neutral", "Organic")) 	// I want this attack to only be able to attack these and ground, not AIR
-	..setAttack2TargetsAllowed(commaList("Hero", "Air", "Vulnerable", "Enemy", "Neutral", "Organic"))		// Same as above, but only for AIR
-	// and so on, fill out the rest
+	// Abilities (already pre-commaJoined by caller)
+	..setNormalAbilities(normalSpells)..setHeroAbilities(heroSpells)
+	// Targeting / classification
+	..setTargetedAs(commaList("Hero", "Ground"))
+	..setArmorType(ArmorType.Hero)
+	..setArmorSoundType(ArmorSoundType.Flesh)
+	// Movement
+	..setMovementType(MovementType.Foot)
+	..setSpeedBase(290)..setSpeedMaximum(522)..setSpeedMinimum(0)
+	..setTurnRate(0.60)
+	..setCollisionSize(32)
+	..setAcquisitionRange(600)
+	// UI and misc
+	..setHotkey("")
+	..setIconScoreScreen(icon)
+	..hideHeroDeathMsg(true)
+	..setNameEditorSuffix("")
+	// Death type: 1 = Does not decay (hero-like corpses)
+	..setDeathType(1)
+	..setCanFlee(true)
+	// Attacks
+	..setAttacksEnabled(3) // 1=A1, 2=A2, 3=both
+	..setAttack1ShowUI(true)..setAttack2ShowUI(true)
+	..setAttack1TargetsAllowed(commaList("Hero", "Ground", "Vulnerable", "Enemy", "Neutral", "Organic"))
+	..setAttack2TargetsAllowed(commaList("Hero", "Air", "Vulnerable", "Enemy", "Neutral", "Organic"))
+	// Attack 1 profile (melee/ground by default)
+	..setAttack1DamageBase(attack1DamageBase)
+	..setAttack1DamageNumberofDice(2)..setAttack1DamageSidesperDie(6)
+	..setAttack1CooldownTime(1.60)
+	..setAttack1Range(attack1Range)
+	..setAttack1AttackType(AttackType.Hero)
+	..setAttack1WeaponType(WeaponType.MissileBounce)
+	..setAttack1ProjectileArt(attack1ProjectileArt)
+	..setAttack1ProjectileSpeed(attack1ProjectileSpeed)
+	..setAttack1ProjectileHomingEnabled(false)
+	..setAttack1RangeMotionBuffer(0.10)
+	..setAttack1MaximumNumberofTargets(1)
+	..setAttack1AreaofEffectFullDamage(0)..setAttack1AreaofEffectMediumDamage(0)..setAttack1AreaofEffectSmallDamage(0)
+	..setAttack1AreaofEffectTargets("")
+	..setAttack1AnimationDamagePoint(0.30)..setAttack1AnimationBackswingPoint(0.50)
+	..setAttack1DamageLossFactor(1.00)
+	..setAttack1DamageFactorSmall(1.00)..setAttack1DamageFactorMedium(1.00)
+	..setAttack1DamageSpillDistance(0)..setAttack1DamageSpillRadius(0)
+	// Attack 2 profile (ranged/air by default)
+	..setAttack2DamageBase(attack2DamageBase)
+	..setAttack2DamageNumberofDice(2)..setAttack2DamageSidesperDie(6)
+	..setAttack2CooldownTime(1.80)
+	..setAttack2Range(attack2Range)
+	..setAttack2AttackType(AttackType.Hero)
+	..setAttack2WeaponType(WeaponType.Missile)
+	..setAttack2ProjectileArt(attack2ProjectileArt)
+	..setAttack2ProjectileSpeed(attack2ProjectileSpeed)
+	..setAttack2ProjectileHomingEnabled(true)
+	..setAttack2RangeMotionBuffer(0.10)
+	..setAttack2MaximumNumberofTargets(1)
+	..setAttack2AreaofEffectFullDamage(0)..setAttack2AreaofEffectMediumDamage(0)..setAttack2AreaofEffectSmallDamage(0)
+	..setAttack2AreaofEffectTargets("")
+	..setAttack2AnimationDamagePoint(0.30)..setAttack2AnimationBackswingPoint(0.50)
+	..setAttack2DamageLossFactor(1.00)
+	..setAttack2DamageFactorSmall(1.00)..setAttack2DamageFactorMedium(1.00)
+	..setAttack2DamageSpillDistance(0)..setAttack2DamageSpillRadius(0)
+	// Portrait/extra visuals (safe defaults)
+	..setPortraitModelFile("")
+	..setArtSpecial("")
+	..setArtTarget("")
+
+	// Primary attribute auto-pick based on base stats
+	if strBase >= agiBase and strBase >= intBase
+		h..setPrimaryAttribute("Strength")
+	else if agiBase >= strBase and agiBase >= intBase
+		h..setPrimaryAttribute("Agility")
+	else
+		h..setPrimaryAttribute("Intelligence")
 
 @compiletime function generateHeroObject()
-	makeProto(AZAKANA_YONE, UnitIds.paladin,
-	// Icon, Display Name, Proper Name
-	Icons.bTNAcorn, "Yone", "The Dreamwalker",
-	// Description
-	"A spirit walking in the Human realm, wielding two swords, also known as The Dreamwalker",
-	// Model, Model Scale
-	Units.theCaptain1, 1.2,
-	// Strength Base, Strength Per Level
-	9, 1,
-	// Agility Base, Agility Per Level
-	24, 4,
-	// Intelligence Base, Intelligence Per Level
-	14, 2,
-	// Health, Health Regeneration
-	650, 3,
-	// Initial Mana, Max Mana, Mana Regeneration
-	300, 300, 5,
-	// Armor Base, Armor Per Level
-	1, 1,
-	// Normal Abilities
-	commaList(AbilityIds.inventory),
-	// Hero Abilities
-	commaList(AbilityIds.thunderClap, AbilityIds.mirrorImage, AbilityIds.criticalStrike),
-	// Attack 1 Base, Attack 1 Range, Attack 1 Range Art, Attack 1 Range Projectile Speed
-	24, 150, null, 0,
-	// Attack 2 Base, Attack 2 Range, Attack 2 Range Art, Attack 2 Range Projectile Speed
-	12, 175, null, 0)
+	// 1) Provided example kept, with minor sane defaults
+	makeHero(
+		AZAKANA_YONE, UnitIds.paladin,
+		Icons.bTNAcorn, "Yone", "The Dreamwalker",
+		"A spirit walking in the Human realm, wielding two swords, also known as The Dreamwalker",
+		Units.theCaptain1, 1.2,
+		9, 1,
+		24, 4,
+		14, 2,
+		650, 3,
+		300, 300, 5,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.thunderClap, AbilityIds.mirrorImage, AbilityIds.criticalStrike),
+		24, 150, "", 0,
+		12, 500, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
+
+	// 2) 29 more heroes (generic prototypes you can tweak later)
+	makeHero(
+		EDWARD_ELRIC, UnitIds.paladin,
+		Icons.bTNFootman, "Edward Elric", "Fullmetal Alchemist",
+		"A brilliant alchemist with a steel resolve.",
+		Units.theCaptain1, 1.10,
+		16, 2,
+		18, 2,
+		20, 3,
+		700, 2.5,
+		200, 300, 3.0,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.thunderClap, AbilityIds.bash, AbilityIds.criticalStrike),
+		26, 150, "", 0,
+		10, 500, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1100)
+
+	makeHero(
+		JOTARO_KUJO, UnitIds.paladin,
+		Icons.bTNFootman, "Jotaro Kujo", "JoJo's Bizarre Adventure",
+		"Stand user with unyielding will.",
+		Units.theCaptain1, 1.10,
+		22, 2.5,
+		18, 2,
+		16, 2,
+		775, 2.0,
+		150, 250, 2.5,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.stormBolt),
+		28, 150, "", 0,
+		8, 450, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1200)
+
+	makeHero(
+		MIKASA_ACKERMAN, UnitIds.paladin,
+		Icons.bTNFootman, "Mikasa Ackerman", "Attack on Titan",
+		"Elite soldier with blinding mobility.",
+		Units.theCaptain1, 1.05,
+		17, 2,
+		24, 3.5,
+		14, 2,
+		720, 2.5,
+		120, 200, 2.0,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.evasion, AbilityIds.criticalStrike, AbilityIds.mirrorImage),
+		25, 150, "", 0,
+		10, 600, "Abilities\\Weapons\\SentinelMissile\\SentinelMissile.mdl", 1100)
+
+	makeHero(
+		SENKU_ISHIGAMI, UnitIds.paladin,
+		Icons.bTNFootman, "Senku Ishigami", "Dr. Stone",
+		"Genius scientist who bends nature with brains.",
+		Units.theCaptain1, 1.00,
+		12, 1.5,
+		16, 2.0,
+		24, 3.5,
+		620, 2.0,
+		300, 450, 4.0,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.mirrorImage, AbilityIds.brillianceAura, AbilityIds.thunderClap),
+		18, 150, "", 0,
+		16, 700, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1200)
+
+	makeHero(
+		RIMURU_TEMPEST, UnitIds.paladin,
+		Icons.bTNFootman, "Rimuru Tempest", "That Time I Got Reincarnated as a Slime",
+		"A versatile being with countless skills.",
+		Units.theCaptain1, 1.10,
+		18, 2.0,
+		18, 2.0,
+		22, 3.0,
+		740, 3.0,
+		350, 500, 4.0,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.criticalStrike, AbilityIds.evasion),
+		22, 150, "", 0,
+		20, 650, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1100)
+
+	makeHero(
+		TANJIRO_KAMADO, UnitIds.paladin,
+		Icons.bTNFootman, "Tanjiro Kamado", "Demon Slayer",
+		"Determined swordsman with a pure heart.",
+		Units.theCaptain1, 1.05,
+		18, 2.2,
+		20, 3.0,
+		16, 2.0,
+		720, 2.8,
+		180, 300, 2.5,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.criticalStrike, AbilityIds.evasion, AbilityIds.bash),
+		26, 150, "", 0,
+		10, 500, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
+
+	makeHero(
+		SHIGEO_KAGEYAMA, UnitIds.paladin,
+		Icons.bTNFootman, "Shigeo Kageyama", "Mob Psycho 100",
+		"Quiet esper whose power erupts at 100%.",
+		Units.theCaptain1, 1.00,
+		14, 1.5,
+		14, 1.5,
+		26, 3.5,
+		650, 2.0,
+		400, 600, 4.5,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.thunderClap, AbilityIds.mirrorImage),
+		16, 150, "", 0,
+		22, 750, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1200)
+
+	makeHero(
+		SAITAMA, UnitIds.paladin,
+		Icons.bTNFootman, "Saitama", "One Punch Man",
+		"The hero for fun with overwhelming strength.",
+		Units.theCaptain1, 1.15,
+		30, 4.0,
+		22, 2.5,
+		12, 1.0,
+		900, 5.0,
+		100, 150, 1.5,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.thunderClap),
+		40, 150, "", 0,
+		0, 400, "", 0)
+
+	makeHero(
+		WENDY_MARVELL, UnitIds.paladin,
+		Icons.bTNFootman, "Wendy Marvell", "Fairy Tail",
+		"Sky Dragon Slayer who supports and heals.",
+		Units.theCaptain1, 1.00,
+		12, 1.6,
+		16, 2.2,
+		24, 3.2,
+		640, 2.4,
+		350, 500, 4.2,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.mirrorImage, AbilityIds.thunderClap),
+		14, 150, "", 0,
+		18, 650, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1100)
+
+	// === New batch ===
+	makeHero(
+		NARUTO_UZUMAKI, UnitIds.paladin,
+		Icons.bTNFootman, "Naruto Uzumaki", "Jinchuriki",
+		"Ninja of Konoha with indomitable spirit.",
+		Units.theCaptain1, 1.10,
+		20, 2.5,
+		22, 3.0,
+		16, 2.0,
+		780, 3.0,
+		200, 300, 2.5,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.mirrorImage, AbilityIds.criticalStrike, AbilityIds.evasion),
+		28, 150, "", 0,
+		10, 600, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1200)
+
+	makeHero(
+		SASUKE_UCHIHA, UnitIds.paladin,
+		Icons.bTNFootman, "Sasuke Uchiha", "Avenger",
+		"Prodigy with lightning-fast strikes.",
+		Units.theCaptain1, 1.10,
+		18, 2.2,
+		24, 3.2,
+		16, 2.2,
+		750, 2.5,
+		220, 320, 2.5,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.thunderClap, AbilityIds.criticalStrike, AbilityIds.evasion),
+		26, 150, "", 0,
+		12, 650, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1200)
+
+	makeHero(
+		SAKURA_HARUNO, UnitIds.paladin,
+		Icons.bTNFootman, "Sakura Haruno", "Medic Ninja",
+		"Healer with monstrous strength.",
+		Units.theCaptain1, 1.05,
+		22, 3.0,
+		18, 2.0,
+		18, 2.5,
+		780, 3.2,
+		260, 400, 3.2,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.brillianceAura, AbilityIds.thunderClap),
+		27, 150, "", 0,
+		10, 500, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1100)
+
+	makeHero(
+		KAKASHI_HATAKE, UnitIds.paladin,
+		Icons.bTNFootman, "Kakashi Hatake", "Copy Ninja",
+		"Calm tactician with countless techniques.",
+		Units.theCaptain1, 1.10,
+		20, 2.0,
+		22, 2.8,
+		20, 2.8,
+		760, 2.8,
+		300, 450, 3.5,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.mirrorImage, AbilityIds.stormBolt, AbilityIds.evasion),
+		26, 150, "", 0,
+		14, 600, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1200)
+
+	makeHero(
+		MONKEY_D_LUFFY, UnitIds.paladin,
+		Icons.bTNFootman, "Monkey D. Luffy", "Straw Hat",
+		"Rubber pirate with a big punch.",
+		Units.theCaptain1, 1.15,
+		26, 3.5,
+		22, 2.5,
+		14, 1.5,
+		850, 3.5,
+		120, 200, 1.5,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
+		32, 150, "", 0,
+		0, 400, "", 0)
+
+	makeHero(
+		RORONOA_ZORO, UnitIds.paladin,
+		Icons.bTNFootman, "Roronoa Zoro", "Pirate Hunter",
+		"Swordsman of three styles.",
+		Units.theCaptain1, 1.12,
+		28, 3.2,
+		20, 2.2,
+		12, 1.2,
+		840, 3.0,
+		120, 180, 1.2,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.criticalStrike, AbilityIds.bash, AbilityIds.evasion),
+		34, 150, "", 0,
+		0, 400, "", 0)
+
+	makeHero(
+		NAMI, UnitIds.paladin,
+		Icons.bTNFootman, "Nami", "Navigator",
+		"Clever navigator manipulating weather.",
+		Units.theCaptain1, 1.00,
+		12, 1.2,
+		18, 2.0,
+		24, 3.2,
+		620, 2.0,
+		350, 500, 4.0,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.mirrorImage, AbilityIds.thunderClap),
+		14, 150, "", 0,
+		18, 650, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1100)
+
+	makeHero(
+		SANJI_VINSMOKE, UnitIds.paladin,
+		Icons.bTNFootman, "Sanji", "Black Leg",
+		"Chef who fights with blazing kicks.",
+		Units.theCaptain1, 1.08,
+		22, 2.6,
+		24, 3.0,
+		14, 1.6,
+		780, 3.0,
+		160, 220, 1.6,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.evasion, AbilityIds.criticalStrike, AbilityIds.bash),
+		30, 150, "", 0,
+		0, 400, "", 0)
+
+	makeHero(
+		ICHIGO_KUROSAKI, UnitIds.paladin,
+		Icons.bTNFootman, "Ichigo Kurosaki", "Substitute Shinigami",
+		"Shinigami with overwhelming spirit power.",
+		Units.theCaptain1, 1.12,
+		24, 3.0,
+		20, 2.0,
+		18, 2.0,
+		820, 3.0,
+		220, 320, 2.0,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
+		32, 150, "", 0,
+		8, 500, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1200)
+
+	makeHero(
+		RUKIA_KUCHIKI, UnitIds.paladin,
+		Icons.bTNFootman, "Rukia Kuchiki", "Ice Wielder",
+		"Cool-headed shinigami with ice arts.",
+		Units.theCaptain1, 1.00,
+		14, 1.5,
+		18, 2.0,
+		24, 3.2,
+		650, 2.2,
+		360, 520, 4.0,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.thunderClap, AbilityIds.mirrorImage),
+		16, 150, "", 0,
+		20, 700, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1200)
+
+	makeHero(
+		GOJO_SATORU, UnitIds.paladin,
+		Icons.bTNFootman, "Satoru Gojo", "Limitless",
+		"The strongest sorcerer with infinity.",
+		Units.theCaptain1, 1.12,
+		22, 2.2,
+		22, 2.2,
+		26, 3.2,
+		780, 3.0,
+		420, 600, 5.0,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.thunderClap, AbilityIds.mirrorImage),
+		18, 200, "", 0,
+		24, 800, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1300)
+
+	makeHero(
+		YUJI_ITADORI, UnitIds.paladin,
+		Icons.bTNFootman, "Yuji Itadori", "Vessel",
+		"Athletic fighter carrying a curse.",
+		Units.theCaptain1, 1.05,
+		22, 2.6,
+		22, 2.6,
+		14, 1.6,
+		760, 3.0,
+		180, 240, 1.6,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
+		28, 150, "", 0,
+		0, 400, "", 0)
+
+	makeHero(
+		MEGUMI_FUSHIGURO, UnitIds.paladin,
+		Icons.bTNFootman, "Megumi Fushiguro", "Ten Shadows",
+		"Summoner with tactical mindset.",
+		Units.theCaptain1, 1.03,
+		16, 2.0,
+		20, 2.2,
+		22, 2.8,
+		700, 2.2,
+		300, 450, 3.5,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.mirrorImage, AbilityIds.stormBolt, AbilityIds.brillianceAura),
+		20, 150, "", 0,
+		18, 650, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1100)
+
+	makeHero(
+		NOBARA_KUGISAKI, UnitIds.paladin,
+		Icons.bTNFootman, "Nobara Kugisaki", "Straw Doll",
+		"Sorcerer using nails and hammers.",
+		Units.theCaptain1, 1.03,
+		18, 2.2,
+		20, 2.2,
+		18, 2.2,
+		720, 2.2,
+		240, 320, 2.2,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.stormBolt, AbilityIds.evasion, AbilityIds.criticalStrike),
+		24, 150, "", 0,
+		12, 600, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1100)
+
+	makeHero(
+		LIGHT_YAGAMI, UnitIds.paladin,
+		Icons.bTNFootman, "Light Yagami", "Kira",
+		"Genius with a dark mission.",
+		Units.theCaptain1, 1.00,
+		12, 1.0,
+		14, 1.0,
+		26, 3.8,
+		620, 1.8,
+		420, 600, 5.2,
+		0, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.mirrorImage, AbilityIds.thunderClap),
+		12, 150, "", 0,
+		24, 750, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1200)
+
+	makeHero(
+		LEVI_ACKERMAN, UnitIds.paladin,
+		Icons.bTNFootman, "Levi Ackerman", "Humanity's Strongest",
+		"A whirlwind of blades and precision.",
+		Units.theCaptain1, 1.06,
+		22, 2.8,
+		26, 3.2,
+		14, 1.4,
+		780, 3.0,
+		150, 220, 1.4,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.evasion, AbilityIds.criticalStrike, AbilityIds.bash),
+		30, 150, "", 0,
+		0, 400, "", 0)
+
+	makeHero(
+		EREN_YEAGER, UnitIds.paladin,
+		Icons.bTNFootman, "Eren Yeager", "Attack Titan",
+		"Driven by freedom and fury.",
+		Units.theCaptain1, 1.12,
+		26, 3.2,
+		20, 2.0,
+		14, 1.4,
+		880, 3.2,
+		150, 200, 1.4,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
+		32, 150, "", 0,
+		0, 400, "", 0)
+
+	makeHero(
+		GOKU_SON, UnitIds.paladin,
+		Icons.bTNFootman, "Goku", "Saiyan",
+		"Martial artist with limitless potential.",
+		Units.theCaptain1, 1.14,
+		28, 3.5,
+		24, 3.0,
+		16, 1.5,
+		900, 4.0,
+		200, 250, 1.5,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.criticalStrike, AbilityIds.bash, AbilityIds.evasion),
+		36, 150, "", 0,
+		14, 700, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1300)
+
+	makeHero(
+		VEGETA_PRINCE, UnitIds.paladin,
+		Icons.bTNFootman, "Vegeta", "Prince of Saiyans",
+		"Prideful warrior with explosive power.",
+		Units.theCaptain1, 1.14,
+		30, 3.4,
+		22, 2.6,
+		14, 1.4,
+		900, 3.6,
+		180, 220, 1.4,
+		4, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.criticalStrike, AbilityIds.bash, AbilityIds.thunderClap),
+		38, 150, "", 0,
+		16, 700, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1300)
+
+	makeHero(
+		NATSU_DRAGNEEL, UnitIds.paladin,
+		Icons.bTNFootman, "Natsu Dragneel", "Fire Dragon Slayer",
+		"Hot-headed mage breathing fire.",
+		Units.theCaptain1, 1.10,
+		26, 3.0,
+		22, 2.4,
+		16, 1.8,
+		820, 3.0,
+		240, 320, 2.0,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.thunderClap, AbilityIds.criticalStrike, AbilityIds.bash),
+		30, 150, "", 0,
+		10, 600, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1200)
+
+	makeHero(
+		ERZA_SCARLET, UnitIds.paladin,
+		Icons.bTNFootman, "Erza Scarlet", "Titania",
+		"Armored mage who requips weapons.",
+		Units.theCaptain1, 1.12,
+		28, 3.0,
+		22, 2.2,
+		16, 1.6,
+		860, 3.2,
+		200, 260, 1.6,
+		4, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
+		32, 150, "", 0,
+		12, 550, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
