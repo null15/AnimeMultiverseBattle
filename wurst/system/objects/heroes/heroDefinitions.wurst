@@ -8,7 +8,6 @@ import AbilityIds
 import ObjectIds
 import Units
 
-// === Constants: 30 unique hero ids ===
 public constant         WENDY_MARVELL           = compiletime(HERO_ID_GEN.next())
 public constant         AZAKANA_YONE            = compiletime(HERO_ID_GEN.next())
 public constant         SAITAMA                 = compiletime(HERO_ID_GEN.next())
@@ -19,8 +18,6 @@ public constant         JOTARO_KUJO             = compiletime(HERO_ID_GEN.next()
 public constant         RIMURU_TEMPEST          = compiletime(HERO_ID_GEN.next())
 public constant         TANJIRO_KAMADO          = compiletime(HERO_ID_GEN.next())
 public constant         SHIGEO_KAGEYAMA         = compiletime(HERO_ID_GEN.next())
-
-// +20 more to reach 30 total
 public constant         NARUTO_UZUMAKI          = compiletime(HERO_ID_GEN.next())
 public constant         SASUKE_UCHIHA           = compiletime(HERO_ID_GEN.next())
 public constant         SAKURA_HARUNO           = compiletime(HERO_ID_GEN.next())
@@ -42,6 +39,46 @@ public constant         GOKU_SON                = compiletime(HERO_ID_GEN.next()
 public constant         VEGETA_PRINCE           = compiletime(HERO_ID_GEN.next())
 public constant         NATSU_DRAGNEEL          = compiletime(HERO_ID_GEN.next())
 public constant         ERZA_SCARLET            = compiletime(HERO_ID_GEN.next())
+public constant 		IZUKU_MIDORIYA        	= compiletime(HERO_ID_GEN.next())
+public constant 		KATSUKI_BAKUGO        	= compiletime(HERO_ID_GEN.next())
+public constant 		SHOTO_TODOROKI        	= compiletime(HERO_ID_GEN.next())
+public constant 		ALL_MIGHT             	= compiletime(HERO_ID_GEN.next())
+public constant 		OCHACO_URARAKA        	= compiletime(HERO_ID_GEN.next())
+public constant 		NEZUKO_KAMADO         	= compiletime(HERO_ID_GEN.next())
+public constant 		ZENITSU_AGATSUMA      	= compiletime(HERO_ID_GEN.next())
+public constant 		INOSUKE_HASHIBIRA     	= compiletime(HERO_ID_GEN.next())
+public constant 		GIYU_TOMIOKA          	= compiletime(HERO_ID_GEN.next())
+public constant 		SHINOBU_KOCHO         	= compiletime(HERO_ID_GEN.next())
+public constant 		ALPHONSE_ELRIC        	= compiletime(HERO_ID_GEN.next())
+public constant 		ROY_MUSTANG           	= compiletime(HERO_ID_GEN.next())
+public constant 		RIZA_HAWKEYE          	= compiletime(HERO_ID_GEN.next())
+public constant 		SCAR                  	= compiletime(HERO_ID_GEN.next())
+public constant 		ARMIN_ARLERT          	= compiletime(HERO_ID_GEN.next())
+public constant 		ERWIN_SMITH           	= compiletime(HERO_ID_GEN.next())
+public constant 		HANGE_ZOE             	= compiletime(HERO_ID_GEN.next())
+public constant 		ANNIE_LEONHART        	= compiletime(HERO_ID_GEN.next())
+public constant 		USOPP                 	= compiletime(HERO_ID_GEN.next())
+public constant 		TONY_TONY_CHOPPER     	= compiletime(HERO_ID_GEN.next())
+public constant 		NICO_ROBIN            	= compiletime(HERO_ID_GEN.next())
+public constant 		FRANKY                	= compiletime(HERO_ID_GEN.next())
+public constant 		BROOK                 	= compiletime(HERO_ID_GEN.next())
+public constant 		JINBE                 	= compiletime(HERO_ID_GEN.next())
+public constant 		BYAKUYA_KUCHIKI       	= compiletime(HERO_ID_GEN.next())
+public constant 		KENPACHI_ZARAKI       	= compiletime(HERO_ID_GEN.next())
+public constant 		TOSHIRO_HITSUGAYA     	= compiletime(HERO_ID_GEN.next())
+public constant 		SOSUKE_AIZEN          	= compiletime(HERO_ID_GEN.next())
+public constant 		ULQUIORRA_CIFER       	= compiletime(HERO_ID_GEN.next())
+public constant 		ORIHIME_INOUE         	= compiletime(HERO_ID_GEN.next())
+public constant 		KENTO_NANAMI          	= compiletime(HERO_ID_GEN.next())
+public constant 		SUGURU_GETO           	= compiletime(HERO_ID_GEN.next())
+public constant 		RYOMEN_SUKUNA         	= compiletime(HERO_ID_GEN.next())
+public constant 		MAKI_ZENIN            	= compiletime(HERO_ID_GEN.next())
+public constant 		TOGE_INUMAKI          	= compiletime(HERO_ID_GEN.next())
+public constant 		PANDA                 	= compiletime(HERO_ID_GEN.next())
+public constant 		GOHAN_SON             	= compiletime(HERO_ID_GEN.next())
+public constant 		PICCOLO               	= compiletime(HERO_ID_GEN.next())
+public constant 		TRUNKS                	= compiletime(HERO_ID_GEN.next())
+public constant 		FRIEZA                	= compiletime(HERO_ID_GEN.next())
 
 // === Helper: create a fully-initialized hero prototype ===
 // Note: not annotated; called by the @compiletime driver below
@@ -647,3 +684,643 @@ function makeHero(
 		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
 		32, 150, "", 0,
 		12, 550, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
+		// === +40 new heroes (compiletime object data) ===
+	makeHero(
+		IZUKU_MIDORIYA, UnitIds.paladin,
+		Icons.bTNFootman, "Izuku Midoriya", "Deku",
+		"Aspiring hero harnessing One For All.",
+		Units.theCaptain1, 1.08,
+		20, 2.6,
+		24, 3.2,
+		16, 2.0,
+		780, 3.0,
+		220, 320, 2.2,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.criticalStrike, AbilityIds.evasion, AbilityIds.thunderClap),
+		28, 150, "", 0,
+		12, 600, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1200)
+
+	makeHero(
+		KATSUKI_BAKUGO, UnitIds.paladin,
+		Icons.bTNFootman, "Katsuki Bakugo", "Explosive",
+		"Hot-headed prodigy blasting through foes.",
+		Units.theCaptain1, 1.10,
+		24, 3.0,
+		22, 2.4,
+		14, 1.6,
+		820, 3.2,
+		160, 240, 1.8,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.thunderClap, AbilityIds.criticalStrike, AbilityIds.bash),
+		30, 150, "", 0,
+		14, 650, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1250)
+
+	makeHero(
+		SHOTO_TODOROKI, UnitIds.paladin,
+		Icons.bTNFootman, "Shoto Todoroki", "Half-Cold Half-Hot",
+		"Dual elements master of ice and fire.",
+		Units.theCaptain1, 1.08,
+		18, 2.0,
+		20, 2.4,
+		24, 3.2,
+		760, 2.6,
+		320, 480, 3.6,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.stormBolt, AbilityIds.mirrorImage),
+		22, 150, "", 0,
+		20, 700, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1200)
+
+	makeHero(
+		ALL_MIGHT, UnitIds.paladin,
+		Icons.bTNFootman, "All Might", "Symbol of Peace",
+		"Smiles in the face of danger with overwhelming power.",
+		Units.theCaptain1, 1.15,
+		32, 3.8,
+		20, 2.0,
+		12, 1.0,
+		920, 4.2,
+		120, 180, 1.2,
+		4, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.thunderClap),
+		40, 150, "", 0,
+		0, 450, "", 0)
+
+	makeHero(
+		OCHACO_URARAKA, UnitIds.paladin,
+		Icons.bTNFootman, "Ochaco Uraraka", "Zero Gravity",
+		"Turns foes weightless while aiding allies.",
+		Units.theCaptain1, 1.02,
+		14, 1.6,
+		18, 2.0,
+		24, 3.0,
+		680, 2.2,
+		360, 520, 3.8,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.mirrorImage, AbilityIds.thunderClap),
+		16, 150, "", 0,
+		18, 650, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1100)
+
+	makeHero(
+		NEZUKO_KAMADO, UnitIds.paladin,
+		Icons.bTNFootman, "Nezuko Kamado", "Demon",
+		"Swift demon with burning blood arts.",
+		Units.theCaptain1, 1.06,
+		22, 2.6,
+		24, 3.0,
+		12, 1.2,
+		780, 3.0,
+		120, 180, 1.4,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.evasion, AbilityIds.criticalStrike, AbilityIds.bash),
+		27, 150, "", 0,
+		10, 550, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
+
+	makeHero(
+		ZENITSU_AGATSUMA, UnitIds.paladin,
+		Icons.bTNFootman, "Zenitsu Agatsuma", "Thunderclap",
+		"Lightning-fast strikes when courage sparks.",
+		Units.theCaptain1, 1.05,
+		18, 2.0,
+		26, 3.2,
+		14, 1.6,
+		740, 2.6,
+		160, 220, 1.6,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.criticalStrike, AbilityIds.evasion, AbilityIds.stormBolt),
+		26, 150, "", 0,
+		12, 650, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1250)
+
+	makeHero(
+		INOSUKE_HASHIBIRA, UnitIds.paladin,
+		Icons.bTNFootman, "Inosuke Hashibira", "Beast",
+		"Ferocious dual-blade fighter with wild senses.",
+		Units.theCaptain1, 1.10,
+		26, 3.2,
+		22, 2.6,
+		12, 1.2,
+		820, 3.2,
+		120, 160, 1.2,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
+		30, 150, "", 0,
+		0, 450, "", 0)
+
+	makeHero(
+		GIYU_TOMIOKA, UnitIds.paladin,
+		Icons.bTNFootman, "Giyu Tomioka", "Water Hashira",
+		"Calm swordsman flowing like water.",
+		Units.theCaptain1, 1.06,
+		22, 2.4,
+		24, 3.0,
+		14, 1.6,
+		780, 2.8,
+		180, 260, 1.6,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.evasion, AbilityIds.criticalStrike, AbilityIds.mirrorImage),
+		27, 150, "", 0,
+		10, 600, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
+
+	makeHero(
+		SHINOBU_KOCHO, UnitIds.paladin,
+		Icons.bTNFootman, "Shinobu Kocho", "Insect Hashira",
+		"Delicate strikes laced with deadly poison.",
+		Units.theCaptain1, 1.03,
+		16, 1.8,
+		22, 2.6,
+		22, 3.2,
+		720, 2.4,
+		320, 480, 3.6,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.mirrorImage, AbilityIds.brillianceAura, AbilityIds.stormBolt),
+		20, 150, "", 0,
+		18, 650, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1150)
+
+	makeHero(
+		ALPHONSE_ELRIC, UnitIds.paladin,
+		Icons.bTNFootman, "Alphonse Elric", "Gentle Armor",
+		"Kind soul bound to a towering suit of armor.",
+		Units.theCaptain1, 1.14,
+		28, 3.0,
+		16, 1.6,
+		18, 2.0,
+		880, 3.2,
+		220, 320, 2.2,
+		4, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.evasion, AbilityIds.thunderClap),
+		32, 150, "", 0,
+		8, 500, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1100)
+
+	makeHero(
+		ROY_MUSTANG, UnitIds.paladin,
+		Icons.bTNFootman, "Roy Mustang", "Flame Alchemist",
+		"Snaps to ignite precise infernos.",
+		Units.theCaptain1, 1.06,
+		16, 1.6,
+		18, 1.8,
+		26, 3.4,
+		700, 2.4,
+		420, 600, 4.2,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.stormBolt, AbilityIds.brillianceAura, AbilityIds.mirrorImage),
+		18, 150, "", 0,
+		22, 750, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1250)
+
+	makeHero(
+		RIZA_HAWKEYE, UnitIds.paladin,
+		Icons.bTNFootman, "Riza Hawkeye", "Hawk Eye",
+		"Unerring sharpshooter covering allies.",
+		Units.theCaptain1, 1.02,
+		16, 1.6,
+		22, 2.6,
+		16, 1.6,
+		720, 2.2,
+		200, 260, 1.8,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.stormBolt, AbilityIds.evasion, AbilityIds.criticalStrike),
+		20, 150, "", 0,
+		16, 700, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1200)
+
+	makeHero(
+		SCAR, UnitIds.paladin,
+		Icons.bTNFootman, "Scar", "Avenger",
+		"Destructive alchemy carved into skin.",
+		Units.theCaptain1, 1.10,
+		28, 3.2,
+		18, 1.8,
+		14, 1.4,
+		860, 3.0,
+		140, 200, 1.4,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
+		32, 150, "", 0,
+		0, 450, "", 0)
+
+	makeHero(
+		ARMIN_ARLERT, UnitIds.paladin,
+		Icons.bTNFootman, "Armin Arlert", "Strategist",
+		"Tactical genius who inspires bold plans.",
+		Units.theCaptain1, 1.02,
+		12, 1.2,
+		16, 1.6,
+		26, 3.4,
+		660, 2.0,
+		420, 620, 4.4,
+		0, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.mirrorImage, AbilityIds.stormBolt),
+		14, 150, "", 0,
+		18, 700, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1150)
+
+	makeHero(
+		ERWIN_SMITH, UnitIds.paladin,
+		Icons.bTNFootman, "Erwin Smith", "Commander",
+		"Unshakable leader charging at the front.",
+		Units.theCaptain1, 1.08,
+		24, 2.8,
+		20, 2.0,
+		14, 1.4,
+		820, 2.8,
+		180, 240, 1.6,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.evasion, AbilityIds.criticalStrike),
+		28, 150, "", 0,
+		0, 450, "", 0)
+
+	makeHero(
+		HANGE_ZOE, UnitIds.paladin,
+		Icons.bTNFootman, "Hange Zoe", "Researcher",
+		"Eccentric genius with gadgets and fire.",
+		Units.theCaptain1, 1.03,
+		14, 1.6,
+		18, 2.0,
+		24, 3.2,
+		700, 2.2,
+		360, 520, 3.8,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.stormBolt, AbilityIds.mirrorImage),
+		16, 150, "", 0,
+		18, 650, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1150)
+
+	makeHero(
+		ANNIE_LEONHART, UnitIds.paladin,
+		Icons.bTNFootman, "Annie Leonhart", "Female Titan",
+		"Cold, efficient fighter with brutal technique.",
+		Units.theCaptain1, 1.10,
+		26, 3.0,
+		22, 2.4,
+		14, 1.4,
+		840, 3.0,
+		140, 200, 1.4,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.evasion, AbilityIds.bash, AbilityIds.criticalStrike),
+		30, 150, "", 0,
+		0, 450, "", 0)
+
+	makeHero(
+		USOPP, UnitIds.paladin,
+		Icons.bTNFootman, "Usopp", "God Usopp",
+		"Trick shots and gadgets from afar.",
+		Units.theCaptain1, 1.02,
+		14, 1.4,
+		22, 2.6,
+		18, 2.0,
+		700, 2.0,
+		260, 380, 2.2,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.stormBolt, AbilityIds.mirrorImage, AbilityIds.evasion),
+		18, 150, "", 0,
+		16, 800, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1200)
+
+	makeHero(
+		TONY_TONY_CHOPPER, UnitIds.paladin,
+		Icons.bTNFootman, "Tony Tony Chopper", "Doctor",
+		"Tiny doctor with monstrous forms.",
+		Units.theCaptain1, 1.00,
+		16, 1.8,
+		18, 2.0,
+		24, 3.0,
+		720, 2.4,
+		360, 520, 3.6,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.evasion, AbilityIds.mirrorImage),
+		18, 150, "", 0,
+		14, 600, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1100)
+
+	makeHero(
+		NICO_ROBIN, UnitIds.paladin,
+		Icons.bTNFootman, "Nico Robin", "Demon Child",
+		"Blooms extra limbs to bind and crush.",
+		Units.theCaptain1, 1.04,
+		16, 1.8,
+		18, 2.0,
+		26, 3.4,
+		720, 2.4,
+		420, 600, 4.0,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.stormBolt, AbilityIds.brillianceAura, AbilityIds.mirrorImage),
+		18, 150, "", 0,
+		20, 700, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1150)
+
+	makeHero(
+		FRANKY, UnitIds.paladin,
+		Icons.bTNFootman, "Franky", "Cyborg",
+		"Cola-powered cyborg with heavy ordnance.",
+		Units.theCaptain1, 1.12,
+		28, 3.0,
+		16, 1.6,
+		16, 1.6,
+		860, 3.0,
+		180, 240, 1.6,
+		4, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.thunderClap, AbilityIds.bash, AbilityIds.criticalStrike),
+		32, 150, "", 0,
+		12, 750, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1200)
+
+	makeHero(
+		BROOK, UnitIds.paladin,
+		Icons.bTNFootman, "Brook", "Soul King",
+		"Lively skeleton with chilling melodies.",
+		Units.theCaptain1, 1.06,
+		18, 2.0,
+		24, 3.0,
+		18, 2.0,
+		760, 2.6,
+		240, 320, 2.0,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.evasion, AbilityIds.mirrorImage, AbilityIds.brillianceAura),
+		24, 150, "", 0,
+		12, 650, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1150)
+
+	makeHero(
+		JINBE, UnitIds.paladin,
+		Icons.bTNFootman, "Jinbe", "Knight of the Sea",
+		"Fish-man master of water karate.",
+		Units.theCaptain1, 1.12,
+		28, 3.2,
+		18, 1.8,
+		14, 1.4,
+		880, 3.2,
+		160, 220, 1.4,
+		4, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
+		32, 150, "", 0,
+		0, 450, "", 0)
+
+	makeHero(
+		BYAKUYA_KUCHIKI, UnitIds.paladin,
+		Icons.bTNFootman, "Byakuya Kuchiki", "Senbonzakura",
+		"Petals of steel swirl in deadly grace.",
+		Units.theCaptain1, 1.08,
+		18, 1.8,
+		20, 2.0,
+		26, 3.4,
+		760, 2.6,
+		420, 620, 4.2,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.mirrorImage, AbilityIds.stormBolt),
+		20, 150, "", 0,
+		22, 800, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1250)
+
+	makeHero(
+		KENPACHI_ZARAKI, UnitIds.paladin,
+		Icons.bTNFootman, "Kenpachi Zaraki", "Battle Maniac",
+		"Relentless brawler who seeks stronger foes.",
+		Units.theCaptain1, 1.14,
+		32, 3.6,
+		20, 2.0,
+		10, 0.8,
+		920, 4.0,
+		100, 160, 1.0,
+		4, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
+		40, 150, "", 0,
+		0, 450, "", 0)
+
+	makeHero(
+		TOSHIRO_HITSUGAYA, UnitIds.paladin,
+		Icons.bTNFootman, "Toshiro Hitsugaya", "Ice Dragon",
+		"Prodigy captain commanding winter.",
+		Units.theCaptain1, 1.06,
+		16, 1.6,
+		20, 2.0,
+		26, 3.2,
+		740, 2.6,
+		400, 560, 3.8,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.stormBolt, AbilityIds.brillianceAura, AbilityIds.mirrorImage),
+		20, 150, "", 0,
+		20, 750, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1200)
+
+	makeHero(
+		SOSUKE_AIZEN, UnitIds.paladin,
+		Icons.bTNFootman, "Sosuke Aizen", "Illusionist",
+		"Master manipulator shrouded in kyoka suigetsu.",
+		Units.theCaptain1, 1.10,
+		18, 2.0,
+		18, 2.0,
+		28, 3.6,
+		780, 2.8,
+		460, 640, 4.4,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.mirrorImage, AbilityIds.brillianceAura, AbilityIds.stormBolt),
+		18, 150, "", 0,
+		24, 800, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1250)
+
+	makeHero(
+		ULQUIORRA_CIFER, UnitIds.paladin,
+		Icons.bTNFootman, "Ulquiorra Cifer", "Espada IV",
+		"Emptiness incarnate with swift lances.",
+		Units.theCaptain1, 1.08,
+		22, 2.4,
+		24, 3.0,
+		18, 1.8,
+		800, 2.8,
+		240, 320, 1.8,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.criticalStrike, AbilityIds.evasion, AbilityIds.stormBolt),
+		26, 150, "", 0,
+		18, 750, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1250)
+
+	makeHero(
+		ORIHIME_INOUE, UnitIds.paladin,
+		Icons.bTNFootman, "Orihime Inoue", "Shun Shun Rikka",
+		"Heals, shields, and rejects harm.",
+		Units.theCaptain1, 1.02,
+		12, 1.2,
+		16, 1.6,
+		26, 3.4,
+		680, 2.2,
+		480, 660, 4.6,
+		0, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.brillianceAura, AbilityIds.mirrorImage, AbilityIds.thunderClap),
+		14, 150, "", 0,
+		18, 700, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1100)
+
+	makeHero(
+		KENTO_NANAMI, UnitIds.paladin,
+		Icons.bTNFootman, "Kento Nanami", "Ratio Technique",
+		"Methodical strikes that find the weak point.",
+		Units.theCaptain1, 1.08,
+		26, 3.0,
+		20, 2.0,
+		16, 1.6,
+		820, 3.0,
+		200, 260, 1.6,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.evasion),
+		30, 150, "", 0,
+		0, 450, "", 0)
+
+	makeHero(
+		SUGURU_GETO, UnitIds.paladin,
+		Icons.bTNFootman, "Suguru Geto", "Curse Manipulator",
+		"Bends hordes of curses to his will.",
+		Units.theCaptain1, 1.08,
+		18, 1.8,
+		18, 1.8,
+		28, 3.4,
+		760, 2.6,
+		440, 640, 4.2,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.mirrorImage, AbilityIds.brillianceAura, AbilityIds.stormBolt),
+		18, 150, "", 0,
+		22, 800, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1200)
+
+	makeHero(
+		RYOMEN_SUKUNA, UnitIds.paladin,
+		Icons.bTNFootman, "Ryomen Sukuna", "King of Curses",
+		"Malevolent force carving domains of despair.",
+		Units.theCaptain1, 1.14,
+		32, 3.6,
+		22, 2.4,
+		16, 1.6,
+		900, 3.8,
+		200, 260, 1.4,
+		4, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.criticalStrike, AbilityIds.bash, AbilityIds.evasion),
+		38, 150, "", 0,
+		12, 600, "Abilities\\Weapons\\Bolt\\BoltImpact.mdl", 1250)
+
+	makeHero(
+		MAKI_ZENIN, UnitIds.paladin,
+		Icons.bTNFootman, "Maki Zenin", "Heavenly Restriction",
+		"Physical prowess honed by grit and steel.",
+		Units.theCaptain1, 1.06,
+		26, 3.0,
+		24, 2.8,
+		12, 1.2,
+		820, 3.0,
+		120, 180, 1.2,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.evasion, AbilityIds.bash, AbilityIds.criticalStrike),
+		30, 150, "", 0,
+		0, 450, "", 0)
+
+	makeHero(
+		TOGE_INUMAKI, UnitIds.paladin,
+		Icons.bTNFootman, "Toge Inumaki", "Cursed Speech",
+		"Whispers that compel, silence, and shatter.",
+		Units.theCaptain1, 1.02,
+		14, 1.4,
+		18, 1.8,
+		26, 3.2,
+		700, 2.2,
+		420, 620, 4.4,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.stormBolt, AbilityIds.brillianceAura, AbilityIds.mirrorImage),
+		16, 150, "", 0,
+		18, 700, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1150)
+
+	makeHero(
+		PANDA, UnitIds.paladin,
+		Icons.bTNFootman, "Panda", "Gorilla Mode",
+		"Cursed corpse with forms for any brawl.",
+		Units.theCaptain1, 1.12,
+		30, 3.2,
+		18, 1.6,
+		14, 1.2,
+		880, 3.4,
+		120, 160, 1.0,
+		4, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.bash, AbilityIds.evasion, AbilityIds.criticalStrike),
+		32, 150, "", 0,
+		0, 450, "", 0)
+
+	makeHero(
+		GOHAN_SON, UnitIds.paladin,
+		Icons.bTNFootman, "Gohan", "Son",
+		"Scholar-warrior unleashing hidden might.",
+		Units.theCaptain1, 1.10,
+		24, 2.6,
+		22, 2.4,
+		20, 2.2,
+		820, 3.0,
+		260, 380, 2.4,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.criticalStrike, AbilityIds.bash, AbilityIds.stormBolt),
+		30, 150, "", 0,
+		14, 700, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1250)
+
+	makeHero(
+		PICCOLO, UnitIds.paladin,
+		Icons.bTNFootman, "Piccolo", "Namekian",
+		"Tactical fighter with stretching strikes and beams.",
+		Units.theCaptain1, 1.10,
+		22, 2.4,
+		18, 1.8,
+		24, 2.8,
+		820, 3.0,
+		380, 500, 3.0,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.stormBolt, AbilityIds.brillianceAura, AbilityIds.mirrorImage),
+		26, 150, "", 0,
+		18, 750, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1200)
+
+	makeHero(
+		TRUNKS, UnitIds.paladin,
+		Icons.bTNFootman, "Trunks", "Time Traveler",
+		"Blade and blasts from a future warrior.",
+		Units.theCaptain1, 1.08,
+		26, 3.0,
+		24, 2.6,
+		16, 1.6,
+		840, 3.2,
+		220, 300, 1.8,
+		3, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.criticalStrike, AbilityIds.bash, AbilityIds.stormBolt),
+		32, 150, "", 0,
+		14, 720, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1250)
+
+	makeHero(
+		FRIEZA, UnitIds.paladin,
+		Icons.bTNFootman, "Frieza", "Emperor",
+		"Ruthless emperor firing death beams.",
+		Units.theCaptain1, 1.08,
+		18, 1.8,
+		20, 2.0,
+		28, 3.4,
+		780, 2.6,
+		460, 640, 4.4,
+		2, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.stormBolt, AbilityIds.brillianceAura, AbilityIds.mirrorImage),
+		22, 150, "", 0,
+		24, 800, "Abilities\\Weapons\\PriestMissile\\PriestMissile.mdl", 1300)

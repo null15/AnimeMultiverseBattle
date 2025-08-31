@@ -18,3 +18,4 @@ init
     // You must not use "public" etc on functions, when they are already in a "public" class, they are reachable by default
     // You can not do this: functions annotated '@compiletime' may not take parameters. Note: The annotation marks functions to be executed by wurst at compiletime.
     // You must give code that has same indentation as my code to avoid warning: Mixing tabs and spaces for indentation.
+    // You can get a unit icon path using BlzGetAbilityIcon(unitID).
