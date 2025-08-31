@@ -37,7 +37,6 @@ function draftScreen()
     let parent = createFrame("FRAME", "DraftParent", getFrame("ConsoleUIBackdrop", 0), "", 0)
     defaultFrameParent = parent
 
-    defineHeroes()
     buildHeroButtons()
     setupHeroButtons()
 
@@ -93,7 +92,8 @@ function draftScreen()
 init
     setupCategoryButtons()
     setupPageButtons()
+    defineHeroes()
 
     // Slight delay before creating draft UI, avoids any frame issues since creating frames at init can cause bugs
-    doAfter(0.1) ->
+    doAfter(1) ->
         draftScreen()

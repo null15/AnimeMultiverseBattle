@@ -39,7 +39,14 @@ constant posMap = new HashMap<framehandle, FramePos>()
 public function setAbsPointTracked(framehandle f, framepointtype point, real x, real y)
     BlzFrameClearAllPoints(f)
     BlzFrameSetAbsPoint(f, point, x, y)
-    posMap.put(f, new FramePos(x, y, false, point))
+    var p = posMap.get(f)
+    if p == null
+        posMap.put(f, new FramePos(x, y, false, point))
+    else
+        p.x = x
+        p.y = y
+        p.isRelative = false
+        p.anchor = point
 
 /** Sets the relative position of a frame to its parent, and remembers it.
  *  Places the frame’s anchor relative to the parent’s top-left corner.
@@ -47,7 +54,14 @@ public function setAbsPointTracked(framehandle f, framepointtype point, real x, 
 public function setRelativePointTracked(framehandle f, framepointtype point, real x, real y)
     BlzFrameClearAllPoints(f)
     BlzFrameSetPoint(f, point, BlzFrameGetParent(f), FRAMEPOINT_TOPLEFT, x, y)
-    posMap.put(f, new FramePos(x, y, true, point))
+    var p = posMap.get(f)
+    if p == null
+        posMap.put(f, new FramePos(x, y, true, point))
+    else
+        p.x = x
+        p.y = y
+        p.isRelative = true
+        p.anchor = point
 
 /** Clears the stored tracked position of a frame.
  *  Use this if you want to “forget” where a frame was last placed.

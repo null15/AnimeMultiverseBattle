@@ -158,7 +158,7 @@ public class SimpleGrid
             BlzFrameSetAlpha(f, 255)
             return
 
-        let steps = max(12, (duration * 24.0).toInt())
+        let steps = max(12, (duration * 12.0).toInt())
         let dt = duration / steps.toReal()
         var iter = 0
 

@@ -259,7 +259,15 @@ public function setHeroButton(int id, framehandle f)
 
 /** Get the button frame for a hero id, or null if not set. */
 public function getHeroButton(int id) returns framehandle
-    return heroBtnById.get(id)
+    let f = heroBtnById.get(id)
+    if f != null
+        return f
+    let h = heroById.get(id)
+    if h == null
+        return null
+    let b = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
+    heroBtnById.put(id, b)
+    return b
 
 /** Creates simple buttons for every registered hero and stores them in heroBtnById. */
 public function buildHeroButtons()
@@ -429,11 +437,15 @@ public function refreshGrid(int pid)
 
     cancelGridAnimations()
 
-    // 2) Add in correct order; force spawn-at-row-head by clearing tracked pos
+    // 2) Add in correct order; set a spawn start but keep tracking
+    var wantIdx = 0
     for f in shouldShow
         BlzFrameSetVisible(f, true)
-        clearTrackedPos(f)        // makes FlowGrid treat it as "new"
-        heroGrid.add(f)
+        heroGrid.add(f)                         // ensures correct parent/container
+        BlzFrameSetAlpha(f, 0)
+        // Spawn at container top-left (safe in container coords)
+        setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, 0.0, 0.0)
+        wantIdx++ // (kept in case you later want per-row spawns)
 
     // 3) Update local tracking and animate
     shownNow.clear()
