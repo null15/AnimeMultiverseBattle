@@ -1,8 +1,8 @@
-# Hero Kit – <Name>
+# Hero Kit – Deku Midoriya
 
-**Franchise:** <Anime>  
-**Role/Tags:** <Carry / Support / Melee / etc>  
-**Resource:** HP / Mana / Charges
+**Franchise:** Hero Academia 
+**Role/Tags:** Carry / Melee / Agility 
+**Resource:** HP / Charges
 
 ## G – Full Cowling
 - Abilities cost **Health** instead of mana.
@@ -13,7 +13,7 @@
 - **Enhanced** (Fa Jin charges): Short-range whip pulls enemy to Deku. Scales with **missing HP**.
 
 ## W – Smokescreen
-- Base: Small cloud, damages + invisibility for Xs.
+- Base: Small cloud, damages + invisibility for Xs. Stuns.
 - **Enhanced**: Larger AoE, blinds, MS burst. Scales with **missing HP**.
 
 ## E – Fa Jin
