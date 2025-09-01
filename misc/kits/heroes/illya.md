@@ -5,7 +5,7 @@
 **Resource:** HP / Mana / Forms
 
 ## G - Kaleidoscope Install (toggle)
-- Illya can install different class cards to enhance her abilities(changes skin matching the class).
+- Illya can install different class cards to enhance her abilities (changes skin matching the class).
 
 ## Q - Archer - Projection
 - Base: Fires multiple magical arrows in a spread.
@@ -21,7 +21,7 @@
 
 ## R - Assassin - Shadow Step
 - Base: Brief invisibility and movement speed boost, dmg by AA from invisibility.
-- **Enhanced** - Zabaniya: Next attack from invisibility ignores all defenses (ignore xxx % armor) and **silences target.
+- **Enhanced** - Zabaniya: Next attack from invisibility ignores all defenses (ignore xxx % armor) and silences target.
 
 ## T - Saber - Strike Air
 - Base: Fires a strong  gust of air in target direction

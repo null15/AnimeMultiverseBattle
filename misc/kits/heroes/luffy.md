@@ -6,7 +6,7 @@
 
 ## G - Meat!
 - Luffy pulls out random food that provides different buffs. On activation luffy eats random food.
--**Food Types**:
+- **Food Types**:
      - **Meat**: Increase str for 25 seconds.
      - **Fruit**: Restore hp over time.
      - **Rice**: Restore mana.

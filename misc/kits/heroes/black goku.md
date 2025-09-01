@@ -7,7 +7,7 @@
 
 ## G - Saiyan Body Adaptation
 - Black's stolen saiyan body grows stronger through combat, just like he learned from fighting goku. Each time black deals or takes damage, he gains "Combat Experience" (decays slowly out of combat).
--**Threshold Bonuses**
+- **Threshold Bonuses**:
 - At 25% Experience: +10% damage dealt.
 - At 50% Experience: +15% attack speed.
 - At 75% Experience: +10% movement speed.
