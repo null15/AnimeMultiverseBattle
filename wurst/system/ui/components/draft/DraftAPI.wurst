@@ -66,6 +66,20 @@ HashMap<int, boolean> refreshScheduled = new HashMap<int, boolean>()
 /** For category/hero button text base labels (so we can toggle visuals). */
 public string array categoryLabelByIndex
 
+public string array catTex
+public string array catTexOn        // <— NEW: selected state art
+public string array catTexDisabled
+public framehandle array categoryBtnIcons  // <— the actual BACKDROP we’ll texture-swap
+
+// Returns the BACKDROP child called "pickIcon" inside the img button.
+public function getButtonIcon(framehandle btn) returns framehandle
+    let n = btn.getChildrenCount()
+    for i = 0 to n - 1
+        let ch = btn.getChild(i)
+        if ch != null and ch.getName() == "pickIcon"
+            return ch
+    return null
+
 /** Schedule one refresh for this player after a small delay. */
 public function scheduleRefresh(int pid)
     // If already scheduled, just let the queued one run (state has already been updated)
@@ -88,8 +102,7 @@ public function lockInputsLocal(int pid, real seconds)
         if pageBtns[i] != null
             BlzFrameSetEnable(pageBtns[i], false)
     doAfter(seconds) ->
-        updateCategoryButtonsUX(pid)
-        updateCategoryButtonsVisual(pid)
+        updateCategoryButtons(pid)
         updatePageButtons(pid)
 
 /** Remember category label text for index (1..MAX_CATEGORIES). */
@@ -362,6 +375,35 @@ public function updateCategoryButtonsUX(int pid)
                 let cnt = countIfAdded(pid, cname)
                 BlzFrameSetEnable(categoryBtns[i], selected or cnt > 0)
 
+public function updateCategoryButtons(int pid)
+    let st = getOrCreateState(pid)
+
+    if GetLocalPlayer() != Player(pid)
+        return
+
+    for i = 1 to MAX_CATEGORIES
+        let btn = categoryBtns[i]
+        if btn != null
+            let cat = categoryTypeArray[i]          // CategoryType (not string)
+            let isSelected = st.categories.has(cat)
+            let canAdd    = countIfAddedFast(pid, cat) > 0
+            let enabled   = isSelected or canAdd
+
+            BlzFrameSetEnable(btn, enabled)
+
+            let icon = categoryBtnIcons[i]
+            if icon != null
+                if isSelected
+                    // ON (selected)
+                    icon.setTexture(catTexOn[i], 0, true)
+                else
+                    if canAdd
+                        // OFF but available
+                        icon.setTexture(catTex[i], 0, true)
+                    else
+                        // DISABLED (would yield 0 results)
+                        icon.setTexture(catTexDisabled[i], 0, true)
+
 /** Clamp a page number into range [1..maxP]. */
 public function clampPage(int page, int maxP) returns int
     if page < 1
@@ -400,62 +442,73 @@ public function refreshGrid(int pid)
     st.currentPage = clampPage(st.currentPage, st.maxPage)
 
     updatePageButtons(pid)
-    updateCategoryButtonsUX(pid)
-    updateCategoryButtonsVisual(pid)
+    updateCategoryButtons(pid) // <— new (see section 2)
 
     if GetLocalPlayer() != Player(pid)
         return
 
-    // Build filtered list in the order of allHeroes (already kept sorted)
-    let filtered = new LinkedList<HeroDraft>()
+    // Compute streaming window
     let q = getSearchQuery(pid)
+    let startIdx = (st.currentPage - 1) * PER_PAGE
+    let endIdx = startIdx + PER_PAGE - 1
+
+    // Stream matches and capture only the current page
+    framehandle array pageBuf
+    var pageCount = 0
+    var matchIdx = 0
     for h in allHeroes
         if matchesAll(h, st.categories) and heroMatchesQuery(h, q)
-            filtered.add(h)
+            if matchIdx >= startIdx and matchIdx <= endIdx
+                let f = getHeroButton(h.unitID)
+                if f != null
+                    pageBuf[pageCount] = f
+                    pageCount++
+            matchIdx++
 
-    var startIdx = (st.currentPage - 1) * PER_PAGE
-    if startIdx < 0
-        startIdx = 0
-    var endIdx = startIdx + PER_PAGE - 1
-    let lastIdx = filtered.size() - 1
-    if endIdx > lastIdx
-        endIdx = lastIdx
-
-    let shouldShow = new LinkedList<framehandle>()
-    var idx = 0
-    for h in filtered
-        if idx >= startIdx and idx <= endIdx
-            let f = getHeroButton(h.unitID)
-            if f != null
-                shouldShow.add(f)
-        idx++
-
-    // 1) Remove everything currently in the grid (so order is guaranteed)
+    // Remove everything currently shown
     for f in shownNow
         heroGrid.remove(f)
         BlzFrameSetVisible(f, false)
 
     cancelGridAnimations()
 
-    // 2) Add in correct order; set a spawn start but keep tracking
-    var wantIdx = 0
-    for f in shouldShow
+    // Add new frames in order and seed their spawn pos
+    for i = 0 to pageCount - 1
+        let f = pageBuf[i]
         BlzFrameSetVisible(f, true)
-        heroGrid.add(f)                         // ensures correct parent/container
+        heroGrid.add(f)
         BlzFrameSetAlpha(f, 0)
-        // Spawn at container top-left (safe in container coords)
         setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, 0.0, 0.0)
-        wantIdx++ // (kept in case you later want per-row spawns)
 
-    // 3) Update local tracking and animate
+    // Rebuild our tracking (small, bounded)
     shownNow.clear()
-    for f in shouldShow
-        shownNow.add(f)
+    for i = 0 to pageCount - 1
+        shownNow.add(pageBuf[i])
 
     heroGrid.layoutAnimated(0.20)
+    updateHeroSelectionVisual(pid)
 
-    updateHeroSelectionVisual(pid) // refresh ON/TRUE marks after layout
+// DraftAPI.wurst
+public function wouldMatchWithExtra(HeroDraft h, LinkedList<CategoryType> selected, CategoryType extra) returns bool
+    // Must match all currently selected
+    for c in selected
+        if not h.categories.has(c)
+            return false
+    // If extra already selected, it doesn't further restrict
+    for c in selected
+        if c == extra
+            return true
+    // Otherwise, hero must also have the extra category
+    return h.categories.has(extra)
 
+public function countIfAddedFast(int pid, CategoryType cat) returns int
+    let st = getOrCreateState(pid)
+    let q = getSearchQuery(pid)
+    var n = 0
+    for h in allHeroes
+        if heroMatchesQuery(h, q) and wouldMatchWithExtra(h, st.categories, cat)
+            n++
+    return n
 
 /** Connect all hero buttons to notifyHeroPicked. Safe to call after buildHeroButtons(). */
 public function wireHeroButtons()
@@ -484,8 +537,7 @@ public function wireCategoryButtons()
                     st.categories.add(cname)
                 st.currentPage = 1
                 // Local UX updates are fine immediately
-                updateCategoryButtonsUX(pid)
-                updateCategoryButtonsVisual(pid)
+                updateCategoryButtons(pid)
                 // Debounce the actual grid rebuild/animation
                 scheduleRefresh(pid)
                 // lockInputsLocal(pid, 0.10) // we can add this if spamming buttons start to cause bugs, this will disable button from being clickable x seconds
@@ -494,17 +546,18 @@ public function wireCategoryButtons()
  * Wire page buttons to change pages.  
  * Ignores clicks if target page is greater than maxPage. 
  */
+// DraftAPI.wurst – paging wireup
 public function wirePageButtons()
     for i = 1 to MAX_PAGES
         if pageBtns[i] != null
             let idx = i
-            pageBtns[idx].onClick() -> 
+            pageBtns[idx].onClick() ->
                 let pid = GetPlayerId(GetTriggerPlayer())
                 let st = getOrCreateState(pid)
                 if idx <= st.maxPage
                     st.currentPage = idx
+                    // lockInputsLocal(pid, 0.08)   // <— enable this
                     scheduleRefresh(pid)
-                    // lockInputsLocal(pid, 0.08) // we can add this if spamming buttons start to cause bugs, this will disable button from being clickable x seconds
 
 public function setupHeroButtons()
     buildHeroButtons()

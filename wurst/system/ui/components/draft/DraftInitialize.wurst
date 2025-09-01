@@ -8,21 +8,15 @@ import DraftHeroData
 import ClosureTimers
 
 function setupCategoryButtons()
-    string array categoryName
-    categoryName[1] = "Strength.dds"
-    categoryName[2] = "Agility.dds"
-    categoryName[3] = "Intelligence.dds"
-    categoryName[4] = "Strength.dds"
-    categoryName[5] = "Strength.dds"
-    categoryName[6] = "Strength.dds"
-    categoryName[7] = "Strength.dds"
-    categoryName[8] = "Strength.dds"
-
     for i = 1 to MAX_CATEGORIES
-        categoryBtns[i] = imgBtn(categoryName[i])
+        // Use image buttons so we can swap art
+        categoryBtns[i] = imgBtn(catTex[i])
             ..setWidth(categoryPageSize)
             ..setHeight(categoryPageSize)
-        registerCategoryLabel(i, categoryName[i])
+        categoryBtnIcons[i] = getButtonIcon(categoryBtns[i])
+
+        // Grab and store the BACKDROP child "pickIcon" for fast texture swaps
+        categoryBtnIcons[i] = getButtonIcon(categoryBtns[i])
 
 function setupPageButtons()
     for i = 1 to MAX_PAGES
@@ -90,6 +84,32 @@ function draftScreen()
     defaultFrameParent = GAME_UI
 
 init
+    catTex[1] = "Strength.dds"
+    catTex[2] = "Agility.dds"
+    catTex[3] = "Intelligence.dds"
+    catTex[4] = "Strength.dds"
+    catTex[5] = "Agility.dds"
+    catTex[6] = "Intelligence.dds"
+    catTex[7] = "Strength.dds"
+    catTex[8] = "Agility.dds"
+
+    catTexOn[1] = "Strength_enabled.dds"        // <— NEW
+    catTexOn[2] = "Agility_enabled.dds"
+    catTexOn[3] = "Intelligence_enabled.dds"
+    catTexOn[4] = "Strength_enabled.dds"
+    catTexOn[5] = "Agility_enabled.dds"
+    catTexOn[6] = "Intelligence_enabled.dds"
+    catTexOn[7] = "Strength_enabled.dds"
+    catTexOn[8] = "Agility_enabled.dds"
+
+    catTexDisabled[1] = "Strength_disabled.dds"
+    catTexDisabled[2] = "Agility_disabled.dds"
+    catTexDisabled[3] = "Intelligence_disabled.dds"
+    catTexDisabled[4] = "Strength_disabled.dds"
+    catTexDisabled[5] = "Agility_disabled.dds"
+    catTexDisabled[6] = "Intelligence_disabled.dds"
+    catTexDisabled[7] = "Strength_disabled.dds"
+    catTexDisabled[8] = "Agility_disabled.dds"
     setupCategoryButtons()
     setupPageButtons()
     defineHeroes()
