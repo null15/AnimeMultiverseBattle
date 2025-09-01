@@ -31,7 +31,7 @@ function draftScreen()
     let parent = createFrame("FRAME", "DraftParent", getFrame("ConsoleUIBackdrop", 0), "", 0)
     defaultFrameParent = parent
 
-    buildHeroButtons()
+    // buildHeroButtons()
     setupHeroButtons()
 
     let timerTable = new TableLayout(0.1, 0.05)
@@ -112,8 +112,11 @@ init
     catTexDisabled[8] = "Agility_disabled.dds"
     setupCategoryButtons()
     setupPageButtons()
-    defineHeroes()
 
-    // Slight delay before creating draft UI, avoids any frame issues since creating frames at init can cause bugs
-    doAfter(1) ->
+    doAfter(0.25) ->
+        defineHeroes()
+        sortAllHeroesOnce()
+
+    // keep your existing UI delay, or keep it separate:
+    doAfter(0.5) ->
         draftScreen()

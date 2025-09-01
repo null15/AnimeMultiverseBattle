@@ -111,15 +111,15 @@ public function registerCategoryLabel(int idx, string label)
 
 /** Compare two heroes by (name, aftername), case-insensitive. */
 public function compareFullNames(HeroDraft a, HeroDraft b) returns int
-    let an = a.name.toLowerCase()
-    let bn = b.name.toLowerCase()
-    let c1 = stringCompare(an, bn)
+    let c1 = stringCompare(a.nameKey, b.nameKey)
     if c1 != 0
         return c1
-    let aa = a.aftername.toLowerCase()
-    let ba = b.aftername.toLowerCase()
-    return stringCompare(aa, ba)
+    return stringCompare(a.afterKey, b.afterKey)
 
+constant Comparator<HeroDraft> heroComparator = (a, b) -> compareFullNames(a, b)
+
+public function sortAllHeroesOnce()
+    allHeroes.sortWith(heroComparator)
 /** Insert hero into a LinkedList keeping alphabetical order by full name. */
 public function insertOrdered(LinkedList<HeroDraft> list, HeroDraft h)
     var i = 0
@@ -158,7 +158,7 @@ public function updateHeroSelectionVisual(int pid)
         return
     let sel = selectedHeroByPid.get(pid)
     for h in allHeroes
-        let f = getHeroButton(h.unitID)
+        let f = heroBtnById.get(h.unitID)
         if f != null
             let on = sel != 0 and sel == h.unitID
             setButtonSelected(f, h.fullName(), on)
@@ -202,6 +202,10 @@ public class HeroDraft
     LinkedList<CategoryType> categories
     framehandle btn
 
+    // cached sort keys (lowercased once)
+    string nameKey
+    string afterKey
+
     construct()
         this.unitID = 0
         this.name = ""
@@ -209,6 +213,8 @@ public class HeroDraft
         this.franchise = ""
         this.categories = new LinkedList<CategoryType>()
         this.btn = null
+        this.nameKey = ""
+        this.afterKey = ""
 
     construct(int unitID, string name, string aftername, string franchise)
         this.unitID = unitID
@@ -216,9 +222,10 @@ public class HeroDraft
         this.aftername = aftername
         this.franchise = franchise
         this.categories = new LinkedList<CategoryType>()
-        this.btn = btn(name)..setHeight(heroIconSize)..setWidth(heroIconSize)
+        this.btn = null
+        this.nameKey = name.toLowerCase()
+        this.afterKey = aftername.toLowerCase()
 
-    /** Returns hero full name (name + aftername if present). */
     function fullName() returns string
         if aftername != ""
             return name + " " + aftername
@@ -234,14 +241,15 @@ public class HeroDraft
         return this.categories
 
     /**
-    * Register a hero into the draft pool (data only).
-    * Button creation is handled separately via buildHeroButtons().
-    */
+     * Register a hero into the draft pool (append only; sorting happens once later).
+     */
     function addHero(int id, string name, string aftername, string franchise)
         this.unitID = id
         this.name = name
         this.aftername = aftername
         this.franchise = franchise
+        this.nameKey = name.toLowerCase()
+        this.afterKey = aftername.toLowerCase()
 
         if name == ""
             print("|cffff0000addHero: name cannot be empty.|r")
@@ -251,7 +259,8 @@ public class HeroDraft
             print("|cffff0000Duplicate hero id:|r " + id.toString() + " — ignoring second registration.")
             return
 
-        insertOrdered(allHeroes, this)
+        // append (no ordered insert here)
+        allHeroes.add(this)
         heroById.put(this.unitID, this)
 
 public interface HeroPickListener
@@ -275,10 +284,21 @@ public function getHeroButton(int id) returns framehandle
     let f = heroBtnById.get(id)
     if f != null
         return f
+
     let h = heroById.get(id)
     if h == null
         return null
+
     let b = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
+
+    // wire here, once, when the button is created
+    let hid = id
+    b.onClick() ->
+        let pid = GetPlayerId(GetTriggerPlayer())
+        selectedHeroByPid.put(pid, hid)
+        updateHeroSelectionVisual(pid)
+        notifyHeroPicked(pid, hid)
+
     heroBtnById.put(id, b)
     return b
 
@@ -560,8 +580,8 @@ public function wirePageButtons()
                     scheduleRefresh(pid)
 
 public function setupHeroButtons()
-    buildHeroButtons()
-    wireHeroButtons()
+    // buildHeroButtons()
+    // wireHeroButtons()
 
 init
     categoryTypeArray[1] = CategoryType.STRENGTH
