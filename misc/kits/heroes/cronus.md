@@ -33,7 +33,7 @@
 
 ## T - Pause World
 - Cronus activates his rider power to pause the battlefield.
-- Freezes all enemy units in a radius for 1.5 seconds (enemies are unaffected by damage until it ends, can be used to set up fights or escapes).
+- Freezes all units in a radius for 1.5 seconds (they are unaffected by damage until it ends, can be used to set up fights or escapes).
 - When the pause ends, cronus and his nearby allies gain bonus attack speed and movement speed for 4 seconds.
 - At the end enemies are still recovering from the pause, and are slowed by 5%.
 
