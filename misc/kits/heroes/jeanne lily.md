@@ -4,7 +4,7 @@
 **Role/Tags:** Support / Melee / Intelligence 
 **Resource:** HP / Mana
 
-G - Christmas Spirit
+## G - Christmas Spirit
 - Jeanne spreads christmas joy to empower her team. Nearby allies gain "christmas blessing" - small HP regen and mana regen.
 - **Active**: Places a Christmas Gift at target location that allies can pick up to restore hp and mana.
 
@@ -14,6 +14,7 @@ G - Christmas Spirit
 
 ## W - Holy Bell
 - Rings the christmas bell, healing target ally and granting them magic resistance for 6 seconds.
+
 ## E - Christmas Miracle
 - Cleanses all debuffs from target ally and makes them immune to crowd control for 4 seconds. (or other value).
 
