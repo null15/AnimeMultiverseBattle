@@ -114,7 +114,7 @@ function makeHero(
 	// Abilities (already pre-commaJoined by caller)
 	..setNormalAbilities(normalSpells)..setHeroAbilities(heroSpells)
 	// Targeting / classification
-	..setTargetedAs(commaList("Hero", "Ground"))
+	..setTargetedAs(commaList(TargetedAs.ground, TargetedAs.hero, TargetedAs.alive))
 	..setArmorType(ArmorType.Hero)
 	..setArmorSoundType(ArmorSoundType.Flesh)
 	// Movement
@@ -134,8 +134,8 @@ function makeHero(
 	// Attacks
 	..setAttacksEnabled(3) // 1=A1, 2=A2, 3=both
 	..setAttack1ShowUI(true)..setAttack2ShowUI(true)
-	..setAttack1TargetsAllowed(commaList("Hero", "Ground", "Vulnerable", "Enemy", "Neutral", "Organic"))
-	..setAttack2TargetsAllowed(commaList("Hero", "Air", "Vulnerable", "Enemy", "Neutral", "Organic"))
+	..setAttack1TargetsAllowed(commaList(TargetsAllowed.ground, TargetsAllowed.alive))
+	..setAttack2TargetsAllowed(commaList(TargetsAllowed.air, TargetsAllowed.alive))
 	// Attack 1 profile (melee/ground by default)
 	..setAttack1DamageBase(attack1DamageBase)
 	..setAttack1DamageNumberofDice(2)..setAttack1DamageSidesperDie(6)
