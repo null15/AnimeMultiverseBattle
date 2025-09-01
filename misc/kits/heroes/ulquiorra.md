@@ -26,8 +26,8 @@
 
 ## T- Segunda Etapa
 - During the transformation ulq has perma **Analytical state**
-- Ff by the end ulq HP is lower than a treshold then his G and E passive/active gets disabled for xxx.
-- While in transformation the ability **Latigo** be comes avaiable, and ulq can pushback enemies nearby with his tail, damage scales with **hp regen**.
+- If by the end ulq HP is lower than a treshold then his G and E passive/active gets disabled for xxx.
+- While in transformation the ability **Latigo** becomes avaiable, and ulq can pushback enemies nearby with his tail, damage scales with **hp regen**.
 
 ---
 
