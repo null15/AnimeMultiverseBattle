@@ -1,3 +1,9 @@
 /.vscode
 wurst.dependencies
-/_build
+/_build/objectEditingOutput
+/_build/.gitkeep
+/_build/compiled.j.txt
+/_build/AMB.w3x
+/_build/war3map.w3i
+/_build/war3mapj_with_config.j.txt
+/_build/WurstRunMap.w3x

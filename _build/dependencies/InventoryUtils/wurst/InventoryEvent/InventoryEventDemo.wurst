@@ -1,0 +1,29 @@
+package InventoryEventDemo
+import InventoryEvent
+
+function onInventoryMove()
+    let u = getInventoryManipulatingUnit()
+    let itm = getInventoryManipulatedItem()
+    let itmSwapped = getInventorySwappedItem()
+    let slotFrom = getInventorySlotFrom()
+    let slotTo = getInventorySlotTo()
+    string s
+
+    if itmSwapped != null
+        s = u.getName() + " swapped " + itm.getName() + "[" + slotFrom.toString() + "] with "
+        s += itmSwapped.getName() + "[" + slotTo.toString() + "]"
+    else
+        s = u.getName() + " moved " + itm.getName() + "[" + slotFrom.toString() + "] to slot " + slotTo.toString()
+    print(s)
+
+function onInventoryUse()
+    let u = getInventoryManipulatingUnit()
+    let itm = getInventoryManipulatedItem()
+    let slotFrom = getInventorySlotFrom()
+    let s = u.getName() + " used " + itm.getName() + "[" + slotFrom.toString() + "]"
+
+    print(s)
+
+public function initInventoryEventDemo()
+    registerInventoryEvent(EVENT_ITEM_INVENTORY.MOVE, () -> onInventoryMove())
+    registerInventoryEvent(EVENT_ITEM_INVENTORY.USE, () -> onInventoryUse())
