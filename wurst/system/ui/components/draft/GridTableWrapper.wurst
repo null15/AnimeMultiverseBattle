@@ -24,7 +24,7 @@ public class GridCell
      * - `gap`: spacing between cells
      */
     construct(real width, real height, int cols, real cellW, real cellH, real gap)
-        let padX = 0.015   // small horizontal padding
+        let padX = 0.0175   // small horizontal padding
         let padY = -0.015  // small vertical padding
         this.containerWidth = width
         this.containerHeight = height
