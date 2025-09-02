@@ -3,12 +3,12 @@ package GridTableWrapper
 import FlowGrid
 import TableLayout
 
-/** 
- * A wrapper that allows using `SimpleGrid` as a cell inside `TableLayout`.  
- * 
- * - Wraps the grid inside a container frame so `TableLayout` can manage it.  
- * - You can still access the underlying grid (`getGrid()`) directly.  
- * - Useful when mixing flexible table layouts with animated grids.  
+/**
+ * A wrapper that allows using `SimpleGrid` as a cell inside `TableLayout`.
+ *
+ * - Wraps the grid inside a container frame so `TableLayout` can manage it.
+ * - You can still access the underlying grid (`getGrid()`) directly.
+ * - Useful when mixing flexible table layouts with animated grids.
  */
 public class GridCell
     private SimpleGrid grid
@@ -16,23 +16,23 @@ public class GridCell
     private real containerWidth
     private real containerHeight
 
-    /** 
-     * Create a new grid cell.  
-     * - `width`, `height`: size of the container frame  
-     * - `cols`: number of columns in the grid  
-     * - `cellW`, `cellH`: width/height of each cell inside the grid  
-     * - `gap`: spacing between cells  
+    /**
+     * Create a new grid cell.
+     * - `width`, `height`: size of the container frame
+     * - `cols`: number of columns in the grid
+     * - `cellW`, `cellH`: width/height of each cell inside the grid
+     * - `gap`: spacing between cells
      */
     construct(real width, real height, int cols, real cellW, real cellH, real gap)
         let padX = 0.015   // small horizontal padding
         let padY = -0.015  // small vertical padding
         this.containerWidth = width
         this.containerHeight = height
-       
+
         // Container frame that TableLayout can work with
         containerFrame = createFrame("FRAME", "GridCellContainer", defaultFrameParent, null, 0)
             ..setSize(width, height)
-       
+
         // Grid sits inside the container
         grid = new SimpleGrid(padX, padY, cols, cellW, cellH, gap)
         grid.containerFrame = containerFrame
@@ -76,3 +76,4 @@ public class GridCell
         containerFrame.setAllPoints(outer)
 
         return outer
+

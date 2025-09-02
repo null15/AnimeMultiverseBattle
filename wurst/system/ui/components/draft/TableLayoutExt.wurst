@@ -4,13 +4,13 @@ import LinkedList
 import TableLayout
 
 /*
- * Extensions for TableLayout that support "cascading layouts".  
+ * Extensions for TableLayout that support "cascading layouts".
  *
- * Cascading means: when a parent container is resized,  
- * all nested containers (children, grandchildren, etc.)  
- * automatically resize and relayout as well.  
+ * Cascading means: when a parent container is resized,
+ * all nested containers (children, grandchildren, etc.)
+ * automatically resize and relayout as well.
  *
- * Useful when building multi-level UI with frames inside frames. 
+ * Useful when building multi-level UI with frames inside frames.
 */
 
 /** Simple pair of (frame, TableLayout) for registry tracking. */
@@ -28,11 +28,11 @@ constant _regs = new LinkedList<TLReg>()
 public function registerTable(framehandle f, TableLayout t)
     _regs.add(new TLReg(f, t))
 
-/** 
- * Create a container with a backdrop frame.  
- * - Calls `applyTo` to size/place children.  
- * - Registers the container for cascading.  
- * - Returns the created container frame. 
+/**
+ * Create a container with a backdrop frame.
+ * - Calls `applyTo` to size/place children.
+ * - Registers the container for cascading.
+ * - Returns the created container frame.
  */
 public function TableLayout.createFramedContainer(framehandle parent) returns framehandle
     let f = layoutFrame(parent)
@@ -55,10 +55,11 @@ public function relayoutNestedTables()
             t.height = f.getHeight()
             t.layout()
 
-/** 
- * Apply this layout to a base frame,  
- * then cascade updates to any nested tables. 
+/**
+ * Apply this layout to a base frame,
+ * then cascade updates to any nested tables.
  */
 public function TableLayout.applyToCascade(framehandle baseFrame)
     this.applyTo(baseFrame)
     relayoutNestedTables()
+
