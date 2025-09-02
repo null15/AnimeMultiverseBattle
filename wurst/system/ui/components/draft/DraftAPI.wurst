@@ -8,12 +8,6 @@ import FlowGrid
 import FramePos
 import ClosureTimers
 
-/* 
- * Core draft setup system.  
- * Handles hero registration, player UI state,  
- * category/page buttons, and refreshing the hero grid. 
-*/
-
 /** Standard button size (heroes). */
 public real heroIconSize = 0.059
 /** Smaller button size (compact layout). */
@@ -23,7 +17,7 @@ public constant real DRAFT_REFRESH_DEBOUNCE = 0.12 /* Debounce time to coalesce 
 constant real ANIMATION_SPEED_DURATION = 0.75
 public constant int MAX_CATEGORIES = 8
 public constant int MAX_PAGES = 3
-constant int PER_PAGE = 30   // heroes per page
+constant int PER_PAGE = 30
 
 /** Per-player draft UI state. */
 HashMap<int, DraftUIState> uiState = new HashMap<int, DraftUIState>()
@@ -61,11 +55,11 @@ CategoryType array categoryTypeArray
 HashMap<int, boolean> refreshScheduled = new HashMap<int, boolean>()
 
 public string array catTex
-public string array catTexOn        // <— NEW: selected state art
+public string array catTexOn
 public string array catTexDisabled
-public framehandle array categoryBtnIcons  // <— the actual BACKDROP we’ll texture-swap
+public framehandle array categoryBtnIcons
 
-// Returns the BACKDROP child called "pickIcon" inside the img button.
+/** Returns the BACKDROP child called "pickIcon" inside the img button. */
 public function getButtonIcon(framehandle btn) returns framehandle
     let n = btn.getChildrenCount()
     for i = 0 to n - 1
@@ -76,8 +70,7 @@ public function getButtonIcon(framehandle btn) returns framehandle
 
 /** Schedule one refresh for this player after a small delay. */
 public function scheduleRefresh(int pid)
-    // If already scheduled, just let the queued one run (state has already been updated)
-    if refreshScheduled.has(pid) and refreshScheduled.get(pid)
+    if refreshScheduled.get(pid)
         return
 
     refreshScheduled.put(pid, true)
@@ -115,8 +108,7 @@ public function updateHeroSelectionVisual(int pid)
     for h in allHeroes
         let f = heroBtnById.get(h.unitID)
         if f != null
-            let on = sel != 0 and sel == h.unitID
-            setButtonSelected(f, h.fullName(), on)
+            setButtonSelected(f, h.fullName(), sel != 0 and sel == h.unitID)
 
 /** 
  * Per-player draft UI state.  
@@ -154,9 +146,9 @@ public class HeroDraft
     string name
     string aftername
     string franchise
+    string franchiseKey
     LinkedList<CategoryType> categories
 
-    // cached sort keys (lowercased once)
     string nameKey
     string afterKey
 
@@ -168,6 +160,7 @@ public class HeroDraft
         this.categories = new LinkedList<CategoryType>()
         this.nameKey = ""
         this.afterKey = ""
+        this.franchiseKey = ""
 
     construct(int unitID, string name, string aftername, string franchise)
         this.unitID = unitID
@@ -177,6 +170,7 @@ public class HeroDraft
         this.categories = new LinkedList<CategoryType>()
         this.nameKey = name.toLowerCase()
         this.afterKey = aftername.toLowerCase()
+        this.franchiseKey = franchise.toLowerCase()
 
     function fullName() returns string
         if aftername != ""
@@ -192,28 +186,20 @@ public class HeroDraft
                 this.categories.add(category)
         return this.categories
 
-    /**
-     * Register a hero into the draft pool (append only; sorting happens once later).
-     */
-    function addHero(int id, string name, string aftername, string franchise)
-        this.unitID = id
-        this.name = name
-        this.aftername = aftername
-        this.franchise = franchise
-        this.nameKey = name.toLowerCase()
-        this.afterKey = aftername.toLowerCase()
-
-        if name == ""
-            print("|cffff0000addHero: name cannot be empty.|r")
-            return
-
-        if heroById.has(id)
-            print("|cffff0000Duplicate hero id:|r " + id.toString() + " — ignoring second registration.")
-            return
-
-        // append (no ordered insert here)
-        allHeroes.add(this)
-        heroById.put(this.unitID, this)
+/**
+ * Register a hero into the draft pool (append only; sorting happens once later).
+ */
+public function registerHero(int id, string name, string aftername, string franchise) returns HeroDraft
+    if name == ""
+        print("|cffff0000registerHero: name cannot be empty.|r")
+        return null
+    if heroById.has(id)
+        print("|cffff0000Duplicate hero id:|r " + id.toString() + " — ignoring second registration.")
+        return heroById.get(id)
+    let h = new HeroDraft(id, name, aftername, franchise)
+    allHeroes.add(h)
+    heroById.put(h.unitID, h)
+    return h
 
 public interface HeroPickListener
     function onHeroPicked(int pid, int unitID)
@@ -226,33 +212,22 @@ public function notifyHeroPicked(int pid, int unitID)
     for l in pickListeners
         l.onHeroPicked(pid, unitID)
 
-/** Associate a pre-created button with a hero id. */
-public function setHeroButton(int id, framehandle f)
-    if f != null
-        heroBtnById.put(id, f)
-
 /** Get the button frame for a hero id, or null if not set. */
 public function getHeroButton(int id) returns framehandle
-    let f = heroBtnById.get(id)
-    if f != null
-        return f
-
-    let h = heroById.get(id)
-    if h == null
-        return null
-
-    let b = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
-
-    // wire here, once, when the button is created
-    let hid = id
-    b.onClick() ->
-        let pid = GetPlayerId(GetTriggerPlayer())
-        selectedHeroByPid.put(pid, hid)
-        updateHeroSelectionVisual(pid)
-        notifyHeroPicked(pid, hid)
-
-    heroBtnById.put(id, b)
-    return b
+    var f = heroBtnById.get(id)
+    if f == null
+        let h = heroById.get(id)
+        if h == null
+            return null
+        f = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
+        let hid = id
+        f.onClick() ->
+            let pid = GetPlayerId(GetTriggerPlayer())
+            selectedHeroByPid.put(pid, hid)
+            updateHeroSelectionVisual(pid)
+            notifyHeroPicked(pid, hid)
+        heroBtnById.put(id, f)
+    return f
 
 public function setSearchQuery(int pid, string q)
     var s = q
@@ -271,7 +246,7 @@ public function heroMatchesQuery(HeroDraft h, string q) returns bool
     if q == ""
         return true
     let s = q.toLowerCase()
-    return h.nameKey.contains(s) or h.afterKey.contains(s) or h.franchise.toLowerCase().contains(s)
+    return h.nameKey.contains(s) or h.afterKey.contains(s) or h.franchiseKey.contains(s)
 
 /** 
  * Ensure a DraftUIState exists for a player.  
@@ -296,16 +271,6 @@ public function matchesAll(HeroDraft h, LinkedList<CategoryType> selected) retur
         if not h.categories.has(cat)
             return false
     return true
-
-/** Count heroes matching current filters (categories + search) for a player. */
-public function countFiltered(int pid) returns int
-    let st = getOrCreateState(pid)
-    let q = getSearchQuery(pid)
-    var n = 0
-    for h in allHeroes
-        if matchesAll(h, st.categories) and heroMatchesQuery(h, q)
-            n++
-    return n
 
 public function updateCategoryButtons(int pid)
     let st = getOrCreateState(pid)
@@ -367,7 +332,12 @@ public function updatePageButtons(int pid)
  */
 public function refreshGrid(int pid)
     let st = getOrCreateState(pid)
-    let total = countFiltered(pid)
+    let q = getSearchQuery(pid)
+
+    var total = 0
+    for h in allHeroes
+        if matchesAll(h, st.categories) and heroMatchesQuery(h, q)
+            total++
 
     var maxP = (total + PER_PAGE - 1) div PER_PAGE
     if maxP < 1
@@ -381,12 +351,9 @@ public function refreshGrid(int pid)
     if GetLocalPlayer() != Player(pid)
         return
 
-    // Compute streaming window
-    let q = getSearchQuery(pid)
     let startIdx = (st.currentPage - 1) * PER_PAGE
     let endIdx = startIdx + PER_PAGE - 1
 
-    // Stream matches and capture only the current page
     framehandle array pageBuf
     var pageCount = 0
     var matchIdx = 0
@@ -399,14 +366,12 @@ public function refreshGrid(int pid)
                     pageCount++
             matchIdx++
 
-    // Remove everything currently shown
     for f in shownNow
         heroGrid.remove(f)
         BlzFrameSetVisible(f, false)
 
     cancelGridAnimations()
 
-    // Add new frames in order and seed their spawn pos
     for i = 0 to pageCount - 1
         let f = pageBuf[i]
         BlzFrameSetVisible(f, true)
@@ -414,7 +379,6 @@ public function refreshGrid(int pid)
         BlzFrameSetAlpha(f, 0)
         setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, 0.0, 0.0)
 
-    // Rebuild our tracking (small, bounded)
     shownNow.clear()
     for i = 0 to pageCount - 1
         shownNow.add(pageBuf[i])
@@ -443,7 +407,6 @@ public function wireCategoryButtons()
  * Wire page buttons to change pages.  
  * Ignores clicks if target page is greater than maxPage. 
  */
-// DraftAPI.wurst – paging wireup
 public function wirePageButtons()
     for i = 1 to MAX_PAGES
         if pageBtns[i] != null
