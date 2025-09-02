@@ -68,7 +68,7 @@ function draftScreen()
     wirePageButtons()
 
     let pidLocal = GetPlayerId(GetLocalPlayer())
-    let st = getOrCreateState(pidLocal)
+    let st = getDraftUI(pidLocal)
     st.currentPage = 1
     shownNow.clear()
     refreshGrid(pidLocal)
