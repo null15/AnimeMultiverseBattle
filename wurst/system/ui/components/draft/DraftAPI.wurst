@@ -11,7 +11,8 @@ import ClosureTimers
 /** Standard button size (heroes). */
 public real heroIconSize = 0.059
 /** Smaller button size (compact layout). */
-public real categoryPageSize = 0.035
+public real categoryPageSize = 0.0275
+public real banIconSize = 0.035
 
 public constant real DRAFT_REFRESH_DEBOUNCE = 0.12 /* Debounce time to coalesce spam clicks (seconds). */
 constant real ANIMATION_SPEED_DURATION = 0.75

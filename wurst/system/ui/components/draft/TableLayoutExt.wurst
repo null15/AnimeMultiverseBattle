@@ -42,6 +42,19 @@ public function TableLayout.createFramedContainer(framehandle parent) returns fr
     return f
 
 /**
+ * Create a container with no backdrop frame.
+ * - Calls `applyTo` to size/place children.
+ * - Registers the container for cascading.
+ * - Returns the created container frame.
+ */
+public function TableLayout.createContainerEx(framehandle parent) returns framehandle
+    let f = layoutFrame(parent)
+    this.applyTo(f)
+    createFrame("", f, 0, 0)..setAllPoints(f)
+    registerTable(f, this)
+    return f
+
+/**
 * Relayouts all registered nested tables.
 * Runs up to 2 passes (enough for most nesting depths).
 * Keeps child sizes in sync with their parent containers.
