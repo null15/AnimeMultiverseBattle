@@ -1,6 +1,8 @@
 package FramePos
 import HashMap
 
+constant posMap = new HashMap<framehandle, FramePos>() // Stores the last known position of frames (absolute or relative).
+
 /** Represents a remembered position of a frame.
  *  - `x`, `y`: coordinates in the UI system (0.0–1.0 is the screen range).
  *  - `isRelative`: whether the frame was placed relative to its parent (`true`) or absolutely (`false`).
@@ -17,21 +19,6 @@ public class FramePos
         this.y = y
         this.isRelative = isRelative
         this.anchor = anchor
-
-    /** Linear interpolation (lerp) between two frame positions.
-     *  Takes a target FramePos and a fraction `t` between 0 and 1.
-     *  Example: t = 0.0 → this, t = 1.0 → target, t = 0.5 → halfway.
-     */
-    function lerp(FramePos target, real t) returns FramePos
-        return new FramePos(
-            this.x + (target.x - this.x) * t,
-            this.y + (target.y - this.y) * t,
-            this.isRelative, // assume same type as start
-            this.anchor
-        )
-
-// Stores the last known position of frames (absolute or relative).
-constant posMap = new HashMap<framehandle, FramePos>()
 
 /** Sets the absolute position of a frame, and remembers it.
  *  This clears all previous anchors and places it exactly at (x,y) in screen coords.
@@ -62,12 +49,6 @@ public function setRelativePointTracked(framehandle f, framepointtype point, rea
         p.y = y
         p.isRelative = true
         p.anchor = point
-
-/** Clears the stored tracked position of a frame.
- *  Use this if you want to “forget” where a frame was last placed.
- */
-public function clearTrackedPos(framehandle f)
-    posMap.remove(f)
 
 /** Gets the last stored position of a frame, or null if it was never tracked. */
 public function getPos(framehandle f) returns FramePos

@@ -41,20 +41,11 @@ public function TableLayout.createFramedContainer(framehandle parent) returns fr
     registerTable(f, this)
     return f
 
-/** 
- * Create a plain container (no backdrop).  
- * Registers it for cascading and returns it. 
- */
-public function TableLayout.createContainerRegistered(framehandle parent) returns framehandle
-    let f = this.createContainer(parent)
-    registerTable(f, this)
-    return f
-
-/** 
- * Relayouts all registered nested tables.  
- * Runs up to 2 passes (enough for most nesting depths).  
- * Keeps child sizes in sync with their parent containers. 
- */
+/**
+* Relayouts all registered nested tables.
+* Runs up to 2 passes (enough for most nesting depths).
+* Keeps child sizes in sync with their parent containers.
+*/
 public function relayoutNestedTables()
     for i = 0 to 1
         for reg in _regs

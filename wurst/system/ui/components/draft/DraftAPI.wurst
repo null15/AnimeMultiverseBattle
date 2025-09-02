@@ -155,7 +155,6 @@ public class HeroDraft
     string aftername
     string franchise
     LinkedList<CategoryType> categories
-    framehandle btn
 
     // cached sort keys (lowercased once)
     string nameKey
@@ -167,7 +166,6 @@ public class HeroDraft
         this.aftername = ""
         this.franchise = ""
         this.categories = new LinkedList<CategoryType>()
-        this.btn = null
         this.nameKey = ""
         this.afterKey = ""
 
@@ -177,7 +175,6 @@ public class HeroDraft
         this.aftername = aftername
         this.franchise = franchise
         this.categories = new LinkedList<CategoryType>()
-        this.btn = null
         this.nameKey = name.toLowerCase()
         this.afterKey = aftername.toLowerCase()
 
@@ -274,13 +271,7 @@ public function heroMatchesQuery(HeroDraft h, string q) returns bool
     if q == ""
         return true
     let s = q.toLowerCase()
-    if h.name.toLowerCase().contains(s)
-        return true
-    if h.aftername.toLowerCase().contains(s)
-        return true
-    if h.franchise.toLowerCase().contains(s)
-        return true
-    return false
+    return h.nameKey.contains(s) or h.afterKey.contains(s) or h.franchise.toLowerCase().contains(s)
 
 /** 
  * Ensure a DraftUIState exists for a player.  
@@ -322,27 +313,30 @@ public function updateCategoryButtons(int pid)
     if GetLocalPlayer() != Player(pid)
         return
 
+    let q = getSearchQuery(pid)    
     for i = 1 to MAX_CATEGORIES
         let btn = categoryBtns[i]
         if btn != null
-            let cat = categoryTypeArray[i]          // CategoryType (not string)
+            let cat = categoryTypeArray[i]
             let isSelected = st.categories.has(cat)
-            let canAdd    = countIfAddedFast(pid, cat) > 0
-            let enabled   = isSelected or canAdd
+
+            var enabled = isSelected
+            if not enabled
+                for h in allHeroes
+                    if matchesAll(h, st.categories) and heroMatchesQuery(h, q) and h.categories.has(cat)
+                        enabled = true
+                        break
 
             BlzFrameSetEnable(btn, enabled)
 
             let icon = categoryBtnIcons[i]
             if icon != null
                 if isSelected
-                    // ON (selected)
                     icon.setTexture(catTexOn[i], 0, true)
                 else
-                    if canAdd
-                        // OFF but available
+                    if enabled
                         icon.setTexture(catTex[i], 0, true)
                     else
-                        // DISABLED (would yield 0 results)
                         icon.setTexture(catTexDisabled[i], 0, true)
 
 /** Clamp a page number into range [1..maxP]. */
@@ -369,8 +363,7 @@ public function updatePageButtons(int pid)
 
 /**
  * Refresh hero grid for a player.
- * Now uses heroBtnById instead of h.btn, cancels old anims,
- * and clears tracked pos for new frames so they animate in.
+ * Cancels old anims and clears tracked pos for new frames so they animate in.
  */
 public function refreshGrid(int pid)
     let st = getOrCreateState(pid)
@@ -383,7 +376,7 @@ public function refreshGrid(int pid)
     st.currentPage = clampPage(st.currentPage, st.maxPage)
 
     updatePageButtons(pid)
-    updateCategoryButtons(pid) // <— new (see section 2)
+    updateCategoryButtons(pid)
 
     if GetLocalPlayer() != Player(pid)
         return
@@ -428,28 +421,6 @@ public function refreshGrid(int pid)
 
     heroGrid.layoutAnimated(ANIMATION_SPEED_DURATION)
     updateHeroSelectionVisual(pid)
-
-// DraftAPI.wurst
-public function wouldMatchWithExtra(HeroDraft h, LinkedList<CategoryType> selected, CategoryType extra) returns bool
-    // Must match all currently selected
-    for c in selected
-        if not h.categories.has(c)
-            return false
-    // If extra already selected, it doesn't further restrict
-    for c in selected
-        if c == extra
-            return true
-    // Otherwise, hero must also have the extra category
-    return h.categories.has(extra)
-
-public function countIfAddedFast(int pid, CategoryType cat) returns int
-    let st = getOrCreateState(pid)
-    let q = getSearchQuery(pid)
-    var n = 0
-    for h in allHeroes
-        if heroMatchesQuery(h, q) and wouldMatchWithExtra(h, st.categories, cat)
-            n++
-    return n
 
 /** Toggle categories and refresh; also updates button enabled-states. */
 public function wireCategoryButtons()

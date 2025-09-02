@@ -34,9 +34,8 @@ public function cancelGridAnimations()
  * - `cols`: number of columns before wrapping to a new row.  
  * - `cellW`, `cellH`: width and height of each cell.  
  * - `gapX`, `gapY`: spacing between cells.  
- * - `items`: list of frames currently inside the grid.  
- * - `containerFrame`: optional parent frame.  
- * - `useContainer`: true if frames are auto-parented to `containerFrame`.  
+ * - `items`: list of frames currently inside the grid.
+ * - `containerFrame`: optional parent frame.
  */
 public class SimpleGrid
     int layoutGen = 0
@@ -49,7 +48,6 @@ public class SimpleGrid
     int cols
     constant items = new LinkedList<framehandle>()
     framehandle containerFrame = null
-    boolean useContainer = false
 
     /** Create a new grid at (originX, originY). */
     construct(real originX, real originY, int cols, real cellW, real cellH, real gap)
@@ -61,12 +59,6 @@ public class SimpleGrid
         this.gapX    = gap
         this.gapY    = gap
 
-    /** Optionally create a container frame for grouping grid items. */
-    function createContainer(framehandle parent) returns framehandle
-        containerFrame = createFrame("FRAME", "GridContainer", parent, null, 0)
-        useContainer = true
-        return containerFrame
-
     /** Add a frame to the grid. Will be re-parented to container if available. */
     function add(framehandle f)
         items.add(f)
@@ -76,18 +68,6 @@ public class SimpleGrid
     /** Remove a frame from the grid. */
     function remove(framehandle f)
         items.remove(f)
-
-    /** Insert a frame at the given index (0 = first). */
-    function insert(int index, framehandle f)
-        if index <= 0
-            items.addAt(f, 0)
-        else if index >= items.size()
-            items.add(f)
-        else
-            items.addAt(f, index)
-
-        if containerFrame != null
-            f.setParent(containerFrame)
 
     /** Compute grid position of an item index as (x, y). */
     function indexPos(int idx) returns vec2
@@ -204,13 +184,3 @@ public class SimpleGrid
     function easeOutQuart(real t) returns real
         let oneMinusT = 1.0 - t
         return 1.0 - oneMinusT * oneMinusT * oneMinusT * oneMinusT
-
-    /** Total width of the grid (including gaps). */
-    function getGridWidth() returns real
-        return cols.toReal() * cellW + (cols - 1).toReal() * gapX
-
-    /** Total height of the grid (including gaps). */
-    function getGridHeight() returns real
-        let totalItems = items.size()
-        let rows = (totalItems + cols - 1) div cols
-        return rows.toReal() * cellH + (rows - 1).toReal() * gapY

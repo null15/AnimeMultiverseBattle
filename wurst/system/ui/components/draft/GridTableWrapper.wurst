@@ -36,7 +36,6 @@ public class GridCell
         // Grid sits inside the container
         grid = new SimpleGrid(padX, padY, cols, cellW, cellH, gap)
         grid.containerFrame = containerFrame
-        grid.useContainer = true
 
     /** Get the container frame used by TableLayout. */
     function getFrame() returns framehandle
@@ -54,10 +53,6 @@ public class GridCell
     function remove(framehandle f)
         grid.remove(f)
 
-    /** Insert a frame at a specific index. */
-    function insert(int index, framehandle f)
-        grid.insert(index, f)
-
     /** Place all items instantly (no animation). */
     function layoutInstant()
         grid.layoutInstant()
@@ -66,16 +61,10 @@ public class GridCell
     function layoutAnimated(real duration)
         grid.layoutAnimated(duration)
 
-    /** Update the container’s width and height. */
-    function setSize(real width, real height)
-        this.containerWidth = width
-        this.containerHeight = height
-        containerFrame.setSize(width, height)
-
-    /** 
-     * Wrap this grid cell in a framed container with a backdrop.  
-     * - Useful for visual grouping (e.g. a bordered box).  
-     * - The grid’s container will be re-parented into this new frame.  
+    /**
+     * Wrap this grid cell in a framed container with a backdrop.
+     * - Useful for visual grouping (e.g. a bordered box).
+     * - The grid’s container will be re-parented into this new frame.
      */
     function createFramedContainer(framehandle parent) returns framehandle
         let outer = createFrame("FRAME", "GridCellFramed", parent, null, 0)
