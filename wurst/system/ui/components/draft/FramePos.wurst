@@ -1,8 +1,6 @@
 package FramePos
 import HashMap
 
-constant posMap = new HashMap<framehandle, FramePos>() // Stores the last known position of frames (absolute or relative).
-
 /** Represents a remembered position of a frame.
  *  - `x`, `y`: coordinates in the UI system (0.0–1.0 is the screen range).
  *  - `isRelative`: whether the frame was placed relative to its parent (`true`) or absolutely (`false`).
@@ -20,9 +18,10 @@ public class FramePos
         this.isRelative = isRelative
         this.anchor = anchor
 
-/** Sets the absolute position of a frame, and remembers it.
- *  This clears all previous anchors and places it exactly at (x,y) in screen coords.
- */
+/** Stores the last known position of frames (absolute or relative). */
+constant posMap = new HashMap<framehandle, FramePos>()
+
+/** Sets the absolute position of a frame, and remembers it. */
 public function setAbsPointTracked(framehandle f, framepointtype point, real x, real y)
     BlzFrameClearAllPoints(f)
     BlzFrameSetAbsPoint(f, point, x, y)
@@ -35,9 +34,7 @@ public function setAbsPointTracked(framehandle f, framepointtype point, real x, 
         p.isRelative = false
         p.anchor = point
 
-/** Sets the relative position of a frame to its parent, and remembers it.
- *  Places the frame’s anchor relative to the parent’s top-left corner.
- */
+/** Sets the relative position of a frame to its parent, and remembers it. */
 public function setRelativePointTracked(framehandle f, framepointtype point, real x, real y)
     BlzFrameClearAllPoints(f)
     BlzFrameSetPoint(f, point, BlzFrameGetParent(f), FRAMEPOINT_TOPLEFT, x, y)

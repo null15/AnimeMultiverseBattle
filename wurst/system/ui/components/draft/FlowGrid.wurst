@@ -6,20 +6,19 @@ import FramePos
 import LinkedList
 
 /*
- * FlowGrid: A simple animated grid layout with FramePos tracking.  
- * 
- * Features:  
- * - Top-left origin defined in relative coords (`originX`, `originY`).  
- * - Items flow left → right, wrapping after `cols` columns.  
- * - Use `layoutInstant()` after setup to place items.  
- * - Use `layoutAnimated(duration)` after add/remove for smooth movement.  
- * - Supports optional container frames for grouping items visually.  
- * - Active animations can be globally cancelled.  
+ * FlowGrid: A simple animated grid layout with FramePos tracking.
+ *
+ * Features:
+ * - Top-left origin defined in relative coords (`originX`, `originY`).
+ * - Items flow left → right, wrapping after `cols` columns.
+ * - Use `layoutInstant()` after setup to place items.
+ * - Use `layoutAnimated(duration)` after add/remove for smooth movement.
+ * - Supports optional container frames for grouping items visually.
+ * - Active animations can be globally cancelled.
 */
 
 /** Global registry of all active grid animations (periodic timers). */
 public constant activePeriodicTimers = new LinkedList<CallbackPeriodic>()
-
 
 /** Cancel and clear all ongoing grid animations. */
 public function cancelGridAnimations()
@@ -27,13 +26,18 @@ public function cancelGridAnimations()
         destroy t
     activePeriodicTimers.clear()
 
-/** 
- * SimpleGrid: An animated grid with optional container.  
- * 
- * - `originX`, `originY`: top-left corner of the grid (relative coordinates).  
- * - `cols`: number of columns before wrapping to a new row.  
- * - `cellW`, `cellH`: width and height of each cell.  
- * - `gapX`, `gapY`: spacing between cells.  
+/** Quartic ease-out function for smooth deceleration. */
+function easeOutQuart(real t) returns real
+    let oneMinusT = 1.0 - t
+    return 1.0 - oneMinusT * oneMinusT * oneMinusT * oneMinusT
+
+/**
+ * SimpleGrid: An animated grid with optional container.
+ *
+ * - `originX`, `originY`: top-left corner of the grid (relative coordinates).
+ * - `cols`: number of columns before wrapping to a new row.
+ * - `cellW`, `cellH`: width and height of each cell.
+ * - `gapX`, `gapY`: spacing between cells.
  * - `items`: list of frames currently inside the grid.
  * - `containerFrame`: optional parent frame.
  */
@@ -179,8 +183,3 @@ public class SimpleGrid
 
         // Track so cancelGridAnimations() can kill all running animations
         activePeriodicTimers.add(cb)
-
-    /** Quartic ease-out function for smooth deceleration. */
-    function easeOutQuart(real t) returns real
-        let oneMinusT = 1.0 - t
-        return 1.0 - oneMinusT * oneMinusT * oneMinusT * oneMinusT
