@@ -16,11 +16,11 @@ import ClosureTimers
 
 /** Standard button size (heroes). */
 public real heroIconSize = 0.059
-/** Larger button size (e.g. featured heroes). */
-public real sizeBig = 0.05
 /** Smaller button size (compact layout). */
 public real categoryPageSize = 0.035
 
+public constant real DRAFT_REFRESH_DEBOUNCE = 0.12 /* Debounce time to coalesce spam clicks (seconds). */
+constant real ANIMATION_SPEED_DURATION = 0.75
 public constant int MAX_CATEGORIES = 8
 public constant int MAX_PAGES = 3
 constant int PER_PAGE = 30   // heroes per page
@@ -57,14 +57,8 @@ LinkedList<HeroPickListener> pickListeners = new LinkedList<HeroPickListener>()
 
 CategoryType array categoryTypeArray
 
-/** Debounce time to coalesce spam clicks (seconds). */
-public constant real DRAFT_REFRESH_DEBOUNCE = 0.12
-
 /** Per-player "a refresh is already scheduled" flag. */
 HashMap<int, boolean> refreshScheduled = new HashMap<int, boolean>()
-
-/** For category/hero button text base labels (so we can toggle visuals). */
-public string array categoryLabelByIndex
 
 public string array catTex
 public string array catTexOn        // <— NEW: selected state art
@@ -91,24 +85,6 @@ public function scheduleRefresh(int pid)
         refreshScheduled.put(pid, false)
         refreshGrid(pid)
 
-/** Temporarily disables category/page buttons locally to avoid hammering. */
-public function lockInputsLocal(int pid, real seconds)
-    if GetLocalPlayer() != Player(pid)
-        return
-    for i = 1 to MAX_CATEGORIES
-        if categoryBtns[i] != null
-            BlzFrameSetEnable(categoryBtns[i], false)
-    for i = 1 to MAX_PAGES
-        if pageBtns[i] != null
-            BlzFrameSetEnable(pageBtns[i], false)
-    doAfter(seconds) ->
-        updateCategoryButtons(pid)
-        updatePageButtons(pid)
-
-/** Remember category label text for index (1..MAX_CATEGORIES). */
-public function registerCategoryLabel(int idx, string label)
-    categoryLabelByIndex[idx] = label
-
 /** Compare two heroes by (name, aftername), case-insensitive. */
 public function compareFullNames(HeroDraft a, HeroDraft b) returns int
     let c1 = stringCompare(a.nameKey, b.nameKey)
@@ -120,15 +96,6 @@ constant Comparator<HeroDraft> heroComparator = (a, b) -> compareFullNames(a, b)
 
 public function sortAllHeroesOnce()
     allHeroes.sortWith(heroComparator)
-/** Insert hero into a LinkedList keeping alphabetical order by full name. */
-public function insertOrdered(LinkedList<HeroDraft> list, HeroDraft h)
-    var i = 0
-    for cur in list
-        if compareFullNames(h, cur) < 0
-            list.addAt(h, i)
-            return
-        i++
-    list.add(h)
 
 /** Selected hero per player (for ON/TRUE highlight). */
 HashMap<int, int> selectedHeroByPid = new HashMap<int, int>()
@@ -139,18 +106,6 @@ public function setButtonSelected(framehandle f, string baseText, boolean on)
         BlzFrameSetText(f, "|cff81b862✓ " + baseText + "|r")
     else
         BlzFrameSetText(f, baseText)
-
-/** Refresh ON/TRUE visuals for category buttons. */
-public function updateCategoryButtonsVisual(int pid)
-    let st = getOrCreateState(pid)
-    if GetLocalPlayer() == Player(pid)
-        for i = 1 to MAX_CATEGORIES
-            let f = categoryBtns[i]
-            if f != null
-                let cat = categoryTypeArray[i]
-                let on = st.categories.has(cat)
-                let base = categoryLabelByIndex[i]
-                setButtonSelected(f, base, on)
 
 /** Refresh ON/TRUE visuals for hero buttons for the local player. */
 public function updateHeroSelectionVisual(int pid)
@@ -302,13 +257,6 @@ public function getHeroButton(int id) returns framehandle
     heroBtnById.put(id, b)
     return b
 
-/** Creates simple buttons for every registered hero and stores them in heroBtnById. */
-public function buildHeroButtons()
-    for h in allHeroes
-        if getHeroButton(h.unitID) == null
-            let b = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
-            setHeroButton(h.unitID, b)
-
 public function setSearchQuery(int pid, string q)
     var s = q
     if s == null
@@ -367,33 +315,6 @@ public function countFiltered(int pid) returns int
         if matchesAll(h, st.categories) and heroMatchesQuery(h, q)
             n++
     return n
-
-/** Preview how many heroes would show if we (also) had `cat` selected. */
-public function countIfAdded(int pid, CategoryType cat) returns int
-    let st = getOrCreateState(pid)
-    let tmp = new LinkedList<CategoryType>()
-    for c in st.categories
-        tmp.add(c)
-    if not tmp.has(cat)
-        tmp.add(cat)
-    let q = getSearchQuery(pid)
-
-    var n = 0
-    for h in allHeroes
-        if matchesAll(h, tmp) and heroMatchesQuery(h, q)
-            n++
-    return n
-
-/** Enable/disable category buttons based on whether they would produce any results. */
-public function updateCategoryButtonsUX(int pid)
-    let st = getOrCreateState(pid)
-    if GetLocalPlayer() == Player(pid)
-        for i = 1 to MAX_CATEGORIES
-            if categoryBtns[i] != null
-                let cname = categoryTypeArray[i]
-                let selected = st.categories.has(cname)
-                let cnt = countIfAdded(pid, cname)
-                BlzFrameSetEnable(categoryBtns[i], selected or cnt > 0)
 
 public function updateCategoryButtons(int pid)
     let st = getOrCreateState(pid)
@@ -505,7 +426,7 @@ public function refreshGrid(int pid)
     for i = 0 to pageCount - 1
         shownNow.add(pageBuf[i])
 
-    heroGrid.layoutAnimated(0.20)
+    heroGrid.layoutAnimated(ANIMATION_SPEED_DURATION)
     updateHeroSelectionVisual(pid)
 
 // DraftAPI.wurst
@@ -530,18 +451,6 @@ public function countIfAddedFast(int pid, CategoryType cat) returns int
             n++
     return n
 
-/** Connect all hero buttons to notifyHeroPicked. Safe to call after buildHeroButtons(). */
-public function wireHeroButtons()
-    for h in allHeroes
-        let f = getHeroButton(h.unitID)
-        if f != null
-            let hid = h.unitID
-            f.onClick() ->
-                let pid = GetPlayerId(GetTriggerPlayer())
-                selectedHeroByPid.put(pid, hid)
-                updateHeroSelectionVisual(pid)
-                notifyHeroPicked(pid, hid)
-
 /** Toggle categories and refresh; also updates button enabled-states. */
 public function wireCategoryButtons()
     for i = 1 to MAX_CATEGORIES
@@ -556,11 +465,8 @@ public function wireCategoryButtons()
                 else
                     st.categories.add(cname)
                 st.currentPage = 1
-                // Local UX updates are fine immediately
                 updateCategoryButtons(pid)
-                // Debounce the actual grid rebuild/animation
                 scheduleRefresh(pid)
-                // lockInputsLocal(pid, 0.10) // we can add this if spamming buttons start to cause bugs, this will disable button from being clickable x seconds
 
 /** 
  * Wire page buttons to change pages.  
@@ -576,12 +482,7 @@ public function wirePageButtons()
                 let st = getOrCreateState(pid)
                 if idx <= st.maxPage
                     st.currentPage = idx
-                    // lockInputsLocal(pid, 0.08)   // <— enable this
                     scheduleRefresh(pid)
-
-public function setupHeroButtons()
-    // buildHeroButtons()
-    // wireHeroButtons()
 
 init
     categoryTypeArray[1] = CategoryType.STRENGTH

@@ -72,12 +72,3 @@ public function clearTrackedPos(framehandle f)
 /** Gets the last stored position of a frame, or null if it was never tracked. */
 public function getPos(framehandle f) returns FramePos
     return posMap.get(f)
-
-/** Moves a frame by an offset from its last tracked position.
- *  - dx, dy: how far to move from the last stored position.
- *  If no position is tracked yet, nothing happens.
- */
-public function offsetPos(framehandle f, real dx, real dy)
-    let old = getPos(f)
-    if old != null
-        setAbsPointTracked(f, FRAMEPOINT_CENTER, old.x + dx, old.y + dy)

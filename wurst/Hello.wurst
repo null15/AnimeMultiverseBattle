@@ -12,8 +12,4 @@ init
     // TO-DO:   In order -> UnitEvent(Indexer kinda), BribeDamageEngine, AttackIndexer, ARGB, CustomBar, ShieldEngine
     // Later, focus on Draft UI.
 
-    // TO-DO: Too many units in defineHeroes() function, creates errors, investigate.
-    // TO-DO: Was able to bug by spamming page buttons hard, LLEntry out of memory. See latest image sent on my private server. Just keep spamming and it will happen.
-
-
     // 

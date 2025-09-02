@@ -9,13 +9,9 @@ import ClosureTimers
 
 function setupCategoryButtons()
     for i = 1 to MAX_CATEGORIES
-        // Use image buttons so we can swap art
         categoryBtns[i] = imgBtn(catTex[i])
             ..setWidth(categoryPageSize)
             ..setHeight(categoryPageSize)
-        categoryBtnIcons[i] = getButtonIcon(categoryBtns[i])
-
-        // Grab and store the BACKDROP child "pickIcon" for fast texture swaps
         categoryBtnIcons[i] = getButtonIcon(categoryBtns[i])
 
 function setupPageButtons()
@@ -30,9 +26,6 @@ function draftScreen()
 
     let parent = createFrame("FRAME", "DraftParent", getFrame("ConsoleUIBackdrop", 0), "", 0)
     defaultFrameParent = parent
-
-    // buildHeroButtons()
-    setupHeroButtons()
 
     let timerTable = new TableLayout(0.1, 0.05)
         ..row()..add(p("Timer"))..growX()
@@ -79,7 +72,6 @@ function draftScreen()
     st.currentPage = 1
     shownNow.clear()
     refreshGrid(pidLocal)
-    updateCategoryButtonsVisual(pidLocal) // initial ON/TRUE visuals
 
     defaultFrameParent = GAME_UI
 
@@ -93,7 +85,7 @@ init
     catTex[7] = "Strength.dds"
     catTex[8] = "Agility.dds"
 
-    catTexOn[1] = "Strength_enabled.dds"        // <— NEW
+    catTexOn[1] = "Strength_enabled.dds"
     catTexOn[2] = "Agility_enabled.dds"
     catTexOn[3] = "Intelligence_enabled.dds"
     catTexOn[4] = "Strength_enabled.dds"
@@ -117,6 +109,5 @@ init
         defineHeroes()
         sortAllHeroesOnce()
 
-    // keep your existing UI delay, or keep it separate:
     doAfter(0.5) ->
         draftScreen()
