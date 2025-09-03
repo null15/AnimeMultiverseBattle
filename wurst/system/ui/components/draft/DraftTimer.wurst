@@ -1,0 +1,74 @@
+package DraftTimer
+
+import ClosureTimers
+
+int currentTime = 60
+framehandle timerTens = null
+framehandle timerOnes = null
+CallbackPeriodic countdownCb = null
+bool singleDigit = false
+
+string array numberTex
+string array redNumberTex
+
+init
+    for i = 0 to 9
+        numberTex[i] = "number_" + i.toString() + ".dds"
+        if i <= 5
+            redNumberTex[i] = "red_number_" + i.toString() + ".dds"
+
+public function initDraftTimer(framehandle tens, framehandle ones)
+    timerTens = tens
+    timerOnes = ones
+    setDraftTime(currentTime)
+    startCountdown()
+
+function updateDisplay()
+    if currentTime < 10
+        if not singleDigit
+            singleDigit = true
+            timerTens.hide()
+            timerOnes.clearAllPoints()
+            timerOnes.setPoint(FRAMEPOINT_LEFT, timerTens, FRAMEPOINT_LEFT, 0.0200, 0)
+        if currentTime <= 5
+            timerOnes.setTexture(redNumberTex[currentTime], 0, true)
+        else
+            timerOnes.setTexture(numberTex[currentTime], 0, true)
+    else
+        if singleDigit
+            singleDigit = false
+            timerTens.show()
+            timerOnes.clearAllPoints()
+            timerOnes.setPoint(FRAMEPOINT_LEFT, timerTens, FRAMEPOINT_RIGHT, 0, 0)
+        let tens = currentTime div 10
+        let ones = currentTime % 10
+        timerTens.setTexture(numberTex[tens], 0, true)
+        timerOnes.setTexture(numberTex[ones.toInt()], 0, true)
+
+function startCountdown()
+    if countdownCb != null
+        destroy countdownCb
+    countdownCb = doPeriodically(1.0) (CallbackPeriodic cb) ->
+        if currentTime > 0
+            currentTime--
+            updateDisplay()
+            if currentTime == 0
+                destroy cb
+                countdownCb = null
+                doAfter(3.0) ->
+                    resetDraftTime()
+
+public function getDraftTime() returns int
+    return currentTime
+
+public function setDraftTime(int value)
+    currentTime = value
+    if currentTime < 0
+        currentTime = 0
+    if currentTime > 60
+        currentTime = 60
+    updateDisplay()
+
+public function resetDraftTime()
+    setDraftTime(60)
+    startCountdown()

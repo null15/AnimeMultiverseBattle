@@ -1,0 +1,186 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/wurst/system/ui/components/draft/DraftInitialize.wurst b/wurst/system/ui/components/draft/DraftInitialize.wurst
+index 92492e629bceca59eb92e1452c00cadec24959d3..fae50ab16fefeec0e3fa96bfb63b2e72219a9f70 100644
+--- a/wurst/system/ui/components/draft/DraftInitialize.wurst
++++ b/wurst/system/ui/components/draft/DraftInitialize.wurst
+@@ -1,74 +1,78 @@
+ package DraftInitialize
+ 
+ import DraftAPI
+ import TableLayout
+ import TableLayoutExt
+ import GridTableWrapper
+ import DraftHeroData
+ import ClosureTimers
++import DraftTimer
+ 
+ function setupCategoryButtons()
+     for i = 1 to MAX_CATEGORIES
+         categoryBtns[i] = imgBtn(catTex[i])
+             ..setWidth(categoryPageSize)
+             ..setHeight(categoryPageSize)
+         categoryBtnIcons[i] = getButtonIcon(categoryBtns[i])
+ 
+ function setupPageButtons()
+     for i = 1 to MAX_PAGES
+         pageBtns[i] = btn(i.toString())
+             ..setWidth(categoryPageSize)
+             ..setHeight(categoryPageSize)
+ 
+ function draftScreen()
+     hideOriginFrames()
+     getFrame("ConsoleUIBackdrop", 0).setSize(0, 0.0001)
+ 
+     let parent = createFrame("FRAME", "DraftParent", getFrame("ConsoleUIBackdrop", 0), "", 0)
+     defaultFrameParent = parent
+ 
+     let team1Bans = new TableLayout(0.3, 0.0675)
+     ..row()..center()
+     ..add(imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
+     ..add(imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
+     ..add(imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
+     ..add(imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
+     ..add(imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))
+ 
+     let team2Bans = new TableLayout(0.3, 0.0675)
+     ..row()..center()
+     ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
+     ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
+     ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
+     ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
+     ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))
+     
++    let timerTens = img("number_6.dds", 0.0400, 0.0400, true)
++    let timerOnes = img("number_0.dds", 0.0400, 0.0400, true)
+     let timerTable = new TableLayout(0.15, 0.0675)
+         ..row()..center()
+-        ..add(img("number_6.dds", 0.0400, 0.0400, true))
+-        ..add(img("number_0.dds", 0.0400, 0.0400, true))
++        ..add(timerTens)
++        ..add(timerOnes)
++    initDraftTimer(timerTens, timerOnes)
+ 
+     let categoryPageButtonsTable = new TableLayout(0.2, 0.0625)
+         ..row()
+         ..add(categoryBtns[1])..add(categoryBtns[2])..add(categoryBtns[3])..add(categoryBtns[4])
+         ..add(categoryBtns[5])..add(categoryBtns[6])..add(categoryBtns[7])..add(categoryBtns[8])
+         ..add(h1(""))..growX()
+         ..add(pageBtns[1])..add(pageBtns[2])..add(pageBtns[3])
+ 
+     let team1PickedTable = new TableLayout(0.125, 0.5)
+         ..row()..add(p("Header L"))..growX()
+ 
+     let team2PickedTable = new TableLayout(0.125, 0.5)
+         ..row()..add(p("Header R"))..growX()
+ 
+     heroGrid = new GridCell(0.4, 0.220, 10, heroIconSize, heroIconSize, 0.006)
+ 
+     let mainTable = new TableLayout(0.8, 0.5)
+         ..row()..center()
+         ..add(categoryPageButtonsTable.createFramedContainer(parent))..growX()
+         ..row()
+         ..add(heroGrid.createFramedContainer(parent))..growX()
+ 
+     let rootTable = new TableLayout(1.0, 0.6)
+         ..row()..center()
+         ..add(team1Bans.createContainerEx(parent))..padLeft(0.05)
+@@ -91,26 +95,26 @@ function draftScreen()
+     let st = getDraftUI(pidLocal)
+     st.currentPage = 1
+     shownNow.clear()
+     refreshGrid(pidLocal)
+ 
+     defaultFrameParent = GAME_UI
+ 
+ init
+     string array categoryImgNames
+     categoryImgNames[0] = "Strength"
+     categoryImgNames[1] = "Agility"
+     categoryImgNames[2] = "Intelligence"
+     for i = 1 to MAX_CATEGORIES
+         let name = categoryImgNames[((i - 1) % 3).toInt()]
+         catTex[i] = name + ".dds"
+         catTexOn[i] = name + "_enabled.dds"
+         catTexDisabled[i] = name + "_disabled.dds"
+     setupCategoryButtons()
+     setupPageButtons()
+ 
+     doAfter(0.25) ->
+         defineHeroes()
+         sortAllHeroesOnce()
+ 
+     doAfter(0.5) ->
+-        draftScreen()
+\ No newline at end of file
++        draftScreen()
+diff --git a/wurst/system/ui/components/draft/DraftTimer.wurst b/wurst/system/ui/components/draft/DraftTimer.wurst
+new file mode 100644
+index 0000000000000000000000000000000000000000..4134dde5268ce247270941505e312e381344c8c9
+--- /dev/null
++++ b/wurst/system/ui/components/draft/DraftTimer.wurst
+@@ -0,0 +1,62 @@
++package DraftTimer
++
++import ClosureTimers
++
++int currentTime = 60
++framehandle timerTens = null
++framehandle timerOnes = null
++CallbackPeriodic countdownCb = null
++
++string array numberTex
++string array redNumberTex
++
++init
++    for i = 0 to 9
++        numberTex[i] = "number_" + i.toString() + ".dds"
++        if i <= 5
++            redNumberTex[i] = "red_number_" + i.toString() + ".dds"
++
++public function initDraftTimer(framehandle tens, framehandle ones)
++    timerTens = tens
++    timerOnes = ones
++    setDraftTime(currentTime)
++    startCountdown()
++
++function updateDisplay()
++    if currentTime <= 5
++        timerTens.setTexture(redNumberTex[0], 0, true)
++        timerOnes.setTexture(redNumberTex[currentTime], 0, true)
++    else
++        let tens = currentTime div 10
++        let ones = currentTime % 10
++        timerTens.setTexture(numberTex[tens], 0, true)
++        timerOnes.setTexture(numberTex[ones], 0, true)
++
++private function startCountdown()
++    if countdownCb != null
++        destroy countdownCb
++    countdownCb = doPeriodically(1.0) (CallbackPeriodic cb) ->
++        if currentTime > 0
++            currentTime--
++            updateDisplay()
++            if currentTime == 0
++                destroy cb
++                countdownCb = null
++                doAfter(3.0) ->
++                    resetDraftTime()
++
++public function getDraftTime() returns int
++    return currentTime
++
++public function setDraftTime(int value)
++    currentTime = value
++    if currentTime < 0
++        currentTime = 0
++    if currentTime > 60
++        currentTime = 60
++    updateDisplay()
++
++public function resetDraftTime()
++    setDraftTime(60)
++    startCountdown()
++
+ 
+EOF
+)

@@ -6,6 +6,7 @@ import TableLayoutExt
 import GridTableWrapper
 import DraftHeroData
 import ClosureTimers
+import DraftTimer
 
 function setupCategoryButtons()
     for i = 1 to MAX_CATEGORIES
@@ -43,10 +44,13 @@ function draftScreen()
     ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
     ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))
     
+    let timerTens = img("number_6.dds", 0.0400, 0.0400, true)
+    let timerOnes = img("number_0.dds", 0.0400, 0.0400, true)
     let timerTable = new TableLayout(0.15, 0.0675)
         ..row()..center()
-        ..add(img("number_6.dds", 0.0400, 0.0400, true))
-        ..add(img("number_0.dds", 0.0400, 0.0400, true))
+        ..add(timerTens)
+        ..add(timerOnes)
+    initDraftTimer(timerTens, timerOnes)
 
     let categoryPageButtonsTable = new TableLayout(0.2, 0.0625)
         ..row()
