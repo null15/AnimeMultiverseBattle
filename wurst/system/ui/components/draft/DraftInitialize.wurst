@@ -93,6 +93,7 @@ function draftScreen()
         ..add(heroGrid.createContainerEx(parent))..growX()
 
     let chatTable = new TableLayout(0.380, 0.175)
+    let chatContainer = chatTable.createFramedContainer(parent)
 
     let miscTable = new TableLayout(0.265, 0.175)
     ..row()..center()
@@ -134,7 +135,7 @@ function draftScreen()
         ..add(mainTable.createFramedContainer(parent))..growX()
         ..add(team2PickedTable.createFramedContainer(parent))
         ..row()..center()
-        ..add(chatTable.createFramedContainer(parent))
+        ..add(chatContainer)..growX()
         ..add(miscTable.createFramedContainer(parent))..growX()
         ..add(abilityDescription.createFramedContainer(parent))
 
@@ -142,6 +143,14 @@ function draftScreen()
         ..clearAllPoints()
         ..setAbsPoint(FRAMEPOINT_CENTER, 0.4, 0.3)
     rootTable.applyToCascade(rootFrame)
+
+    let chatHistory = getOriginFrame(ORIGIN_FRAME_CHAT_MSG)
+    chatHistory
+        ..setParent(chatContainer)
+        ..clearAllPoints()
+        ..setPoint(FRAMEPOINT_TOPLEFT, chatContainer, FRAMEPOINT_TOPLEFT, 0.015, 0)
+        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.005, chatHistory.getHeight() + 0.015)
+        ..show()
 
     wireCategoryButtons()
     wirePageButtons()
