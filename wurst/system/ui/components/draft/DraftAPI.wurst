@@ -8,9 +8,7 @@ import FlowGrid
 import FramePos
 import ClosureTimers
 
-/** Standard button size (heroes). */
 public real heroIconSize = 0.059
-/** Smaller button size (compact layout). */
 public real categoryPageSize = 0.0275
 public real banIconSize = 0.0375
 
