@@ -1,7 +1,7 @@
 # Hero Kit – Wendy Marvell
 
 **Franchise:** Fairy Tail
-**Role/Tags:** Hybrid / Melee / Intelligence 
+**Role/Tags:** Support/ Carry / Melee / Intelligence 
 **Resource:** HP / Mana
 
 ## G - Sky Dragon's Enhancement

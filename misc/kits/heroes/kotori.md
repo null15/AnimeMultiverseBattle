@@ -1,7 +1,7 @@
 # Hero Kit – Kotori Itsuka
 
 **Franchise:** Date a live
-**Role/Tags:** Hybrid / Melee / Intelligence 
+**Role/Tags:** Carry / Support / Melee / Intelligence 
 **Resource:** HP / Mana
 
 ## G - Command Directive
