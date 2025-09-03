@@ -76,3 +76,17 @@ public class GridCell
         containerFrame.setAllPoints(outer)
 
         return outer
+
+    /**
+     * Wrap this grid cell in a framed container with a backdrop.
+     * - Useful for visual grouping (e.g. a bordered box).
+     * - The grid’s container will be re-parented into this new frame.
+     */
+    function createContainerEx(framehandle parent) returns framehandle
+        let outer = createFrame("FRAME", "GridCellFramed", parent, null, 0)
+            ..setSize(containerWidth, containerHeight)
+
+        containerFrame.setParent(outer)
+        containerFrame.setAllPoints(outer)
+
+        return outer
