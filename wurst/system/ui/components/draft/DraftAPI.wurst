@@ -230,6 +230,37 @@ public function notifyHeroPicked(int pid, int unitID)
     for l in pickListeners
         l.onHeroPicked(pid, unitID)
 
+public function getHeroData(int id) returns HeroDraft
+    return heroById.get(id)
+
+public function getSelectedHero(int pid) returns int
+    return selectedHeroByPid.get(pid)
+
+public function removeHero(int id)
+    let f = heroBtnById.get(id)
+    if f != null
+        heroGrid.remove(f)
+        BlzFrameSetVisible(f, false)
+        shownNow.remove(f)
+        heroBtnById.remove(id)
+    let h = heroById.get(id)
+    if h != null
+        allHeroes.remove(h)
+        heroById.remove(id)
+    for i = 0 to 9
+        scheduleRefresh(i)
+
+public function getRandomHeroId() returns int
+    if allHeroes.isEmpty()
+        return 0
+    let idx = GetRandomInt(0, allHeroes.size() - 1)
+    var i = 0
+    for h in allHeroes
+        if i == idx
+            return h.unitID
+        i++
+    return 0
+
 /** Get the button frame for a hero id, or null if not set. */
 public function getHeroButton(int id) returns framehandle
     var f = heroBtnById.get(id)

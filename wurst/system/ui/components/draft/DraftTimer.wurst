@@ -6,6 +6,7 @@ int currentTime = 60
 framehandle timerTens = null
 framehandle timerOnes = null
 CallbackPeriodic countdownCb = null
+Callback finishCb = null
 bool singleDigit = false
 
 string array numberTex
@@ -21,7 +22,6 @@ public function initDraftTimer(framehandle tens, framehandle ones)
     timerTens = tens
     timerOnes = ones
     setDraftTime(currentTime)
-    startCountdown()
 
 function updateDisplay()
     if currentTime < 10
@@ -45,18 +45,20 @@ function updateDisplay()
         timerTens.setTexture(numberTex[tens], 0, true)
         timerOnes.setTexture(numberTex[ones.toInt()], 0, true)
 
-function startCountdown()
+public function startDraftTimer(int duration, Callback cb)
     if countdownCb != null
         destroy countdownCb
-    countdownCb = doPeriodically(1.0) (CallbackPeriodic cb) ->
+    finishCb = cb
+    setDraftTime(duration)
+    countdownCb = doPeriodically(1.0) (CallbackPeriodic c) ->
         if currentTime > 0
             currentTime--
             updateDisplay()
             if currentTime == 0
-                destroy cb
+                destroy c
                 countdownCb = null
-                doAfter(3.0) ->
-                    resetDraftTime()
+                if finishCb != null
+                    finishCb.call()
 
 public function getDraftTime() returns int
     return currentTime
@@ -69,6 +71,3 @@ public function setDraftTime(int value)
         currentTime = 60
     updateDisplay()
 
-public function resetDraftTime()
-    setDraftTime(60)
-    startCountdown()

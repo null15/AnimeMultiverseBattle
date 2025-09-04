@@ -7,6 +7,7 @@ import GridTableWrapper
 import DraftHeroData
 import ClosureTimers
 import DraftTimer
+import DraftController
 
 function setupCategoryButtons()
     for i = 1 to MAX_CATEGORIES
@@ -25,19 +26,20 @@ function createTeamPickedTable(int startPid, int endPid, string icon, real paddi
     let tbl = new TableLayout(0.1575, 0.315)
     int last = startPid - 1
     for i = startPid to endPid
-        // if not players[i].isIngame()
-        last = i
+        if players[i].isIngame()
+            last = i
     for i = startPid to endPid
         let p = players[i]
-        // if p.isIngame()
-        tbl..row()..center()
-        ..add(h5(GetPlayerName(p)))..padBot(0.0025)
-        tbl..row()
-        let btn = imgBtn(icon)..setWidth(teamPickBannerWidth)..setHeight(teamPickBannerHeight)
-        if i != last
-            tbl..add(btn)..padBot(padding)..growX()
-        else
-            tbl..add(btn)..growX()
+        if p.isIngame()
+            tbl..row()..center()
+            ..add(h5(GetPlayerName(p)))..padBot(0.0025)
+            tbl..row()
+            let btn = imgBtn(icon)..setWidth(teamPickBannerWidth)..setHeight(teamPickBannerHeight)
+            pickIconByPid[i] = getButtonIcon(btn)
+            if i != last
+                tbl..add(btn)..padBot(padding)..growX()
+            else
+                tbl..add(btn)..growX()
     return tbl
 
 function draftScreen()
@@ -49,20 +51,24 @@ function draftScreen()
 
     let team1Bans = new TableLayout(0.3, 0.0675)
     ..row()..center()
-    ..add(imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
-    ..add(imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
-    ..add(imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
-    ..add(imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
-    ..add(imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))
+    for i = 1 to 5
+        let btn = imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize)
+        team1BanSlots[i] = getButtonIcon(btn)
+        if i < 5
+            team1Bans..add(btn)..padRight(0.005)
+        else
+            team1Bans..add(btn)
 
     let team2Bans = new TableLayout(0.3, 0.0675)
     ..row()..center()
-    ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
-    ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
-    ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
-    ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))..padRight(0.005)
-    ..add(imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize))
-    
+    for i = 1 to 5
+        let btn2 = imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize)
+        team2BanSlots[i] = getButtonIcon(btn2)
+        if i < 5
+            team2Bans..add(btn2)..padRight(0.005)
+        else
+            team2Bans..add(btn2)
+
     let timerTens = img("number_6.dds", 0.0400, 0.0400, true)
     let timerOnes = img("number_0.dds", 0.0400, 0.0400, true)
     let timerTable = new TableLayout(0.126, 0.0675)
@@ -97,33 +103,51 @@ function draftScreen()
 
     let miscTable = new TableLayout(0.265, 0.175)
     ..row()..center()
-    ..add(imgBtn("Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350))..padRight(0.01)..padTop(0.01)
-    ..add(imgBtn("Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350))..padTop(0.01)
+    confirmBtn = imgBtn("Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350)
+    randomBtn = imgBtn("Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350)
+    miscTable..add(confirmBtn)..padRight(0.01)..padTop(0.01)
+    miscTable..add(randomBtn)..padTop(0.01)
     ..row()..center()
-    ..add(h3("Draft System Explanation")..setHeight(0.025)..setWidth(0.225)..setTextAlignment(TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_CENTER))..padTop(0.02)
+    infoTitle = h3("Draft System Explanation")..setHeight(0.025)..setWidth(0.225)..setTextAlignment(TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_CENTER)
+    miscTable..add(infoTitle)..padTop(0.02)
     ..row()..center()
-    ..add(p("During Ban Phase, select a hero then click Ban to remove the hero from the playable pool. When it is your turn to pick, select a hero and click Confirm to lock-in.")..setTextAlignment(TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_CENTER)..setHeight(0.05))..growX()..padTop(0.005)
+    infoText = p("During Ban Phase, select a hero then click Ban to remove the hero from the playable pool. When it is your turn to pick, select a hero and click Confirm to lock-in.")..setTextAlignment(TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_CENTER)..setHeight(0.05)
+    miscTable..add(infoText)..growX()..padTop(0.005)
 
     let abilityDescription = new TableLayout(0.380, 0.175)
     ..row()
-    ..add(h2("Namikaze Minato")..setWidth(0.250)..setHeight(0.020)..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_LEFT))..padBot(0.0035)
+    heroNameText = h2("Namikaze Minato")..setWidth(0.250)..setHeight(0.020)..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_LEFT)
+    abilityDescription..add(heroNameText)..padBot(0.0035)
     ..row()
-    ..add(p("Intelligence, Support, Carry, Carry, Carry, Carry, Carry")..setWidth(0.250)..setHeight(0.0125)..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_LEFT))..padBot(0.005)
+    heroRolesText = p("Hero Roles")..setWidth(0.250)..setHeight(0.0125)..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_LEFT)
+    abilityDescription..add(heroRolesText)..padBot(0.005)
     ..row()..center()..padBot(0.01)
-    ..add(img("Intelligence_enabled.dds", 0.0235, 0.0235, true))
-    ..add(p("Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145))..padLeft(0.0025)..padTop(0.0025)
-    ..add(img("Intelligence_enabled.dds", 0.0235, 0.0235, true))
-    ..add(p("Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145))..padLeft(0.0025)..padTop(0.0025)
+    abilityIcons[1] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityTexts[1] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+    abilityDescription..add(abilityIcons[1])
+    abilityDescription..add(abilityTexts[1])..padLeft(0.0025)..padTop(0.0025)
+    abilityIcons[2] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityTexts[2] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+    abilityDescription..add(abilityIcons[2])
+    abilityDescription..add(abilityTexts[2])..padLeft(0.0025)..padTop(0.0025)
     ..row()..center()..padBot(0.01)
-    ..add(img("Intelligence_enabled.dds", 0.0235, 0.0235, true))
-    ..add(p("Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145))..padLeft(0.0025)..padTop(0.0025)
-    ..add(img("Intelligence_enabled.dds", 0.0235, 0.0235, true))
-    ..add(p("Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145))..padLeft(0.0025)..padTop(0.0025)
+    abilityIcons[3] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityTexts[3] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+    abilityDescription..add(abilityIcons[3])
+    abilityDescription..add(abilityTexts[3])..padLeft(0.0025)..padTop(0.0025)
+    abilityIcons[4] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityTexts[4] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+    abilityDescription..add(abilityIcons[4])
+    abilityDescription..add(abilityTexts[4])..padLeft(0.0025)..padTop(0.0025)
     ..row()..center()..padBot(0.01)
-    ..add(img("Intelligence_enabled.dds", 0.0235, 0.0235, true))
-    ..add(p("Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145))..padLeft(0.0025)..padTop(0.0025)
-    ..add(img("Intelligence_enabled.dds", 0.0235, 0.0235, true))
-    ..add(p("Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan Rasengan")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145))..padLeft(0.0025)..padTop(0.0025)
+    abilityIcons[5] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityTexts[5] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+    abilityDescription..add(abilityIcons[5])
+    abilityDescription..add(abilityTexts[5])..padLeft(0.0025)..padTop(0.0025)
+    abilityIcons[6] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityTexts[6] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+    abilityDescription..add(abilityIcons[6])
+    abilityDescription..add(abilityTexts[6])..padLeft(0.0025)..padTop(0.0025)
 
     let rootTable = new TableLayout(1.065, 0.6)
         ..row()..center()
@@ -143,6 +167,7 @@ function draftScreen()
         ..clearAllPoints()
         ..setAbsPoint(FRAMEPOINT_CENTER, 0.4, 0.3)
     rootTable.applyToCascade(rootFrame)
+    draftRootFrame = rootFrame
 
     let chatHistory = getOriginFrame(ORIGIN_FRAME_CHAT_MSG)
     chatHistory
@@ -162,12 +187,17 @@ function draftScreen()
 
     wireCategoryButtons()
     wirePageButtons()
+    confirmBtn.onClick() -> 
+        onConfirmClick(GetPlayerId(GetTriggerPlayer()))
+    randomBtn.onClick() -> 
+        onRandomClick(GetPlayerId(GetTriggerPlayer()))
 
     let pidLocal = GetPlayerId(GetLocalPlayer())
     let st = getDraftUI(pidLocal)
     st.currentPage = 1
     shownNow.clear()
     refreshGrid(pidLocal)
+    startDraft()
 
     defaultFrameParent = GAME_UI
 
