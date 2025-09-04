@@ -5,7 +5,7 @@
 **Resource:** HP / Mana / Stacks
 
 ## G - Anti-Magic Flow
-- Whenever asta or an ally negates a spell effect (via W reflect, E seal, or T form), Asta gains **Anti-Magic** Stacks.
+- Whenever asta or an ally negates a spell effect (via W reflect, E seal, or T form), asta gains **Anti-Magic** Stacks.
 - Each stack grants bonus resistances.
 - At max stacks, his next ability is empowered (wider slash, stronger reflect, or stronger seal).
 

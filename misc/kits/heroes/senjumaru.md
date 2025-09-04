@@ -8,8 +8,8 @@
 - Every time senjumaru applies a debuff with threads, she gains **Weave** stacks.
 - At 3 stacks, her next ability echoes after a short delay.
 - **Q:** Fires twice. 
-- **W:** Shields/weakens two targets
-- **E:** Re-applies briefly).
+- **W:** Shields/weakens two targets.
+- **E:** Re-applies briefly.
 
 ## Q - Threaded Strike
 - Senjumaru sends razor-sharp threads across a line.
