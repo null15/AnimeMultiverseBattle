@@ -33,7 +33,6 @@
 ## T - Ippen Shinde Miru?
 - Castable on an ally or herself.
 - 3 seconds duration (can change).
-- Negates that damage (or not if too OP).
 - Sends a hell retribution wave back to the attacker, dealing massive damage and fearing them briefly.
 
 ---
