@@ -2,7 +2,7 @@ package DraftTimer
 
 import ClosureTimers
 
-int currentTime = 60
+public int currentTime = 10
 framehandle timerTens = null
 framehandle timerOnes = null
 CallbackPeriodic countdownCb = null
