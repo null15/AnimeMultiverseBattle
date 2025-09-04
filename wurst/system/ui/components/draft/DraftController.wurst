@@ -18,6 +18,10 @@ public framehandle heroRolesText = null
 public framehandle array abilityIcons
 public framehandle array abilityTexts
 public framehandle draftRootFrame = null
+public framehandle chatHistoryFrame = null
+public framehandle chatInputFrame = null
+public framehandle chatHistoryOrig = null
+public framehandle chatInputOrig = null
 
 enum DraftPhase
     BAN
@@ -216,9 +220,29 @@ function finishDraft()
     updateInfo("Draft Complete", "Heroes spawning soon")
     startDraftTimer(5, () -> spawnHeroes())
 
+function resetChatFrames()
+    if chatInputFrame != null
+        chatInputFrame.setParent(GAME_UI)
+        chatInputFrame.clearAllPoints()
+        if chatInputOrig != null
+            chatInputFrame.setAllPoints(chatInputOrig)
+            // destroy chatInputOrig
+            chatInputOrig = null
+        chatInputFrame.show()
+    if chatHistoryFrame != null
+        chatHistoryFrame.setParent(GAME_UI)
+        chatHistoryFrame.clearAllPoints()
+        if chatHistoryOrig != null
+            chatHistoryFrame.setAllPoints(chatHistoryOrig)
+            // destroy chatHistoryOrig
+            chatHistoryOrig = null
+        chatHistoryFrame.show()
+
 function spawnHeroes()
     if draftRootFrame != null
         draftRootFrame.hide()
+    resetChatFrames()
+    showOriginFrames()
     for i = 0 to 9
         let hid = heroPicked.get(i)
         if hid != 0

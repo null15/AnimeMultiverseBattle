@@ -170,6 +170,11 @@ function draftScreen()
     draftRootFrame = rootFrame
 
     let chatHistory = getOriginFrame(ORIGIN_FRAME_CHAT_MSG)
+    chatHistoryOrig = createFrame("FRAME", "ChatHistoryOrig", GAME_UI, "", 0)
+    chatHistoryOrig
+        ..setAllPoints(chatHistory)
+        ..setVisible(false)
+    chatHistoryFrame = chatHistory
     chatHistory
         ..setParent(chatContainer)
         ..clearAllPoints()
@@ -178,6 +183,11 @@ function draftScreen()
         ..show()
 
     let chatInput = GAME_UI.getChild(GAME_UI.getChildrenCount() - 3)
+    chatInputOrig = createFrame("FRAME", "ChatInputOrig", GAME_UI, "", 0)
+    chatInputOrig
+        ..setAllPoints(chatInput)
+        ..setVisible(false)
+    chatInputFrame = chatInput
     chatInput
         ..setParent(chatContainer)
         ..clearAllPoints()
@@ -187,9 +197,9 @@ function draftScreen()
 
     wireCategoryButtons()
     wirePageButtons()
-    confirmBtn.onClick() -> 
+    confirmBtn.onClick() ->
         onConfirmClick(GetPlayerId(GetTriggerPlayer()))
-    randomBtn.onClick() -> 
+    randomBtn.onClick() ->
         onRandomClick(GetPlayerId(GetTriggerPlayer()))
 
     let pidLocal = GetPlayerId(GetLocalPlayer())
