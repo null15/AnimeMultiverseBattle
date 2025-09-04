@@ -1,0 +1,28 @@
+Frame "SIMPLEFRAME" "DraftButtonFrame" {
+    Width 0.035,
+    Height 0.035,
+    Frame "GLUEBUTTON" "DraftButtonFrameButton" {
+        SetAllPoints "DraftButtonFrame",
+        ControlStyle "AUTOTRACK",
+        ControlBackdrop "DraftButtonFrameIcon",
+        Frame "BACKDROP" "DraftButtonFrameIcon" {
+            // Icon texture will be set in code
+        },
+        ControlPushedBackdrop "DraftButtonFramePushed",
+        Frame "BACKDROP" "DraftButtonFramePushed" {
+            // Optional: set a texture here for pressed state, or set via code
+        },
+        ControlDisabledBackdrop "DraftButtonFrameDisabled",
+        Frame "BACKDROP" "DraftButtonFrameDisabled" {
+            // Optional: set a texture here for disabled state, or set via code
+        }
+    }
+}
+Frame "SIMPLEFRAME" "DraftTextButtonFrame" {
+    Width 0.035,
+    Height 0.035,
+    Frame "GLUETEXTBUTTON" "DraftTextButtonFrameButton" INHERITS "ScriptDialogButton" {
+        SetAllPoints "DraftTextButtonFrame",
+        // We rely on the inherited template for text and backdrop
+    }
+}

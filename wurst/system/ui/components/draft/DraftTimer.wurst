@@ -58,7 +58,8 @@ public function startDraftTimer(int duration, Callback cb)
                 destroy c
                 countdownCb = null
                 if finishCb != null
-                    finishCb.call()
+                    doAfter(3.0) ->
+                        finishCb.call()
 
 public function getDraftTime() returns int
     return currentTime
