@@ -20,7 +20,7 @@
 
 ## W - Lane Interference
 - Kitasan charges briefly, then dashes sideways (like cutting across a racetrack lane).
-- Enemies in the path are damaged, pushed slightly and slowed.
+- Enemies in her path are damaged, pushed slightly and slowed.
 - If used near allies, also removes slows from them.
 
 ## E - Relay Pace
