@@ -148,8 +148,16 @@ function draftScreen()
     chatHistory
         ..setParent(chatContainer)
         ..clearAllPoints()
-        ..setPoint(FRAMEPOINT_TOPLEFT, chatContainer, FRAMEPOINT_TOPLEFT, 0.015, 0)
-        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.005, chatHistory.getHeight() + 0.015)
+        ..setPoint(FRAMEPOINT_TOPLEFT, chatContainer, FRAMEPOINT_TOPLEFT, 0.011, 0.011) // Increasing both of these made it go more to the right
+        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.010, chatHistory.getHeight() + 0.0325) // Decreasing made chatHistory go down, and make ChatInput box bigger
+        ..show()
+
+    let chatInput = GAME_UI.getChild(GAME_UI.getChildrenCount() - 3)
+    chatInput
+        ..setParent(chatContainer)
+        ..clearAllPoints()
+        ..setPoint(FRAMEPOINT_TOPLEFT, chatHistory, FRAMEPOINT_BOTTOMLEFT, -0.001, 0.00) // Increasing second parameter made the height bigger
+        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.0105, 0.012) // Increasing second make chat input field go up. First parameter changes right side of box
         ..show()
 
     wireCategoryButtons()
