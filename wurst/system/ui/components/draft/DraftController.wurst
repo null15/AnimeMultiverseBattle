@@ -194,7 +194,7 @@ function startNextTurn()
     currentTurn = pickTurns.dequeue()
     for pid in currentTurn
         hasPicked.put(pid, false)
-    startDraftTimer(currentTime, () -> onTurnTimeout())
+    startDraftTimer(draftTurnTimeout, () -> onTurnTimeout())
 
 function onTurnTimeout()
     for pid in currentTurn
@@ -230,7 +230,7 @@ public function startDraft()
     setupPlayers()
     buildPickTurns()
     updateInfo("Ban Phase", "Select a hero and confirm to ban")
-    startDraftTimer(currentTime, () -> startPickPhase())
+    startDraftTimer(draftPickPhase, () -> startPickPhase())
 
 function startPickPhase()
     phase = DraftPhase.PICK

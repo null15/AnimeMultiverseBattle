@@ -2,7 +2,9 @@ package DraftTimer
 
 import ClosureTimers
 
-public int currentTime = 10
+int currentTime                 = 10
+public int draftTurnTimeout     = 10
+public int draftPickPhase       = 10
 framehandle timerTens = null
 framehandle timerOnes = null
 CallbackPeriodic countdownCb = null
