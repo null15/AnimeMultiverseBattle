@@ -1,7 +1,7 @@
 # Hero Kit – Sesshomaru
 
 **Franchise:** Inuyasha
-**Role/Tags:** Bruiser / Melee / Strenght 
+**Role/Tags:** Bruiser/ Carry / Melee / Strenght 
 **Resource:** HP / Mana / Stacks
 
 ## G - Regal Bloodline

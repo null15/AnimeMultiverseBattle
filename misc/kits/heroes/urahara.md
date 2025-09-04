@@ -32,7 +32,7 @@
 - Urahara summons his bankai.
 - Urahara is granted a big shield (value to be discussed).
 - Apply armor reduction to enemies within range of urahara (values to be discussed).
-- Enemies take damage periodically scaling with urahara's **Intelligence*.
+- Enemies take damage periodically scaling with urahara's **Intelligence**.
 - After duration, urahara gains a short burst heal, but is slowed by 35% for 4 seconds (values can change).
 
 ---
