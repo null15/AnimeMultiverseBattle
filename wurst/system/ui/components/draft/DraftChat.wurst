@@ -1,0 +1,55 @@
+package DraftChat
+
+import TableLayout
+import TableLayoutExt
+import Framehandle
+import FramehandleNames
+import ClosureFrames
+import Player
+
+public framehandle chatContainer = null
+public framehandle chatHistoryFrame = null
+public framehandle chatInputFrame = null
+
+constant CHAT_SYNC_PREFIX = "dchat"
+
+public function createDraftChat(framehandle parent) returns framehandle
+    if loadTOCFile("DraftSystem.toc")
+        printLog(Loglevel.ERROR, "COULD NOT LOAD DraftSystem.toc")
+
+    let chatTable = new TableLayout(0.380, 0.175)
+    chatContainer = chatTable.createFramedContainer(parent)
+
+    chatHistoryFrame = createFrame(FramehandleTypeNames.textarea, "DraftChatHistory", chatContainer, "EscMenuTextAreaTemplate", 0)
+    chatHistoryFrame
+        ..setPoint(FRAMEPOINT_TOPLEFT, chatContainer, FRAMEPOINT_TOPLEFT, 0.011, -0.011)
+        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.010, 0.033)
+        ..setEnabled(false)
+
+    chatInputFrame = createFrame(FramehandleTypeNames.editbox, "DraftChatInput", chatContainer, "EscMenuEditBoxTemplate", 0)
+    chatInputFrame
+        ..setPoint(FRAMEPOINT_TOPLEFT, chatHistoryFrame, FRAMEPOINT_BOTTOMLEFT, 0.0, -0.001)
+        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.0105, 0.012)
+        ..setText("")
+
+    chatInputFrame.onEditboxEnter(() -> sendChat())
+
+    return chatContainer
+
+function sendChat()
+    let msg = chatInputFrame.getText()
+    if msg.length() == 0
+        return
+    BlzSendSyncData(CHAT_SYNC_PREFIX, msg)
+    chatInputFrame.setText("")
+
+function onChatSync()
+    let p = GetTriggerPlayer()
+    let msg = BlzGetTriggerSyncData()
+    BlzFrameAddText(chatHistoryFrame, GetPlayerName(p) + ": " + msg)
+
+init
+    let trig = CreateTrigger()
+    for i = 0 to 9
+        BlzTriggerRegisterPlayerSyncEvent(trig, players[i], CHAT_SYNC_PREFIX, false)
+    trig.addAction(() -> onChatSync())

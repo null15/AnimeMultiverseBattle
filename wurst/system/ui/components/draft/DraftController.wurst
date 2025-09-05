@@ -4,6 +4,7 @@ import DraftAPI
 import DraftTimer
 import HashMap
 import LinkedList
+import DraftChat
 
 public framehandle array team1BanSlots
 public framehandle array team2BanSlots
@@ -18,10 +19,6 @@ public framehandle heroRolesText = null
 public framehandle array abilityIcons
 public framehandle array abilityTexts
 public framehandle draftRootFrame = null
-public framehandle chatHistoryFrame = null
-public framehandle chatInputFrame = null
-public framehandle chatHistoryOrig = null
-public framehandle chatInputOrig = null
 
 enum DraftPhase
     BAN
@@ -221,22 +218,11 @@ function finishDraft()
     startDraftTimer(5, () -> spawnHeroes())
 
 function resetChatFrames()
-    if chatInputFrame != null
-        chatInputFrame.setParent(GAME_UI)
-        chatInputFrame.clearAllPoints()
-        if chatInputOrig != null
-            chatInputFrame.setAllPoints(chatInputOrig)
-            // destroy chatInputOrig
-            chatInputOrig = null
-        chatInputFrame.show()
-    if chatHistoryFrame != null
-        chatHistoryFrame.setParent(GAME_UI)
-        chatHistoryFrame.clearAllPoints()
-        if chatHistoryOrig != null
-            chatHistoryFrame.setAllPoints(chatHistoryOrig)
-            // destroy chatHistoryOrig
-            chatHistoryOrig = null
-        chatHistoryFrame.show()
+    if chatContainer != null
+        chatContainer.setParent(GAME_UI)
+        chatContainer.clearAllPoints()
+        chatContainer.setAbsPoint(FRAMEPOINT_BOTTOMLEFT, 0.0, 0.0)
+        chatContainer.show()
 
 function spawnHeroes()
     if draftRootFrame != null

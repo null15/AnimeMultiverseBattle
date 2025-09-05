@@ -8,6 +8,7 @@ import DraftHeroData
 import ClosureTimers
 import DraftTimer
 import DraftController
+import DraftChat
 
 function setupCategoryButtons()
     for i = 1 to MAX_CATEGORIES
@@ -98,8 +99,7 @@ function draftScreen()
         ..row()
         ..add(heroGrid.createContainerEx(parent))..growX()
 
-    let chatTable = new TableLayout(0.380, 0.175)
-    let chatContainer = chatTable.createFramedContainer(parent)
+    let chatContainer = createDraftChat(parent)
 
     let miscTable = new TableLayout(0.265, 0.175)
     ..row()..center()
@@ -168,32 +168,6 @@ function draftScreen()
         ..setAbsPoint(FRAMEPOINT_CENTER, 0.4, 0.3)
     rootTable.applyToCascade(rootFrame)
     draftRootFrame = rootFrame
-
-    let chatHistory = getOriginFrame(ORIGIN_FRAME_CHAT_MSG)
-    chatHistoryOrig = createFrame("FRAME", "ChatHistoryOrig", GAME_UI, "", 0)
-    chatHistoryOrig
-        ..setAllPoints(chatHistory)
-        ..setVisible(false)
-    chatHistoryFrame = chatHistory
-    chatHistory
-        ..setParent(chatContainer)
-        ..clearAllPoints()
-        ..setPoint(FRAMEPOINT_TOPLEFT, chatContainer, FRAMEPOINT_TOPLEFT, 0.011, 0.011) // Increasing both of these made it go more to the right
-        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.010, chatHistory.getHeight() + 0.0325) // Decreasing made chatHistory go down, and make ChatInput box bigger
-        ..show()
-
-    let chatInput = GAME_UI.getChild(GAME_UI.getChildrenCount() - 3)
-    chatInputOrig = createFrame("FRAME", "ChatInputOrig", GAME_UI, "", 0)
-    chatInputOrig
-        ..setAllPoints(chatInput)
-        ..setVisible(false)
-    chatInputFrame = chatInput
-    chatInput
-        ..setParent(chatContainer)
-        ..clearAllPoints()
-        ..setPoint(FRAMEPOINT_TOPLEFT, chatHistory, FRAMEPOINT_BOTTOMLEFT, -0.001, 0.00) // Increasing second parameter made the height bigger
-        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.0105, 0.012) // Increasing second make chat input field go up. First parameter changes right side of box
-        ..show()
 
     wireCategoryButtons()
     wirePageButtons()
