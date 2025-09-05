@@ -271,6 +271,7 @@ public function getHeroButton(int id) returns framehandle
         f = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
         let hid = id
         f.onClick() ->
+            BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
             let pid = GetPlayerId(GetTriggerPlayer())
             selectedHeroByPid.put(pid, hid)
             updateHeroSelectionVisual(pid)
@@ -444,6 +445,7 @@ public function wireCategoryButtons()
         if categoryBtns[i] != null
             let idx = i
             categoryBtns[idx].onClick() ->
+                BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
                 let pid = GetPlayerId(GetTriggerPlayer())
                 let st = getDraftUI(pid)
                 let cname = categoryTypeArray[idx]
@@ -461,6 +463,7 @@ public function wirePageButtons()
         if pageBtns[i] != null
             let idx = i
             pageBtns[idx].onClick() ->
+                BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
                 let pid = GetPlayerId(GetTriggerPlayer())
                 let st = getDraftUI(pid)
                 if idx <= st.maxPage

@@ -172,8 +172,10 @@ function draftScreen()
     wireCategoryButtons()
     wirePageButtons()
     confirmBtn.onClick() ->
+        BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
         onConfirmClick(GetPlayerId(GetTriggerPlayer()))
     randomBtn.onClick() ->
+        BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
         onRandomClick(GetPlayerId(GetTriggerPlayer()))
 
     let pidLocal = GetPlayerId(GetLocalPlayer())
