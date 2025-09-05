@@ -2,10 +2,7 @@ package DraftChat
 
 import TableLayout
 import TableLayoutExt
-import Framehandle
 import FramehandleNames
-import ClosureFrames
-import Player
 
 public framehandle chatContainer = null
 public framehandle chatHistoryFrame = null
