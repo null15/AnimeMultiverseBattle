@@ -242,6 +242,7 @@ function spawnHeroes()
     if draftRootFrame != null
         draftRootFrame.hide()
     resetChatFrames()
+    getFrame("ConsoleUIBackdrop", 0).setSize(0, 0.130)
     showOriginFrames()
     for i = 0 to 9
         let hid = heroPicked.get(i)

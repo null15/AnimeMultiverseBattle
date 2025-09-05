@@ -212,10 +212,6 @@ function draftScreen()
     defaultFrameParent = GAME_UI
 
 init
-    if loadTOCFile("DraftSystem.toc")
-        print("SUCCESS")
-    else
-        print("FAIL")
     string array categoryImgNames
     categoryImgNames[0] = "Strength"
     categoryImgNames[1] = "Agility"
@@ -228,9 +224,7 @@ init
     setupCategoryButtons()
     setupPageButtons()
 
-    doAfter(0.25) ->
+    nullTimer() -> 
         defineHeroes()
         sortAllHeroesOnce()
-
-    doAfter(0.5) ->
         draftScreen()
