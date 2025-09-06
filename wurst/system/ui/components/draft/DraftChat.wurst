@@ -11,7 +11,7 @@ public framehandle chatInputFrame = null
 constant CHAT_SYNC_PREFIX = "dchat"
 
 public function createDraftChat(framehandle parent) returns framehandle
-    if loadTOCFile("DraftSystem.toc")
+    if not loadTOCFile("DraftSystem.toc")
         printLog(Loglevel.ERROR, "COULD NOT LOAD DraftSystem.toc")
 
     let chatTable = new TableLayout(0.380, 0.175)
