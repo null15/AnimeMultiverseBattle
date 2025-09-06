@@ -224,8 +224,6 @@ function resetChatFrames()
         chatContainer.setAbsPoint(FRAMEPOINT_BOTTOMLEFT, 0.0, 0.0)
         chatContainer.show()
         GAME_UI.getChild(5).setVisible(true)
-        if not loadTOCFile("ShowChat.toc")
-            printLog(Loglevel.ERROR, "Could not load ShowChat.toc")
 
         // I am trying to make the chat history dynamic, currently it goes outside the seeable-screen
         let chatHistory = getOriginFrame(ORIGIN_FRAME_CHAT_MSG)
