@@ -11,7 +11,7 @@
 ## Q - Aquatic Stage
 - Creates a small **Water Pool** at target area.
 - Deals damage to enemies standing in it.
-- Allies inside gain bonus move speed.
+- Allies inside gain bonus movement speed.
 - **Water Pool** lasts a few seconds.
 - Bonus damage to creeps.
 
@@ -22,12 +22,12 @@
 - If cast while standing in a **Water Pool**, the familiar gains bonus attack speed.
 
 ## E - Font of Balance
-- Places a larger **Water Pool**.
+- Places a medium **Water Pool**.
 - Allies inside gain healing over time.
 - Enemies inside take reduced healing and are slightly slowed.
 
 ## R - Aria of Contest
-- Marks an area with a medium **Water Pool** stage for 5s.
+- Marks an area with a large **Water Pool** stage for 5s.
 - Every second, enemies inside take damage.
 - Allies inside gain **HP** regen.
 - Allies inside gain bonus damage based on their missing **HP** (this is only applied once).

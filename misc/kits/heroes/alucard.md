@@ -29,7 +29,7 @@
 ## R - Familiars Unleashed
 - Alucard releases his army of familiars.
 - They swarm in an area, attacking enemies automatically.
-- Each attack heals Alucard for a portion of the damage dealt.
+- Each attack heals alucard for a portion of the damage dealt.
 - Duration scales with kills during the ult.
 
 ## T - Level Zero: No-Life King
