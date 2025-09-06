@@ -7,6 +7,7 @@ import FramehandleNames
 public framehandle chatContainer = null
 public framehandle chatHistoryFrame = null
 public framehandle chatInputFrame = null
+bool array chatFocused
 
 constant CHAT_SYNC_PREFIX = "dchat"
 
@@ -33,20 +34,60 @@ public function createDraftChat(framehandle parent) returns framehandle
 
     return chatContainer
 
+function appendChat(player p, string msg)
+    BlzFrameAddText(chatHistoryFrame, GetPlayerName(p) + ": " + msg)
+
 function sendChat()
+    let p = GetTriggerPlayer()
+    let pid = GetPlayerId(p)
     let msg = chatInputFrame.getText()
     if msg.length() == 0
+        chatInputFrame.setFocus(p, false)
+        chatFocused[pid] = false
         return
     BlzSendSyncData(CHAT_SYNC_PREFIX, msg)
     chatInputFrame.setText("")
+    chatInputFrame.setFocus(p, false)
+    chatFocused[pid] = false
 
 function onChatSync()
     let p = GetTriggerPlayer()
     let msg = BlzGetTriggerSyncData()
-    BlzFrameAddText(chatHistoryFrame, GetPlayerName(p) + ": " + msg)
+    appendChat(p, msg)
+
+function onPlayerChat()
+    let p = GetTriggerPlayer()
+    let msg = GetEventPlayerChatString()
+    appendChat(p, msg)
+
+function onEnterPressed()
+    let p = GetTriggerPlayer()
+    if GetLocalPlayer() != p
+        return
+    let pid = GetPlayerId(p)
+    if chatInputFrame == null or not chatInputFrame.isVisible()
+        return
+    if not chatFocused[pid]
+        chatInputFrame.setFocus(p, true)
+        chatFocused[pid] = true
+    else
+        let text = chatInputFrame.getText()
+        if text.length() == 0
+            chatInputFrame.setFocus(p, false)
+            chatFocused[pid] = false
 
 init
-    let trig = CreateTrigger()
+    let syncTrig = CreateTrigger()
     for i = 0 to 9
-        BlzTriggerRegisterPlayerSyncEvent(trig, players[i], CHAT_SYNC_PREFIX, false)
-    trig.addAction(() -> onChatSync())
+        BlzTriggerRegisterPlayerSyncEvent(syncTrig, players[i], CHAT_SYNC_PREFIX, false)
+    syncTrig.addAction(() -> onChatSync())
+
+    let chatTrig = CreateTrigger()
+    for i = 0 to 9
+        chatTrig.registerPlayerChatEvent(players[i], "", false)
+    chatTrig.addAction(() -> onPlayerChat())
+
+    let keyTrig = CreateTrigger()
+    for i = 0 to 9
+        keyTrig.registerPlayerKeyPress(players[i], OSKEY_RETURN, OSKEY_META.NONE, true)
+    keyTrig.addAction(() -> onEnterPressed())
