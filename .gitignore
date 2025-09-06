@@ -8,3 +8,4 @@ wurst.dependencies
 /_build/war3mapj_with_config.j.txt
 /_build/WurstRunMap.w3x
 myPatch.patch
+myPatch.patch.bak
