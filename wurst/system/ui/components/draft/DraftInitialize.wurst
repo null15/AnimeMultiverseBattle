@@ -201,6 +201,7 @@ init
     setupPageButtons()
 
     nullTimer() -> 
+        GAME_UI.getChild(5).setVisible(false)
         defineHeroes()
         sortAllHeroesOnce()
         draftScreen()

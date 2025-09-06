@@ -1,7 +1,10 @@
 package Hello
 
-init
-    // Yone to-do
+import ClosureTimers
 
-    // TO-DO:   In order -> UnitEvent(Indexer kinda), BribeDamageEngine, AttackIndexer, ARGB, CustomBar, ShieldEngine
-    // Later, focus on Draft UI.
+init
+    nullTimer() -> 
+        if not loadTOCFile("HideChat.toc")
+            printLog(Loglevel.ERROR, "Could not load HideChat.toc")
+        if not loadTOCFile("ShowChat.toc")
+            printLog(Loglevel.ERROR, "Could not load ShowChat.toc")

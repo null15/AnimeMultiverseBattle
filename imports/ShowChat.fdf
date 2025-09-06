@@ -1,0 +1,7 @@
+StringList {
+    CHAT_RECIPIENT_ALL "[All]​",
+    CHAT_RECIPIENT_ALLIES "[Allies]",
+    CHAT_RECIPIENT_OBSERVERS "[Observers]​",
+    CHAT_RECIPIENT_PRIVATE "[Private]​",
+    CHAT_RECIPIENT_REFEREES "[Referees]​",
+}

@@ -223,6 +223,14 @@ function resetChatFrames()
         chatContainer.clearAllPoints()
         chatContainer.setAbsPoint(FRAMEPOINT_BOTTOMLEFT, 0.0, 0.0)
         chatContainer.show()
+        GAME_UI.getChild(5).setVisible(true)
+
+        // I am trying to make the chat history dynamic, currently it goes outside the seeable-screen
+        let chatHistory = getOriginFrame(ORIGIN_FRAME_CHAT_MSG)
+        chatHistory
+        ..setParent(GAME_UI)
+        ..clearAllPoints()
+        ..setAbsPoint(FRAMEPOINT_BOTTOMLEFT, 0.0, 0.0)
 
 function spawnHeroes()
     if draftRootFrame != null
