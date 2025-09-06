@@ -29,7 +29,6 @@
 - Max movement speed.
 - Large amount of attack speed.
 - Basic attacks deal aoe chain lightning.
-- Q gains AoE slash
 - **Thunderclap Palm (W):** Stuns nearby enemies as well.
 - **Shunpo Barrage (Q):**  Reduce main target's armor.
 

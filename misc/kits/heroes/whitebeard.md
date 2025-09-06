@@ -7,7 +7,7 @@
 ## G - Quake Quake Resonance
 - Whenever whitebeard destroys a player terrain-like ability or a terrain structure with his abilities, he gains a short Empower buff.
 - Bonus attack damage.
-- Bonus AoE splash radius on his next basic attack, scaling with whitebeard's max **HP**.
+- Bonus aoe splash radius on his next basic attack, scaling with whitebeard's max **HP**.
 
 ## Q - Tremor Fist
 - Whitebeard punches forward with a quake-imbued fist.
