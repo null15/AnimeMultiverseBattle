@@ -53,7 +53,7 @@ function draftScreen()
     let team1Bans = new TableLayout(0.3, 0.0675)
     ..row()..center()
     for i = 1 to 5
-        let btn = imgBtn("Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize)
+        let btn = imgBtn("UI\\Textures\\Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize)
         team1BanSlots[i] = getButtonIcon(btn)
         if i < 5
             team1Bans..add(btn)..padRight(0.005)
@@ -63,15 +63,15 @@ function draftScreen()
     let team2Bans = new TableLayout(0.3, 0.0675)
     ..row()..center()
     for i = 1 to 5
-        let btn2 = imgBtn("Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize)
+        let btn2 = imgBtn("UI\\Textures\\Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize)
         team2BanSlots[i] = getButtonIcon(btn2)
         if i < 5
             team2Bans..add(btn2)..padRight(0.005)
         else
             team2Bans..add(btn2)
 
-    let timerTens = img("number_6.dds", 0.0400, 0.0400, true)
-    let timerOnes = img("number_0.dds", 0.0400, 0.0400, true)
+    let timerTens = img("UI\\Textures\\number_6.dds", 0.0400, 0.0400, true)
+    let timerOnes = img("UI\\Textures\\number_0.dds", 0.0400, 0.0400, true)
     let timerTable = new TableLayout(0.126, 0.0675)
         ..row()..center()
         ..add(timerTens)
@@ -85,9 +85,9 @@ function draftScreen()
         ..add(h1(""))..growX()
         ..add(pageBtns[1])..add(pageBtns[2])..add(pageBtns[3])
 
-    let team1PickedTable = createTeamPickedTable(0, 4, "Strength_enabled.dds", 0.0075)
+    let team1PickedTable = createTeamPickedTable(0, 4, "UI\\Textures\\Strength_enabled.dds", 0.0075)
 
-    let team2PickedTable = createTeamPickedTable(5, 9, "Intelligence_enabled.dds", 0.0075)
+    let team2PickedTable = createTeamPickedTable(5, 9, "UI\\Textures\\Intelligence_enabled.dds", 0.0075)
 
     heroGrid = new GridCell(0.4, 0.220, 10, heroIconSize, heroIconSize, 0.006)
 
@@ -103,8 +103,8 @@ function draftScreen()
 
     let miscTable = new TableLayout(0.265, 0.175)
     ..row()..center()
-    confirmBtn = imgBtn("Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350)
-    randomBtn = imgBtn("Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350)
+    confirmBtn = imgBtn("UI\\Textures\\Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350)
+    randomBtn = imgBtn("UI\\Textures\\Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350)
     miscTable..add(confirmBtn)..padRight(0.01)..padTop(0.01)
     miscTable..add(randomBtn)..padTop(0.01)
     ..row()..center()
@@ -122,29 +122,29 @@ function draftScreen()
     heroRolesText = p("Hero Roles")..setWidth(0.250)..setHeight(0.0125)..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_LEFT)
     abilityDescription..add(heroRolesText)..padBot(0.005)
     ..row()..center()..padBot(0.01)
-    abilityIcons[1] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityIcons[1] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
     abilityTexts[1] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
     abilityDescription..add(abilityIcons[1])
     abilityDescription..add(abilityTexts[1])..padLeft(0.0025)..padTop(0.0025)
-    abilityIcons[2] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityIcons[2] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
     abilityTexts[2] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
     abilityDescription..add(abilityIcons[2])
     abilityDescription..add(abilityTexts[2])..padLeft(0.0025)..padTop(0.0025)
     ..row()..center()..padBot(0.01)
-    abilityIcons[3] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityIcons[3] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
     abilityTexts[3] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
     abilityDescription..add(abilityIcons[3])
     abilityDescription..add(abilityTexts[3])..padLeft(0.0025)..padTop(0.0025)
-    abilityIcons[4] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityIcons[4] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
     abilityTexts[4] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
     abilityDescription..add(abilityIcons[4])
     abilityDescription..add(abilityTexts[4])..padLeft(0.0025)..padTop(0.0025)
     ..row()..center()..padBot(0.01)
-    abilityIcons[5] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityIcons[5] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
     abilityTexts[5] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
     abilityDescription..add(abilityIcons[5])
     abilityDescription..add(abilityTexts[5])..padLeft(0.0025)..padTop(0.0025)
-    abilityIcons[6] = img("Intelligence_enabled.dds", 0.0235, 0.0235, true)
+    abilityIcons[6] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
     abilityTexts[6] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
     abilityDescription..add(abilityIcons[6])
     abilityDescription..add(abilityTexts[6])..padLeft(0.0025)..padTop(0.0025)
@@ -194,9 +194,9 @@ init
     categoryImgNames[2] = "Intelligence"
     for i = 1 to MAX_CATEGORIES
         let name = categoryImgNames[((i - 1) % 3).toInt()]
-        catTex[i] = name + ".dds"
-        catTexOn[i] = name + "_enabled.dds"
-        catTexDisabled[i] = name + "_disabled.dds"
+        catTex[i] = "UI\\Textures\\" + name + ".dds"
+        catTexOn[i] = "UI\\Textures\\" + name + "_enabled.dds"
+        catTexDisabled[i] = "UI\\Textures\\" + name + "_disabled.dds"
     setupCategoryButtons()
     setupPageButtons()
 

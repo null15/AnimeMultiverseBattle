@@ -1,4 +1,6 @@
 UI\FrameDef\Glue\standardtemplates.fdf
 UI\FrameDef\UI\escmenutemplates.fdf
 UI\FrameDef\Glue\battlenettemplates.fdf
-DraftSystem.fdf
+UI\Includes\DraftSystem.fdf
+UI\Includes\MyTextArea.fdf
+UI\Includes\BigBnetTextArea.fdf

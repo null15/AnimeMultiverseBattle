@@ -1,0 +1,15 @@
+package ChatSystem
+
+public function createChat()
+    let parent = createFrame("FRAME", "ChatParent", getFrame("ConsoleUIBackdrop", 0), "", 0)
+
+    let textArea = BlzCreateFrame("BigBnetTextArea", parent,0,0)
+    var index = 1
+    BlzFrameSetAbsPoint(textArea, FRAMEPOINT_TOPLEFT, 0, 0)
+    BlzFrameSetSize(textArea, 0.35, 0.15)
+    BlzFrameSetPoint(textArea, FRAMEPOINT_TOPLEFT, BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON, 0), FRAMEPOINT_TOPRIGHT, -0.025, -0.225)
+    while true
+        if index == 120
+            break
+        BlzFrameAddText(textArea, I2S(index)+": Test Text")
+        index = index + 1

@@ -12,8 +12,10 @@ bool array chatFocused
 constant CHAT_SYNC_PREFIX = "dchat"
 
 public function createDraftChat(framehandle parent) returns framehandle
-    if not loadTOCFile("DraftSystem.toc")
-        printLog(Loglevel.ERROR, "COULD NOT LOAD DraftSystem.toc")
+    if not loadTOCFile("UI\\Includes\\HideChat.toc")
+        printLog(Loglevel.ERROR, "Could not load HideChat.toc")
+    if not loadTOCFile("UI\\Includes\\DraftSystem.toc")
+        printLog(Loglevel.ERROR, "Could not load DraftSystem.toc")
 
     let chatTable = new TableLayout(0.380, 0.175)
     chatContainer = chatTable.createFramedContainer(parent)

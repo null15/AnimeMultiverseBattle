@@ -5,6 +5,7 @@ import DraftTimer
 import HashMap
 import LinkedList
 import DraftChat
+import ChatSystem
 
 public framehandle array team1BanSlots
 public framehandle array team2BanSlots
@@ -195,7 +196,7 @@ function startNextTurn()
     currentTurn = pickTurns.dequeue()
     for pid in currentTurn
         hasPicked.put(pid, false)
-    startDraftTimer(draftTurnTimeout, () -> onTurnTimeout())
+    startDraftTimer(DRAFT_TURN_TIMEOUT, () -> onTurnTimeout())
 
 function onTurnTimeout()
     for pid in currentTurn
@@ -215,7 +216,7 @@ function checkTurnDone()
 function finishDraft()
     phase = DraftPhase.DONE
     updateInfo("Draft Complete", "Heroes spawning soon")
-    startDraftTimer(5, () -> spawnHeroes())
+    startDraftTimer(DRAFT_COUNTDOWN_DELAY, () -> spawnHeroes())
 
 function resetChatFrames()
     if chatContainer != null
@@ -226,6 +227,7 @@ function resetChatFrames()
         if chatInputFrame != null
             chatInputFrame.hide()
         GAME_UI.getChild(5).setVisible(true)
+        createChat()
 
 function spawnHeroes()
     if draftRootFrame != null
@@ -244,7 +246,7 @@ public function startDraft()
     setupPlayers()
     buildPickTurns()
     updateInfo("Ban Phase", "Select a hero and confirm to ban")
-    startDraftTimer(draftPickPhase, () -> startPickPhase())
+    startDraftTimer(DRAFT_PICK_PHASE, () -> startPickPhase())
 
 function startPickPhase()
     phase = DraftPhase.PICK

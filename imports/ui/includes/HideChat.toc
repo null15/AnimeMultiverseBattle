@@ -1,0 +1,1 @@
+UI\Includes\HideChat.fdf

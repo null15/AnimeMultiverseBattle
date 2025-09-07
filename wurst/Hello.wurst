@@ -1,8 +1,5 @@
 package Hello
 
-import ClosureTimers
+// import ClosureTimers
 
 init
-    nullTimer() -> 
-        if not loadTOCFile("HideChat.toc")
-            printLog(Loglevel.ERROR, "Could not load HideChat.toc")
