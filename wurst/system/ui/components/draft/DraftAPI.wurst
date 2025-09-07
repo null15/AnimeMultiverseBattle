@@ -4,7 +4,6 @@ import TableLayout
 import GridTableWrapper
 import LinkedList
 import HashMap
-import FlowGrid
 import FramePos
 import ClosureTimers
 
@@ -15,7 +14,6 @@ public real teamPickBannerWidth = 0.120
 public real teamPickBannerHeight = 0.0350
 
 public constant real DRAFT_REFRESH_DEBOUNCE = 0.2 /* Debounce time to coalesce spam clicks (seconds). */
-constant real ANIMATION_SPEED_DURATION = 0.35
 public constant int MAX_CATEGORIES = 8
 public constant int MAX_PAGES = 3
 constant int PER_PAGE = 30
@@ -115,7 +113,7 @@ public interface HeroSelectListener
 HashMap<int, DraftUIState> uiState = new HashMap<int, DraftUIState>()
 
 /** Global list of all registered heroes (draft pool). */
-LinkedList<HeroDraft> allHeroes = new LinkedList<HeroDraft>()
+public LinkedList<HeroDraft> allHeroes = new LinkedList<HeroDraft>()
 
 /** Lookup from hero id → HeroDraft. */
 HashMap<int, HeroDraft> heroById = new HashMap<int, HeroDraft>()
@@ -127,7 +125,7 @@ LinkedList<HeroPickListener> pickListeners = new LinkedList<HeroPickListener>()
 LinkedList<HeroSelectListener> selectListeners = new LinkedList<HeroSelectListener>()
 
 /** Selected hero per player (for ON/TRUE highlight). */
-HashMap<int, int> selectedHeroByPid = new HashMap<int, int>()
+public HashMap<int, int> selectedHeroByPid = new HashMap<int, int>()
 
 /** References to category buttons (1..MAX_CATEGORIES). */
 public framehandle array categoryBtns
@@ -138,8 +136,9 @@ public framehandle array pageBtns
 /** Grid wrapper containing hero buttons. */
 public GridCell heroGrid = null
 
-/** Frames currently visible in the grid (local player only). */
-public LinkedList<framehandle> shownNow = new LinkedList<framehandle>()
+/** Currently visible frames per player (flat array with PER_PAGE slots each). */
+public framehandle array shownNow
+public int array shownCount
 
 /** Map hero id -> its button frame (decouples data from view). */
 public HashMap<int, framehandle> heroBtnById = new HashMap<int, framehandle>()
@@ -156,6 +155,7 @@ public string array catTex
 public string array catTexOn
 public string array catTexDisabled
 public framehandle array categoryBtnIcons
+framehandle array tmpPageBuf
 
 /* ============================================================
  * Utility
@@ -253,9 +253,7 @@ public function getSelectedHero(int pid) returns int
 public function removeHero(int id)
     let f = heroBtnById.get(id)
     if f != null
-        heroGrid.remove(f)
         BlzFrameSetVisible(f, false)
-        shownNow.remove(f)
         heroBtnById.remove(id)
     let h = heroById.get(id)
     if h != null
@@ -281,22 +279,7 @@ public function getRandomHeroId() returns int
 
 /** Get the button frame for a hero id, or null if not set. */
 public function getHeroButton(int id) returns framehandle
-    var f = heroBtnById.get(id)
-    if f == null
-        let h = heroById.get(id)
-        if h == null
-            return null
-        f = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
-        let hid = id
-        f.onClick() ->
-            BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
-            let pid = GetPlayerId(GetTriggerPlayer())
-            selectedHeroByPid.put(pid, hid)
-            updateHeroSelectionVisual(pid)
-            notifyHeroSelected(pid)
-            notifyHeroPicked(pid, hid)
-        heroBtnById.put(id, f)
-    return f
+    return heroBtnById.get(id)
 
 /* ============================================================
  * Search and filtering
@@ -421,7 +404,6 @@ public function refreshGrid(int pid)
     let startIdx = (st.currentPage - 1) * PER_PAGE
     let endIdx = startIdx + PER_PAGE - 1
 
-    framehandle array pageBuf
     var pageCount = 0
     var matchIdx = 0
     for h in allHeroes
@@ -429,29 +411,30 @@ public function refreshGrid(int pid)
             if matchIdx >= startIdx and matchIdx <= endIdx
                 let f = getHeroButton(h.unitID)
                 if f != null
-                    pageBuf[pageCount] = f
+                    tmpPageBuf[pageCount] = f
                     pageCount++
             matchIdx++
 
-    for f in shownNow
-        heroGrid.remove(f)
-        BlzFrameSetVisible(f, false)
+    if GetLocalPlayer() == Player(pid)
+        for i = 0 to shownCount[pid] - 1
+            let f = shownNow[pid * PER_PAGE + i]
+            BlzFrameSetVisible(f, false)
+    shownCount[pid] = 0
 
-    cancelGridAnimations()
-
+    let g = heroGrid.getGrid()
     for i = 0 to pageCount - 1
-        let f = pageBuf[i]
-        BlzFrameSetVisible(f, true)
-        heroGrid.add(f)
-        BlzFrameSetAlpha(f, 0)
-        setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, 0.0, 0.0)
+        let f = tmpPageBuf[i]
+        let pos = g.indexPos(i)
+        setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, pos.x, pos.y)
+        if GetLocalPlayer() == Player(pid)
+            BlzFrameSetVisible(f, true)
+        else
+            BlzFrameSetVisible(f, false)
+        shownNow[pid * PER_PAGE + shownCount[pid]] = f
+        shownCount[pid]++
 
-    shownNow.clear()
-    for i = 0 to pageCount - 1
-        shownNow.add(pageBuf[i])
-
-    heroGrid.layoutAnimated(ANIMATION_SPEED_DURATION)
-    updateHeroSelectionVisual(pid)
+    if GetLocalPlayer() == Player(pid)
+        updateHeroSelectionVisual(pid)
 
 /* ============================================================
  * Button wiring

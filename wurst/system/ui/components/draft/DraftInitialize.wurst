@@ -91,6 +91,20 @@ function draftScreen()
 
     heroGrid = new GridCell(0.4, 0.220, 10, heroIconSize, heroIconSize, 0.006)
 
+    for h in allHeroes
+        let f = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
+        let hid = h.unitID
+        f.setParent(heroGrid.getGrid().containerFrame)
+        f.onClick() ->
+            BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
+            let pid = GetPlayerId(GetTriggerPlayer())
+            selectedHeroByPid.put(pid, hid)
+            updateHeroSelectionVisual(pid)
+            notifyHeroSelected(pid)
+            notifyHeroPicked(pid, hid)
+        heroBtnById.put(hid, f)
+        BlzFrameSetVisible(f, false)
+
     let mainTable = new TableLayout(0.8, 0.315)
         ..row()..center()
         ..add(categoryPageButtonsTable.createContainerEx(parent))..padLeft(0.005)..padRight(0.005)..growX()
@@ -187,7 +201,7 @@ function draftScreen()
     let pidLocal = GetPlayerId(GetLocalPlayer())
     let st = getDraftUI(pidLocal)
     st.currentPage = 1
-    shownNow.clear()
+    shownCount[pidLocal] = 0
     refreshGrid(pidLocal)
     startDraft()
 
@@ -206,7 +220,7 @@ init
     setupCategoryButtons()
     setupPageButtons()
 
-    nullTimer() -> 
+    nullTimer() ->
         GAME_UI.getChild(5).setVisible(false)
         defineHeroes()
         sortAllHeroesOnce()
