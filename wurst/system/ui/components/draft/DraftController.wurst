@@ -107,7 +107,7 @@ public function updateConfirmButton(int pid)
     BlzFrameSetEnable(confirmBtn, enabled)
     if confirmBtnIcon != null
         if enabled
-            confirmBtnIcon.setTexture("UI\\Textures\\Intelligence_enabled.dds", 0, true)
+            confirmBtnIcon.setTexture("UI\\Textures\\Intelligence.dds", 0, true)
         else
             confirmBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
 
@@ -125,7 +125,7 @@ public function updateRandomButton(int pid)
     BlzFrameSetEnable(randomBtn, enabled)
     if randomBtnIcon != null
         if enabled
-            randomBtnIcon.setTexture("UI\\Textures\\Intelligence_enabled.dds", 0, true)
+            randomBtnIcon.setTexture("UI\\Textures\\Intelligence.dds", 0, true)
         else
             randomBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
 

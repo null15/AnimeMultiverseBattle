@@ -23,7 +23,7 @@ public function createDraftChat(framehandle parent) returns framehandle
     chatHistoryFrame = createFrame(FramehandleTypeNames.textarea, "DraftChatHistory", chatContainer, "EscMenuTextAreaTemplate", 0)
     chatHistoryFrame
         ..setPoint(FRAMEPOINT_TOPLEFT, chatContainer, FRAMEPOINT_TOPLEFT, 0.011, -0.011)
-        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.010, 0.033)
+        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.010, 0.047)
         ..setEnabled(false)
 
     chatInputFrame = createFrame(FramehandleTypeNames.editbox, "DraftChatInput", chatContainer, "EscMenuEditBoxTemplate", 0)

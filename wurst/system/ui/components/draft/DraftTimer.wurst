@@ -2,10 +2,10 @@ package DraftTimer
 
 import ClosureTimers
 
-public int DRAFT_CURRENT_TIME           = 5
-public int DRAFT_TURN_TIMEOUT           = 5
-public int DRAFT_PICK_PHASE             = 5
-public int DRAFT_COUNTDOWN_DELAY        = 5
+public int DRAFT_CURRENT_TIME           = 30
+public int DRAFT_TURN_TIMEOUT           = 20
+public int DRAFT_PICK_PHASE             = 25
+public int DRAFT_COUNTDOWN_DELAY        = 3
 framehandle timerTens = null
 framehandle timerOnes = null
 CallbackPeriodic countdownCb = null

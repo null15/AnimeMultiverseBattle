@@ -15,7 +15,7 @@ public real teamPickBannerWidth = 0.120
 public real teamPickBannerHeight = 0.0350
 
 public constant real DRAFT_REFRESH_DEBOUNCE = 0.2 /* Debounce time to coalesce spam clicks (seconds). */
-constant real ANIMATION_SPEED_DURATION = 0.2
+constant real ANIMATION_SPEED_DURATION = 0.35
 public constant int MAX_CATEGORIES = 8
 public constant int MAX_PAGES = 3
 constant int PER_PAGE = 30
