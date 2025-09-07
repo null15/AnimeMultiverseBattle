@@ -103,6 +103,9 @@ class DraftUIState
 public interface HeroPickListener
     function onHeroPicked(int pid, int unitID)
 
+public interface HeroSelectListener
+    function onHeroSelected(int pid)
+
 /* ============================================================
  * Global state
  * ============================================================
@@ -119,6 +122,9 @@ HashMap<int, HeroDraft> heroById = new HashMap<int, HeroDraft>()
 
 /** Registered listeners for hero pick events. */
 LinkedList<HeroPickListener> pickListeners = new LinkedList<HeroPickListener>()
+
+/** Registered listeners for hero selection events. */
+LinkedList<HeroSelectListener> selectListeners = new LinkedList<HeroSelectListener>()
 
 /** Selected hero per player (for ON/TRUE highlight). */
 HashMap<int, int> selectedHeroByPid = new HashMap<int, int>()
@@ -230,6 +236,14 @@ public function notifyHeroPicked(int pid, int unitID)
     for l in pickListeners
         l.onHeroPicked(pid, unitID)
 
+public function addHeroSelectListener(HeroSelectListener l)
+    if l != null
+        selectListeners.add(l)
+
+public function notifyHeroSelected(int pid)
+    for l in selectListeners
+        l.onHeroSelected(pid)
+
 public function getHeroData(int id) returns HeroDraft
     return heroById.get(id)
 
@@ -251,6 +265,7 @@ public function removeHero(int id)
         if selectedHeroByPid.get(i) == id
             selectedHeroByPid.put(i, 0)
             updateHeroSelectionVisual(i)
+            notifyHeroSelected(i)
         scheduleRefresh(i)
 
 public function getRandomHeroId() returns int
@@ -278,6 +293,7 @@ public function getHeroButton(int id) returns framehandle
             let pid = GetPlayerId(GetTriggerPlayer())
             selectedHeroByPid.put(pid, hid)
             updateHeroSelectionVisual(pid)
+            notifyHeroSelected(pid)
             notifyHeroPicked(pid, hid)
         heroBtnById.put(id, f)
     return f
