@@ -248,6 +248,9 @@ public function removeHero(int id)
         allHeroes.remove(h)
         heroById.remove(id)
     for i = 0 to 9
+        if selectedHeroByPid.get(i) == id
+            selectedHeroByPid.put(i, 0)
+            updateHeroSelectionVisual(i)
         scheduleRefresh(i)
 
 public function getRandomHeroId() returns int
