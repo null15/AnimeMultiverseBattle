@@ -1,13 +1,13 @@
 ---
-projectName: ACRL
+projectName: AnimeMultiverseBattle
 dependencies:
 - https://github.com/wurstscript/wurstStdlib2
 - https://github.com/null15/InventoryUtils
 - https://github.com/Frotty/wurst-table-layout
 - https://github.com/Frotty/wurst-bonus-handler
 buildMapData:
-  name: '|cff81b862ACRL v1.0.0|r'
-  fileName: ACRL v1.0.0
+  name: '|cff81b862AMB v1.0.0|r'
+  fileName: AMB v1.0.0
   author: Community
   scenarioData:
     description: "|cff81b862Anime map, where the goal is to kill the enemy heroes\
