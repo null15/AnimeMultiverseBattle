@@ -220,14 +220,12 @@ function finishDraft()
 
 function resetChatFrames()
     if chatContainer != null
-        chatContainer.setParent(GAME_UI)
-        chatContainer.clearAllPoints()
-        chatContainer.setAbsPoint(FRAMEPOINT_BOTTOMLEFT, 0.0, 0.0)
-        chatContainer.show()
-        if chatInputFrame != null
-            chatInputFrame.hide()
-        GAME_UI.getChild(5).setVisible(true)
-        createChat()
+        chatContainer.disable()
+        chatContainer.hide()
+    if chatInputFrame != null
+        chatInputFrame.hide()
+    GAME_UI.getChild(5).setVisible(true)
+    createChat()
 
 function spawnHeroes()
     if draftRootFrame != null
