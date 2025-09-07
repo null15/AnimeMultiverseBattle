@@ -13,6 +13,8 @@ public framehandle array banSlotByPid
 public framehandle array pickIconByPid
 public framehandle confirmBtn = null
 public framehandle randomBtn = null
+public framehandle confirmBtnIcon = null
+public framehandle randomBtnIcon = null
 public framehandle infoTitle = null
 public framehandle infoText = null
 public framehandle heroNameText = null
@@ -103,10 +105,33 @@ public function updateConfirmButton(int pid)
         if currentTurn != null and currentTurn.has(pid) and not hasPicked.get(pid) and getSelectedHero(pid) != 0
             enabled = true
     BlzFrameSetEnable(confirmBtn, enabled)
+    if confirmBtnIcon != null
+        if enabled
+            confirmBtnIcon.setTexture("UI\\Textures\\Intelligence_enabled.dds", 0, true)
+        else
+            confirmBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
 
 function updateAllConfirmButtons()
     for i = 0 to 9
         updateConfirmButton(i)
+
+public function updateRandomButton(int pid)
+    if GetLocalPlayer() != players[pid] or randomBtn == null
+        return
+    var enabled = false
+    if phase == DraftPhase.PICK
+        if currentTurn != null and currentTurn.has(pid) and not hasPicked.get(pid)
+            enabled = true
+    BlzFrameSetEnable(randomBtn, enabled)
+    if randomBtnIcon != null
+        if enabled
+            randomBtnIcon.setTexture("UI\\Textures\\Intelligence_enabled.dds", 0, true)
+        else
+            randomBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
+
+function updateAllRandomButtons()
+    for i = 0 to 9
+        updateRandomButton(i)
 
 public function onConfirmClick(int pid)
     if phase == DraftPhase.BAN
@@ -117,6 +142,7 @@ public function onConfirmClick(int pid)
             hasBanned.put(pid, true)
             banHero(pid, sel)
             updateConfirmButton(pid)
+            updateRandomButton(pid)
     else if phase == DraftPhase.PICK
         if currentTurn == null or not currentTurn.has(pid)
             return
@@ -128,6 +154,7 @@ public function onConfirmClick(int pid)
         pickHero(pid, sel)
         checkTurnDone()
         updateConfirmButton(pid)
+        updateRandomButton(pid)
 
 public function onRandomClick(int pid)
     if phase != DraftPhase.PICK
@@ -139,6 +166,7 @@ public function onRandomClick(int pid)
     pickHero(pid, getRandomHeroId())
     checkTurnDone()
     updateConfirmButton(pid)
+    updateRandomButton(pid)
 
 function banHero(int pid, int heroId)
     removeHero(heroId)
@@ -221,12 +249,14 @@ function startNextTurn()
         hasPicked.put(pid, false)
     startDraftTimer(DRAFT_TURN_TIMEOUT, () -> onTurnTimeout())
     updateAllConfirmButtons()
+    updateAllRandomButtons()
 
 function onTurnTimeout()
     for pid in currentTurn
         if not hasPicked.get(pid)
             pickHero(pid, getRandomHeroId())
             updateConfirmButton(pid)
+            updateRandomButton(pid)
     checkTurnDone()
 
 function checkTurnDone()
@@ -243,6 +273,7 @@ function finishDraft()
     updateInfo("Draft Complete", "Heroes spawning soon")
     startDraftTimer(DRAFT_COUNTDOWN_DELAY, () -> spawnHeroes())
     updateAllConfirmButtons()
+    updateAllRandomButtons()
 
 function resetChatFrames()
     if chatContainer != null
@@ -272,11 +303,13 @@ public function startDraft()
     updateInfo("Ban Phase", "Select a hero and confirm to ban")
     startDraftTimer(DRAFT_PICK_PHASE, () -> startPickPhase())
     updateAllConfirmButtons()
+    updateAllRandomButtons()
 
 function startPickPhase()
     phase = DraftPhase.PICK
     updateInfo("Pick Phase", "Select your hero and confirm")
     updateAllConfirmButtons()
+    updateAllRandomButtons()
     startNextTurn()
 
 init
