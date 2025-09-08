@@ -5,6 +5,7 @@ dependencies:
 - https://github.com/null15/InventoryUtils
 - https://github.com/Frotty/wurst-table-layout
 - https://github.com/Frotty/wurst-bonus-handler
+- https://github.com/Frotty/Frentity
 buildMapData:
   name: '|cff81b862AMB v1.0.0|r'
   fileName: AMB v1.0.0
@@ -67,6 +68,16 @@ buildMapData:
     name: Player 9
     race: HUMAN
     controller: USER
+    fixedStartLoc: false
+  - id: 10
+    name: Player 10
+    race: HUMAN
+    controller: COMPUTER
+    fixedStartLoc: false
+  - id: 11
+    name: Player 11
+    race: HUMAN
+    controller: COMPUTER
     fixedStartLoc: false
   forces:
   - name: Vongola
