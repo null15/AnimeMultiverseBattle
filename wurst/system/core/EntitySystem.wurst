@@ -1,6 +1,11 @@
 package EntitySystem
 
 import EntityManagement
+import heroDefinitions
+
+init
+	createUnit(players[0], ALL_MIGHT, vec2(0, 0))
+	initDone()
 
 public function initDone()
 	startEntityLoop()

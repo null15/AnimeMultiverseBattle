@@ -1,0 +1,20 @@
+package abilityDefinitions
+
+import ChannelAbilityPreset
+
+public constant ALL_MIGHT_Q = compiletime(ABIL_ID_GEN.next())
+
+@compiletime function defineAllMightAbilities()
+	new ChannelAbilityPreset(ALL_MIGHT_Q, 1, true)
+		..setName("Detroit Smash")
+		..setTooltipNormal(1, "Detroit Smash")
+		..setTooltipNormalExtended(1, "All Might launches a projectile.")
+		..presetIcon(Icons.bTNFireBolt)
+		..setHeroAbility(true)
+		..presetTargetTypes(Targettype.POINT)
+		..presetManaCost(lvl -> 50)
+		..presetCooldown(lvl -> 8.)
+		..setHotkeyLearn("Q")
+		..setHotkeyNormal("Q")
+		..setHotkeyTurnOff("Q")
+		..presetCooldown(lvl -> 1)

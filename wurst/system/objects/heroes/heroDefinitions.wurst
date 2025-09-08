@@ -7,6 +7,7 @@ import Icons
 import AbilityIds
 import ObjectIds
 import Units
+import abilityDefinitions
 
 public constant         WENDY_MARVELL           = compiletime(HERO_ID_GEN.next())
 public constant         AZAKANA_YONE            = compiletime(HERO_ID_GEN.next())
@@ -324,9 +325,9 @@ function makeHero(
 		30, 4.0,
 		22, 2.5,
 		12, 1.0,
-		900, 5.0,
-		100, 150, 1.5,
-		3, 1,
+               900, 5.0,
+               100, 150, 1.5,
+               3, 1,
 		commaList(AbilityIds.inventory),
 		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.thunderClap),
 		40, 150, "", 0,
@@ -745,7 +746,7 @@ function makeHero(
 		120, 180, 1.2,
 		4, 1,
 		commaList(AbilityIds.inventory),
-		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.thunderClap),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.thunderClap, ALL_MIGHT_Q),
 		40, 150, "", 0,
 		0, 450, "", 0)
 
