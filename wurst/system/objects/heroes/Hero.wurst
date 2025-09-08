@@ -1,0 +1,111 @@
+package Hero
+
+import HashMap
+import LinkedList
+
+public enum AbilitySlot
+    Q
+    W
+    E
+    R
+
+public enum HeroRole
+    STRENGTH
+    AGILITY
+    INTELLIGENCE
+    BRUISER
+    CARRY
+    SUPPORT
+    MELEE
+    RANGE
+
+public class Hero
+    player owner
+    unit u
+    int unitId
+    int strength
+    int agility
+    int intelligence
+    string iconPath
+    string name
+    string properName
+    string description
+    string franchise
+    LinkedList<HeroRole> roles
+    HashMap<AbilitySlot, int> abilityBySlot
+
+    construct(int unitId, string name, string properName, string description, string franchise, int str, int agi, int intel)
+        this.unitId = unitId
+        this.name = name
+        this.properName = properName
+        this.description = description
+        this.franchise = franchise
+        this.strength = str
+        this.agility = agi
+        this.intelligence = intel
+        this.iconPath = BlzGetAbilityIcon(unitId)
+        roles = new LinkedList<HeroRole>()
+        abilityBySlot = new HashMap<AbilitySlot, int>()
+
+    construct(player owner, int unitId)
+        this.owner = owner
+        this.unitId = unitId
+        this.strength = u.getStr(true)
+
+    function addRole(HeroRole r)
+        if not roles.has(r)
+            roles.add(r)
+
+    function hasRole(HeroRole r) returns boolean
+        return roles.has(r)
+
+    function registerAbility(AbilitySlot slot, int abilityId)
+        abilityBySlot.put(slot, abilityId)
+
+    function getAbility(AbilitySlot slot) returns int
+        return abilityBySlot.get(slot)
+
+    function hasAbility(AbilitySlot slot) returns boolean
+        if u == null
+            return false
+        let id = abilityBySlot.get(slot)
+        if id == 0
+            return false
+        return u.hasAbility(id)
+
+    function create(player p, real x, real y, angle facing) returns unit
+        owner = p
+        u = createUnit(p, unitId, vec2(x, y), facing)
+        return u
+
+    function getUnit() returns unit
+        return u
+
+    function getId() returns int
+        return unitId
+
+    function getIcon() returns string
+        return iconPath
+
+    function getName() returns string
+        return name
+
+    function getProperName() returns string
+        return properName
+
+    function getDescription() returns string
+        return description
+
+    function getFranchise() returns string
+        return franchise
+
+    ondestroy
+        if u != null
+            u.remove()
+            u = null
+        if roles != null
+            destroy roles
+            roles = null
+        if abilityBySlot != null
+            destroy abilityBySlot
+            abilityBySlot = null
