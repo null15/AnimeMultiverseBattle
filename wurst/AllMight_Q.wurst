@@ -4,17 +4,34 @@ import Missiles
 import Entity
 import abilityDefinitions
 
+// When the spell is cast this function will run.
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_Q
 		let caster = GetTriggerUnit()
+		// Frentity gives every unit a friendly wrapper called an entity.
+		// The entity remembers things like position for us.
 		let uEnt = caster.getEntity()
-		// we get uEnt pos, if we can't, then we take caster.getpos
+		// If we have an entity we use its position and move a bit up in the air.
+		// If not, we fall back to the unit position.
 		let start = uEnt != null ? uEnt.getPos().add(0, 0, 300) : caster.getPos3Real()
+		// Where the player clicked.
 		let target = vec3(GetSpellTargetX(), GetSpellTargetY(), 500.)
-		let m = new Missiles(start, target)
-		m.setModel("Abilities\\Weapons\\FireBallMissile\\FireBallMissile.mdl")
-		m.setSpeed(900.)
-		m.launch()
+		// Create a missile that travels from start to target.
+		let miss = new Missiles(start, target)
+		miss.setModel("Abilities\\Weapons\\FireBallMissile\\FireBallMissile.mdl")
+		miss.setSpeed(900.)
+		// Example: react when our missile touches a unit.
+		miss.onHit() (unit u) ->
+			print("Missile hit " + u.getName())
+			// returning true removes the missile
+			return true
+		// Example: this runs when the missile reaches the target
+		// without hitting anything.
+		miss.onFinish() -> 
+			print("Missile finished its trip")
+			return true
+		miss.launch()
 
 init
+	// Listen to spell casts and call onCast for All Might's Q ability.
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
