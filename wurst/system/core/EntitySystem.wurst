@@ -1,0 +1,6 @@
+package EntitySystem
+
+import EntityManagement
+
+public function initDone()
+	startEntityLoop()

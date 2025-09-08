@@ -6,6 +6,7 @@ import HashMap
 import LinkedList
 import DraftChat
 import ChatSystem
+import EntitySystem
 
 public framehandle array team1BanSlots
 public framehandle array team2BanSlots
@@ -294,6 +295,7 @@ function spawnHeroes()
         let hid = heroPicked.get(i)
         if hid != 0
             createUnit(players[i], hid, vec2(0, 0))
+    initDone()
 
 public function startDraft()
     phase = DraftPhase.BAN
