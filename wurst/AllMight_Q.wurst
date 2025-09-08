@@ -3,32 +3,27 @@ package AllMight_Q
 import Missiles
 import Entity
 import abilityDefinitions
+import Units
 
 // When the spell is cast this function will run.
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_Q
 		let caster = GetTriggerUnit()
-		// Frentity gives every unit a friendly wrapper called an entity.
-		// The entity remembers things like position for us.
 		let uEnt = caster.getEntity()
-		// If we have an entity we use its position and move a bit up in the air.
-		// If not, we fall back to the unit position.
-		let start = uEnt != null ? uEnt.getPos().add(0, 0, 300) : caster.getPos3Real().add(0, 0, 300)
-		// Where the player clicked.
-		let target = vec3(GetSpellTargetX(), GetSpellTargetY(), 500.)
-		// Create a missile that travels from start to target.
+		let start = uEnt != null ? uEnt.getPos().add(0, 0, 25) : caster.getPos3Real().add(0, 0, 25)
+		let target = vec3(GetSpellTargetX(), GetSpellTargetY(), 25.)
+
 		let miss = new Missiles(start, target)
 		miss.setModel("Abilities\\Weapons\\FireBallMissile\\FireBallMissile.mdl")
 		miss.setSpeed(900.)
-		// Example: react when our missile touches a unit.
+		miss.collision = 50
+
 		miss.onHit() (unit u) ->
-			print("Missile hit " + u.getName())
-			// returning true removes the missile
-			return true
-		// Example: this runs when the missile reaches the target
-		// without hitting anything.
+			caster.damageTarget(u, 50, ATTACK_TYPE_HERO)
+			return u != caster and caster.isEnemyOf(u)
+
 		miss.onFinish() -> 
-			print("Missile finished its trip")
+			flashEffect(Units.abominationExplosion, miss.getPos())
 			return true
 		miss.launch()
 

@@ -3,3 +3,6 @@ package Hello
 // import ClosureTimers
 
 init
+
+    createUnit(players[6], 'hfoo', vec2(0, 0))
+    CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()

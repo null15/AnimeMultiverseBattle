@@ -12,7 +12,6 @@ function onCast()
 		let caster = GetTriggerUnit()
 		let center = vec2(GetSpellTargetX(), GetSpellTargetY())
 		let radius = 600.
-		let radiusSq = radius * radius
 		let pausedUnits = new LinkedList<unit>()
 		let pausedMissiles = new LinkedList<Missiles>()
 
@@ -22,7 +21,7 @@ function onCast()
 				pausedUnits.add(u)
 
 		for miss in Missiles.collection
-			if miss.getPos().toVec2().distanceToSq(center) <= radiusSq
+			if miss.getPos().toVec2().distanceTo(center) <= radius
 				miss.pause(true)
 				pausedMissiles.add(miss)
 
