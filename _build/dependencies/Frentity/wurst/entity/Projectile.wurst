@@ -1,0 +1,145 @@
+package Projectile
+import public Fx2Entity
+import ClosureForGroups
+import GroupUtils
+
+public interface OnHitListener
+	function run(unit target)
+
+public interface OnEndListener
+	function run()
+
+public class Projectile extends Fx2Entity
+	// Angles
+	private angle xyAngle
+	private vec3 startpos
+
+	private var timed = false
+	private var ranged = false
+
+	private var use3DDistance = true
+	private group hitGroup = null
+
+	private var isPointTarget = false
+	private var targetPoint = ZERO3
+	private var killZ = false
+	private var killBelowZ = 0.
+
+	// Moving Speed
+	private var speed = 0.
+	private var acc = 1.0
+	protected var dist = 0.
+	private var maxDist = 0.
+	protected var time = 0.
+	private var maxTime = 0.
+
+	private Entity target = null
+	private OnHitListener onHit = null
+	private OnEndListener onEnd = null
+
+	construct(vec3 pos, real radius, player owner, angle xyAngle, string fxpath)
+		super(owner, pos, radius, xyAngle, fxpath)
+		startpos = pos
+		setXYAngle(xyAngle)
+		sleeps = false
+		gravity = 0.
+
+	function getFx() returns Fx2
+		return fx
+
+	function onHit(OnHitListener listener)
+		hitGroup = getGroup()
+		this.onHit = listener
+
+	function onEnd(OnEndListener listener)
+		this.onEnd = listener
+
+	function setTargetted(Entity target)
+		this.target = target
+
+	function setKillBelowZ(real zVal)
+		this.killZ = true
+		this.killBelowZ = zVal
+
+	function setPointTarget(vec2 target, real speed)
+		isPointTarget = true
+		this.targetPoint = target.toVec3()
+		this.use3DDistance = false
+		this.vel = (target - pos.toVec2()).setLength(speed).toVec3()
+
+	function setPointTarget(vec3 target, real speed)
+		isPointTarget = true
+		this.targetPoint = target
+		this.use3DDistance = true
+		this.vel = (target - pos).setLength(speed)
+
+	function setRanged(real maxDistance)
+		setRanged(maxDistance, use3DDistance)
+
+	function setRanged(real maxDistance, boolean use3DDistance)
+		this.maxDist = maxDistance*maxDistance
+		this.use3DDistance = use3DDistance
+		ranged = true
+
+	function setTimed(real lifespan)
+		this.maxTime = lifespan
+		timed = true
+
+	function setSpeed(real speed)
+		this.speed = speed
+		setVel(vec3(xyAngle.cos()*speed, xyAngle.sin()*speed, 0.))
+
+	function setAcc(real factor)
+		this.acc = factor
+
+	function getSpeed() returns real
+		return speed
+
+	function setXYAngle(angle xyA)
+		this.xyAngle = xyA
+		fx.eff.setYaw(xyA)
+
+	function getXYAngle() returns angle
+		return xyAngle
+
+	function setZAngle(angle zA)
+		fx.eff.setPitch(zA)
+
+	override function update()
+		vel *= acc
+		super.update()
+		if not done
+			if onHit != null
+				forUnitsInRange(pos.toVec2(), radius) target ->
+					if not done and not hitGroup.has(target)
+						hitGroup.add(target)
+						onHit.run(target)
+
+			if isPointTarget
+				if (use3DDistance ? pos.distanceToSq(targetPoint) : pos.toVec2().distanceToSq(targetPoint.toVec2())) < radius2
+					terminate()
+			if not done and vel.z < 0 and killZ and pos.z <= killBelowZ
+				terminate()
+			if not done and timed
+				time += ANIMATION_PERIOD
+				if time >= maxTime
+					terminate()
+			if not done and ranged
+				if (use3DDistance ? startpos.distanceToSq(pos) : startpos.toVec2().distanceToSq(pos.toVec2())) > maxDist
+					terminate()
+			if not done and target != null
+				if pos.toVec2().distanceToSq(target.getPos().toVec2()) < radius2
+					terminate()
+
+	override function terminate()
+		if not done
+			if onEnd != null
+				onEnd.run()
+			super.terminate()
+
+	ondestroy
+		if onEnd != null
+			hitGroup.destr()
+			destroy onEnd
+		if onHit != null
+			destroy onHit

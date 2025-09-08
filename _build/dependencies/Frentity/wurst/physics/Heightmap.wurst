@@ -1,0 +1,91 @@
+package Heightmap
+import TerrainUtils
+import HashMap
+import MapBounds
+import Execute
+import Reference
+
+tuple quad(int id, int x, int y, vec2 botLeft, real z1, real z2, real z3, real z4)
+
+quad array quads
+
+public function quad.toString() returns string
+    return "Quad: x: " + this.x.toString() + " y: " + this.y.toString() + " z1: " + this.z1.toString() + " z2: " + this.z2.toString() + " z3: " + this.z3.toString() + " z4: " + this.z4.toString()
+
+public function vec2.getQuad() returns quad
+    return quads[(this.x - boundMin.x).toInt() div 128 + (TILES_X * ((this.y - boundMin.y).toInt() div 128))]
+
+public function vec2.withHeightMap() returns vec3
+    return this.withHeightMap(0)
+
+public function vec2.withHeightMap(real zoffset) returns vec3
+    return vec3(this.x, this.y, this.getHeightMap() + zoffset)
+
+public function vec3.getHeightMap() returns real
+    return this.toVec2().getHeightMap()
+
+public function vec2.getHeightMap() returns real
+    let quad = this.getQuad()
+    let localVec = this - quad.botLeft
+    let normVec = vec2(localVec.x / 128, localVec.y / 128)
+
+    let determinant = normVec.y - 1. + normVec.x
+
+    if determinant >= 0
+        // upper triangle
+        let weight1 = 1 - normVec.x
+        let weight2 = 1 - normVec.y
+        let weight3 = 1 - weight1 - weight2
+
+        return weight1 * quad.z3 + weight2 * quad.z2 + weight3 * quad.z4
+    else
+        // lower triangle
+        let weight1 = normVec.y
+        let weight2 = normVec.x
+        let weight3 = 1 - weight1 - weight2
+        return weight1 * quad.z3 + weight2 * quad.z2 + weight3 * quad.z1
+
+init
+    let zMap = new HashMap<int, real>
+    let xRef = new Reference(0)
+    while xRef.val < TILES_X
+        execute() ->
+            xRef.val++
+            for y = 0 to TILES_Y
+                let tile = tile(xRef.val, y)
+                zMap.put(tile.id, tile.toVec2().getTerrainZ())
+
+
+    xRef.val = 0
+    while xRef.val < TILES_X
+        execute() ->
+            xRef.val++
+            let x = xRef.val
+            for y = 0 to TILES_Y
+                quads[x + TILES_X * y] = quad(x + TILES_X * y, x, y, vec2(boundMin.x + x * 128, boundMin.y + y * 128), zMap.get(tile(x, y).id), zMap.get(tile(x + 1, y).id), zMap.get(tile(x, y + 1).id), zMap.get(tile(x + 1, y + 1).id))
+
+    destroy zMap
+    destroy xRef
+
+@Test function tests()
+    // height aligned with diagonal, creating a steep edge
+    quads[0] = quad(0, 0, 0, boundMin, 0, 1, 1, 0)
+
+    vec2(boundMin.x, boundMin.y).withHeightMap().z.assertEquals(0, 0.01)
+    vec2(boundMin.x + 127, boundMin.y).withHeightMap().z.assertEquals(1, 0.01)
+    vec2(boundMin.x, boundMin.y + 127).withHeightMap().z.assertEquals(1, 0.01)
+    vec2(boundMin.x + 127.9, boundMin.y + 127.9).withHeightMap().z.assertEquals(0, 0.01)
+    vec2(boundMin.x + 32, boundMin.y + 32).withHeightMap().z.assertEquals(0.5, 0.01)
+    vec2(boundMin.x + 64, boundMin.y + 64).withHeightMap().z.assertEquals(1, 0.01)
+    vec2(boundMin.x + 96, boundMin.y + 96).withHeightMap().z.assertEquals(0.5, 0.01)
+
+    // height not aligned with diagonal, creating two small hills
+    quads[0] = quad(0, 0, 0, boundMin, 1, 0, 0, 1)
+
+    vec2(boundMin.x, boundMin.y).withHeightMap().z.assertEquals(1, 0.01)
+    vec2(boundMin.x + 127, boundMin.y).withHeightMap().z.assertEquals(0, 0.01)
+    vec2(boundMin.x, boundMin.y + 127).withHeightMap().z.assertEquals(0, 0.01)
+    vec2(boundMin.x + 127.9, boundMin.y + 127.9).withHeightMap().z.assertEquals(1, 0.01)
+    vec2(boundMin.x + 32, boundMin.y + 32).withHeightMap().z.assertEquals(0.5, 0.01)
+    vec2(boundMin.x + 64, boundMin.y + 64).withHeightMap().z.assertEquals(0, 0.01)
+    vec2(boundMin.x + 96, boundMin.y + 96).withHeightMap().z.assertEquals(0.5, 0.01)

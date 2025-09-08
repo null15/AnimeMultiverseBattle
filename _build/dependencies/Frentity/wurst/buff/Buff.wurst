@@ -1,0 +1,183 @@
+package Buff
+import public BuffObjEditing
+import public DamageEvent
+import LinkedListModule
+import Squares
+import TextTagEntity
+import ClosureTimers
+import LinkedList
+import ErrorHandling
+import UnitIndexer
+import Frentity
+import ClosureEvents
+
+/*
+ * Use Frentity Buffs for your custom buff needs.
+ * 1. Create your buff object using `createDummyBuffObject`.
+ * 2. Create a class for your buff that extends one of the preset buffs.
+ * 3. Apply the buff via `new YourBuff().apply(target)`
+ *
+ * Buffs have 2 lifecycle hooks:
+ *
+ * 	function onApply()
+ *	function onEnd()
+ *
+ * and api for attack/defense modifiers.
+ *
+ *	function attackModifier()
+ *	function defenseModifier()
+*/
+
+public constant BUFF_ANIM_PERIOD = 0.25
+LinkedList<Buff> array buffMap
+
+public function unit.hasBuffs() returns boolean
+	return buffMap[this.getIndex()] != null
+
+public function unit.addBuff(Buff buffObj)
+	if buffObj == null or this == null
+		error("Cannot add null buff or null target")
+	if not this.hasBuffs()
+		buffMap[this.getIndex()] = new LinkedList<Buff>()..add(buffObj)
+	else
+		buffMap[this.getIndex()].add(buffObj)
+
+public function unit.hasBuff(int buffTypeId) returns boolean
+	return this.getBuff(buffTypeId) != null
+
+public function unit.getBuff(int buffTypeId) returns Buff
+	if this.hasBuffs()
+		for b in this.getBuffs()
+			if b.typeId == buffTypeId
+				return b
+	return null
+
+
+public function unit.removeBuff(Buff bff)
+	if this.hasBuffs()
+		let itr = this.getBuffs().iterator()
+		for b from itr
+			if b == bff
+				itr.remove().terminate()
+		itr.close()
+
+public function unit.removeBuffById(int typeId)
+	if this.hasBuffs()
+		let itr = this.getBuffs().iterator()
+		for b from itr
+			if b.typeId == typeId
+				itr.remove().terminate()
+		itr.close()
+
+public function unit.getBuffs() returns LinkedList<Buff>
+	return buffMap[this.getIndex()]
+
+public function unit.clearBuffs()
+	let buffs = this.getBuffs()
+	if buffs != null
+		for bff in buffs
+			bff.terminate()
+		destroy buffs
+		buffMap[this.getIndex()] = null
+
+public function unit.transferBuffs(unit otherEntity)
+	if otherEntity == null
+		error("Target Entity may not be null")
+	if this == null
+		error("Origin Entity may not be null")
+	let buffs = this.getBuffs()
+
+	if buffs == null or buffs.size() == 0
+		return
+
+	for bff in buffs
+		if not bff.done
+			bff.apply(otherEntity)
+	destroy buffs
+	buffMap[this.getIndex()] = null
+
+public abstract class Buff
+	use LinkedListModule
+
+	unit target = null
+	real duration
+	buffTuple buffData
+	var done = false
+
+	construct(real duration, buffTuple buffData)
+		this.duration = duration
+		this.buffData = buffData
+
+	abstract function apply(unit target)
+
+	function onApply()
+
+	function attackModifier()
+
+	function defenseModifier()
+
+	function onEnd()
+
+	function update()
+		if duration <= 0.
+			terminate()
+		else
+			duration -= BUFF_ANIM_PERIOD
+
+	function refresh()
+		refresh(false)
+
+	function refresh(boolean forceRefresh)
+		if not target.hasAbility(buffData.abilId) or forceRefresh
+			target.addAbility(buffData.abilId)
+
+	function terminate()
+		if not done
+			done = true
+			onEnd()
+			destroy this
+
+	ondestroy
+		if target != null
+			this.target.removeAbility(this.buffData.buffId)
+			target.removeBuff(this)
+			target.removeAbility(buffData.abilId)
+		target = null
+
+init
+	// Call attack and defense modifiers of buffs
+	DamageEvent.addListener() ->
+		let def = GetTriggerUnit()
+		let att = GetEventDamageSource()
+		if DISABLE_TEAMATTACK and (def.getOwner().isAllyOf(att.getOwner()) or def.getOwner() == att.getOwner())
+			// Falsify teamattacks
+			if DamageEvent.getAmount() > 0.5
+				DamageEvent.setAmount(0)
+				if SHOW_SQUARE
+					new TextTagEntity(def.getPos().toVec3(), vec3(GetRandomReal(-2,2),GetRandomReal(-2,2),GetRandomReal(8,10)), getSquare(), 10, .8,
+						colorA(GetRandomInt(150,250),GetRandomInt(125,150),GetRandomInt(125,150), 255))
+		else
+			if att.hasBuffs()
+				for bff in att.getBuffs()
+					if not bff.done
+						bff.attackModifier()
+
+			if def.hasBuffs()
+				for bff in def.getBuffs()
+					if not bff.done
+						bff.defenseModifier()
+
+	// Update the buff display on unit upgrade
+	EventListener.add(EVENT_PLAYER_UNIT_UPGRADE_FINISH) ->
+		let upg = GetTriggerUnit()
+		if upg.getIndex() > 0
+			doAfter(0.01) ->
+				if upg.hasBuffs()
+					for bff in upg.getBuffs()
+						bff.refresh(true)
+
+	// Remove buffs when a unit dies and all other triggers fired.
+	EventListener.add(EVENT_PLAYER_UNIT_DEATH) ->
+		let u = GetTriggerUnit()
+		u.clearBuffs()
+
