@@ -1,0 +1,17 @@
+package abilityDefinitions
+
+import ChannelAbilityPreset
+
+constant ABIL_ID_GEN = new IdGenerator('amq0')
+
+public constant ALL_MIGHT_Q_ABILITY = compiletime(ABIL_ID_GEN.next())
+
+@compiletime function genAbilities()
+	new ChannelAbilityPreset(ALL_MIGHT_Q_ABILITY, 1, true)
+		..presetTargetTypes(Targettype.POINT)
+		..setName("Detroit Smash")
+		..setTooltipNormal(1, "Detroit Smash")
+		..setTooltipNormalExtended(1, "All Might launches a powerful punch.")
+		..presetButtonPosNormal(0, 2)
+		..presetIcon(Icons.bTNThunderClap)
+		..makeUnitSpell(0, 6.)

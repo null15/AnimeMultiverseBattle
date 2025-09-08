@@ -208,20 +208,20 @@ function draftScreen()
     defaultFrameParent = GAME_UI
 
 init
-    string array categoryImgNames
-    categoryImgNames[0] = "Strength"
-    categoryImgNames[1] = "Agility"
-    categoryImgNames[2] = "Intelligence"
-    for i = 1 to MAX_CATEGORIES
-        let name = categoryImgNames[((i - 1) % 3).toInt()]
-        catTex[i] = "UI\\Textures\\" + name + ".dds"
-        catTexOn[i] = "UI\\Textures\\" + name + "_enabled.dds"
-        catTexDisabled[i] = "UI\\Textures\\" + name + "_disabled.dds"
-    setupCategoryButtons()
-    setupPageButtons()
+    // string array categoryImgNames
+    // categoryImgNames[0] = "Strength"
+    // categoryImgNames[1] = "Agility"
+    // categoryImgNames[2] = "Intelligence"
+    // for i = 1 to MAX_CATEGORIES
+    //     let name = categoryImgNames[((i - 1) % 3).toInt()]
+    //     catTex[i] = "UI\\Textures\\" + name + ".dds"
+    //     catTexOn[i] = "UI\\Textures\\" + name + "_enabled.dds"
+    //     catTexDisabled[i] = "UI\\Textures\\" + name + "_disabled.dds"
+    // setupCategoryButtons()
+    // setupPageButtons()
 
-    nullTimer() ->
-        GAME_UI.getChild(5).setVisible(false)
-        defineHeroes()
-        sortAllHeroesOnce()
-        draftScreen()
+    // nullTimer() ->
+    //     GAME_UI.getChild(5).setVisible(false)
+    //     defineHeroes()
+    //     sortAllHeroesOnce()
+    //     draftScreen()

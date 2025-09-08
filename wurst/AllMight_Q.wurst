@@ -1,0 +1,20 @@
+package AllMight_Q
+
+import abilityDefinitions
+import heroDefinitions
+import Missiles
+import ClosureEvents
+
+init
+
+	createUnit(players[0], ALL_MIGHT, vec2(0, 0))
+
+	EventListener.onPointCast(ALL_MIGHT_Q_ABILITY) (caster, target) ->
+		let m = new Missiles(caster.getPos3Fly(), target.withZ(0.))
+		m.source = caster
+		m.owner = caster.getOwner()
+		m.setModel("Abilities\\Weapons\\SludgeMissile\\SludgeMissile.mdl")
+		m.setSpeed(1000.)
+		m.launch()
+
+		print("SWOOSH")
