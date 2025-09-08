@@ -294,8 +294,8 @@ function spawnHeroes()
     for i = 0 to 9
         let hid = heroPicked.get(i)
         if hid != 0
-            createUnit(players[i], hid, vec2(0, 0))
-    initDone()
+            new HeroEntity(createUnit(players[i], hid, vec2(0, 0)))
+    frentityInit()
 
 public function startDraft()
     phase = DraftPhase.BAN

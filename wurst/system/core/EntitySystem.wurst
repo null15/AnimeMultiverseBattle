@@ -1,23 +1,15 @@
 package EntitySystem
 
 import EntityManagement
-import heroDefinitions
 
 // This tiny class attaches a Frentity to our hero.
 // The entity is like a backpack where we can store extra data
 // and it keeps track of the unit's position for us.
-class AllMightEntity extends UnitEntity
+public class HeroEntity extends UnitEntity
 	construct(unit actor)
 	// super takes care of linking the unit with the entity
 		super(actor)
 
-init
-	// Spawn the test unit
-	let hero = createUnit(players[0], ALL_MIGHT, vec2(0, 0))
-	// Wrap the unit in our entity so Frentity can manage it
-	new AllMightEntity(hero)
-	initDone()
-
-public function initDone()
+public function frentityInit()
 	// Start the global entity update loop
 	startEntityLoop()
