@@ -3,6 +3,7 @@ package abilityDefinitions
 import ChannelAbilityPreset
 
 public constant ALL_MIGHT_Q = compiletime(ABIL_ID_GEN.next())
+public constant TIME_STOP = compiletime(ABIL_ID_GEN.next())
 
 @compiletime function defineAllMightAbilities()
 	new ChannelAbilityPreset(ALL_MIGHT_Q, 1, true)
@@ -18,3 +19,12 @@ public constant ALL_MIGHT_Q = compiletime(ABIL_ID_GEN.next())
 		..setHotkeyNormal("Q")
 		..setHotkeyTurnOff("Q")
 		..presetCooldown(lvl -> 1)
+
+@compiletime function defineTimeStopAbility()
+	new ChannelAbilityPreset(TIME_STOP, 1, true)
+		..setName("Time Stop")
+		..setTooltipNormal(1, "Time Stop")
+		..setTooltipNormalExtended(1, "Pauses units and missiles in an area.")
+		..presetIcon(Icons.bTNSleep)
+		..setHeroAbility(true)
+		..presetTargetTypes(Targettype.POINT)

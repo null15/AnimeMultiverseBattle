@@ -746,7 +746,7 @@ function makeHero(
 		120, 180, 1.2,
 		4, 1,
 		commaList(AbilityIds.inventory),
-		commaList(AbilityIds.bash, AbilityIds.criticalStrike, AbilityIds.thunderClap, ALL_MIGHT_Q),
+		commaList(AbilityIds.bash, AbilityIds.criticalStrike, TIME_STOP, ALL_MIGHT_Q),
 		40, 150, "", 0,
 		0, 450, "", 0)
 

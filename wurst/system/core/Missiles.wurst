@@ -251,6 +251,7 @@ public class Missiles
     function pause(boolean flag)
         paused = flag
         if flag
+            launched = false
             if cb != null
                 destroy cb
                 cb = null
