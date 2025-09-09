@@ -154,6 +154,7 @@ public class Missiles
     private VoidClosure pauseEvent = null
     private VoidClosure resumeEvent = null
     private VoidClosureNotBool removeEvent = null
+    private CallbackSingle pauseCb = null
 
     /* -------------------------- Model of the missile -------------------------- */
     function setModel(string fxpath)
@@ -263,6 +264,17 @@ public class Missiles
             if resumeEvent != null
                 if resumeEvent.run()
                     terminate()
+            if pauseCb != null
+                destroy pauseCb
+                pauseCb = null
+
+    function pauseTimed(real duration)
+        pause(true)
+        if pauseCb != null
+            destroy pauseCb
+        pauseCb = doAfter(duration) ->
+            pauseCb = null
+            this.pause(false)
     
     /* -------------------------- Getters ------------------------- */
 
@@ -295,6 +307,8 @@ public class Missiles
 
         if cb != null
             destroy cb
+        if pauseCb != null
+            destroy pauseCb
 
         destroy fx
         destroy origin
@@ -326,6 +340,8 @@ public class Missiles
             destroy pauseEvent
         if resumeEvent != null
             destroy resumeEvent
+        if pauseCb != null
+            destroy pauseCb
 
     private function move()
         if collision > 0

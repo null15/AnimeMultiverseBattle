@@ -1,37 +1,24 @@
 package AllMight_W
 
 import Missiles
-import ClosureTimers
 import ClosureForGroups
-import LinkedList
+import EntitySystem
 import abilityDefinitions
 import RegisterEvents
 
 function onCast()
-	if GetSpellAbilityId() == TIME_STOP
-		let caster = GetTriggerUnit()
-		let center = vec2(GetSpellTargetX(), GetSpellTargetY())
-		let radius = 600.
-		let pausedUnits = new LinkedList<unit>()
-		let pausedMissiles = new LinkedList<Missiles>()
+        if GetSpellAbilityId() == TIME_STOP
+                let caster = GetTriggerUnit()
+                let center = vec2(GetSpellTargetX(), GetSpellTargetY())
+                let radius = 600.
 
-		forUnitsInRange(center, radius) (unit u) ->
-			if u != caster
-				PauseUnit(u, true)
-				pausedUnits.add(u)
+                forUnitsInRange(center, radius) (unit u) ->
+                        if u != caster
+                                u.pauseTimed(3.)
 
-		for miss in Missiles.collection
-			if miss.getPos().toVec2().distanceTo(center) <= radius and not miss.isPaused()
-				miss.pause(true)
-				pausedMissiles.add(miss)
-
-		doAfter(3.) ->
-			for u in pausedUnits
-				u.pause()
-			for miss in pausedMissiles
-				miss.pause(false)
-			destroy pausedUnits
-			destroy pausedMissiles
+                for miss in Missiles.collection
+                        if miss.getPos().toVec2().distanceTo(center) <= radius
+                                miss.pauseTimed(3.)
 
 init
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
+        registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
