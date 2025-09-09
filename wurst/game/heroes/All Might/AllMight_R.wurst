@@ -1,13 +1,27 @@
 package AllMight_R
 
 import abilityDefinitions
-import Entity
+import unitDefinitions
+import HashMap
+import Transformation
+import RegisterEvents
+
+unit dummybar = null
 
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_R
 		let caster = GetTriggerUnit()
-		let casterEntity = caster.getEntity()
-		// Transform Logic
+		let swaps = new IterableMap<int,int>()
+		swaps.put(ALL_MIGHT_Q, ALL_MIGHT_Q_T)
+		swaps.put(ALL_MIGHT_E, ALL_MIGHT_E_T)
+		swaps.put(ALL_MIGHT_D, ALL_MIGHT_D_T)
+		new Transformation(caster, ALL_MIGHT_POWER_SKIN, swaps, 5.)
+
+		// dummybar = CreateNUnitsAtLoc( 1, PROGRESS_BAR_DUMMY, GetOwningPlayer(caster), Location(caster.getX(), caster.getY()), 270.00 ).get(0)
+		// dummybar = CreateUnit(caster.getOwner(), PROGRESS_BAR_DUMMY, caster.getX(), caster.getY(), 270)
+		// dummybar = createUnit(caster.getOwner(), PROGRESS_BAR_DUMMY, caster.getPos(), angle(270))
+		// SetUnitColor( dummybar, PLAYER_COLOR_LIGHT_BLUE )
+		// SetUnitTimeScalePercent( dummybar, ((1 / 2.4) * 100) )
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

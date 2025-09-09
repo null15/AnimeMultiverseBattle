@@ -7,8 +7,9 @@ import Icons
 import AbilityIds
 import ObjectIds
 import DummyRecycler
+import Units
 
-public constant         PROGRESS_BAR_DUMMY           = compiletime(HERO_ID_GEN.next())
+public constant         PROGRESS_BAR_DUMMY           = compiletime(UNIT_ID_GEN.next())
 
 function makeDummy(int id, string modelPath)
 	new UnitDefinition(id, UnitIds.wisp)
@@ -55,7 +56,13 @@ function makeDummy(int id, string modelPath)
 	..setAttack1WeaponType(WeaponType.Instant)
 	..setAcquisitionRange(INT_MAX.toReal())
 	..setNormalAbilities(
-		commaList(AbilityIds.invulnerable, AbilityIds.locust, DISABLE_AUTO_ACQUIRE_ATTACK_TARGETS_ABILITY_ID))
+		commaList(AbilityIds.invulnerable, AbilityIds.locust, DISABLE_AUTO_ACQUIRE_ATTACK_TARGETS_ABILITY_ID, AbilityIds.crowForm))
 
 @compiletime function generateDummyUnit()
 	makeDummy(PROGRESS_BAR_DUMMY, "Progressbar.mdx")
+public constant ALL_MIGHT_POWER_SKIN = compiletime(HERO_ID_GEN.next())
+
+@compiletime function defineAllMightPowerSkin()
+	new UnitDefinition(ALL_MIGHT_POWER_SKIN, UnitIds.paladin)
+	..setName("All Might Power Skin")
+	..setModelFile(Units.arthas1)
