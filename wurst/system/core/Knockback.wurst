@@ -1,0 +1,37 @@
+package Knockback
+
+import ClosureTimers
+
+constant real KB_PERIOD = 1./40.
+
+class Knockback
+    unit target
+    vec2 direction
+    real speed
+    real traveled = 0.
+    real maxDistance
+    CallbackPeriodic cb
+
+    construct(unit target, vec2 source, real distance, real duration)
+        this.target = target
+        direction = target.getPos() - source
+        direction = direction.norm()
+        maxDistance = distance
+        speed = distance / duration
+        cb = doPeriodically(KB_PERIOD, _ -> move())
+
+    function move()
+        if traveled >= maxDistance
+            destroy this
+        else
+            let stp = speed * KB_PERIOD
+            traveled += stp
+            let newPos = target.getPos() + direction * stp
+            target.setPos(newPos)
+
+    ondestroy
+        if cb != null
+            destroy cb
+
+public function knockbackUnit(unit target, vec2 source, real distance, real duration)
+    new Knockback(target, source, distance, duration)
