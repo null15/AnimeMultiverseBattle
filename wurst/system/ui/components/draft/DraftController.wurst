@@ -294,7 +294,7 @@ function spawnHeroes()
     for i = 0 to 9
         let hid = heroPicked.get(i)
         if hid != 0
-            new HeroEntity(createUnit(players[i], hid, vec2(0, 0)))
+            new HeroEntity(createUnit(players[i], hid, vec2(0, 0))..setLevel(10, false))
     frentityInit()
 
 public function startDraft()
