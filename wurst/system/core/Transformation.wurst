@@ -1,22 +1,50 @@
 package Transformation
 
 import ClosureTimers
+import HashMap
 
 class Transformation
-	unit actor
-	CallbackSingle cb
+    unit actor
+    int originalSkin
+    IterableMap<int, int> abilMap
+    effect bar
+    CallbackSingle cb
 
-	construct(unit actor, real duration, string anim)
-		this.actor = actor
-		SetUnitAnimation(actor, anim)
-		cb = doAfter(duration) ->
-			SetUnitAnimation(actor, "stand")
-			cb = null
-			destroy this
+    construct(unit actor, real duration, int newSkin, IterableMap<int, int> abilMap)
+        this.actor = actor
+        originalSkin = actor.getTypeId()
+        this.abilMap = abilMap
 
-	ondestroy
-		if cb != null
-			destroy cb
+        BlzSetUnitSkin(actor, newSkin)
 
-public function transformUnit(unit actor, real duration, string anim)
-	new Transformation(actor, duration, anim)
+        for abil in abilMap
+            if actor.hasAbility(abil)
+                actor.removeAbility(abil)
+            actor.addAbility(abilMap.get(abil))
+
+        bar = AddSpecialEffectTarget("Progressbar.mdx", actor, "overhead")
+        bar.setTimeScale(1. / duration)
+
+        cb = doAfter(duration) ->
+            BlzSetUnitSkin(actor, originalSkin)
+            for abil in abilMap
+                let newAbil = abilMap.get(abil)
+                if actor.hasAbility(newAbil)
+                    actor.removeAbility(newAbil)
+                actor.addAbility(abil)
+            bar.destr()
+            bar = null
+            destroy abilMap
+            cb = null
+            destroy this
+
+    ondestroy
+        if cb != null
+            destroy cb
+        if bar != null
+            bar.destr()
+        if abilMap != null
+            destroy abilMap
+
+public function transformUnit(unit actor, real duration, int newSkin, IterableMap<int, int> abilMap)
+    new Transformation(actor, duration, newSkin, abilMap)
