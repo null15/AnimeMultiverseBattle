@@ -27,7 +27,7 @@ function onCast()
 
 		doAfter(3.) ->
 			for u in pausedUnits
-				PauseUnit(u, false)
+				u.pause()
 			for miss in pausedMissiles
 				miss.pause(false)
 			destroy pausedUnits
