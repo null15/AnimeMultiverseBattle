@@ -23,18 +23,20 @@ class Transformation
             actor.addAbility(abilMap.get(abil))
 
         bar = AddSpecialEffectTarget("Progressbar.mdx", actor, "overhead")
+        bar.setTime(0.)
         bar.setTimeScale(1. / duration)
 
         cb = doAfter(duration) ->
             BlzSetUnitSkin(actor, originalSkin)
-            for abil in abilMap
-                let newAbil = abilMap.get(abil)
+            for abil in this.abilMap
+                let newAbil = this.abilMap.get(abil)
                 if actor.hasAbility(newAbil)
                     actor.removeAbility(newAbil)
                 actor.addAbility(abil)
             bar.destr()
             bar = null
-            destroy abilMap
+            destroy this.abilMap
+            this.abilMap = null
             cb = null
             destroy this
 
