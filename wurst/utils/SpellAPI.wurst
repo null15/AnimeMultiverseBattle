@@ -1,5 +1,8 @@
 package SpellAPI
 
+public function coneAngle(real angle) returns angle
+	return angle.fromDeg() / 2.
+
 function angleBetweenAngles(real a, real b) returns real
 	var aa = a
 	var bb = b

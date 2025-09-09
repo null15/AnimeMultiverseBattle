@@ -1,4 +1,4 @@
-package Timestop
+package AllMight_W
 
 import Missiles
 import ClosureTimers
@@ -21,7 +21,7 @@ function onCast()
 				pausedUnits.add(u)
 
 		for miss in Missiles.collection
-			if miss.getPos().toVec2().distanceTo(center) <= radius
+			if miss.getPos().toVec2().distanceTo(center) <= radius and not miss.isPaused()
 				miss.pause(true)
 				pausedMissiles.add(miss)
 

@@ -8,21 +8,18 @@ import ClosureForGroups
 import Assets
 import Missiles
 
-function drawConeEdge(vec3 fromWhere, angle dir, real range)
+function drawConeEdge(vec3 fromWhere, angle coneOrientation, real range)
 	// simple missile along one cone edge
-	let toWhere = fromWhere.toVec2().polarOffset(dir, range).withZ(fromWhere.z)
+	let toWhere = fromWhere.toVec2().polarOffset(coneOrientation, range).withZ(fromWhere.z)
 	let m = new Missiles(fromWhere, toWhere)
 	m.setModel(Abilities.arrowMissile1)
 	m.setSpeed(800.)
 	m.launch()
 
-function drawCone(vec3 fromWhere, angle orientation, angle angle, real range)
+function drawCone(vec3 fromWhere, angle coneOrientation, angle coneAngle, real range)
 	// draw both edges
-	drawConeEdge(fromWhere, orientation - angle, range)
-	drawConeEdge(fromWhere, orientation + angle, range)
-
-function coneAngle(real angle) returns angle
-	return angle.fromDeg() / 2.
+	drawConeEdge(fromWhere, coneOrientation - coneAngle, range)
+	drawConeEdge(fromWhere, coneOrientation + coneAngle, range)
 
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_Q
