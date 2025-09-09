@@ -1,17 +1,18 @@
 package Transformation
 
-import ClosureTimers
 import HashMap
 
-class Transformation
+public class Transformation
     unit actor
+    real duration
+    real elapsed = 0.
     int originalSkin
     IterableMap<int, int> abilMap
     effect bar
-    CallbackSingle cb
 
     construct(unit actor, real duration, int newSkin, IterableMap<int, int> abilMap)
         this.actor = actor
+        this.duration = duration
         originalSkin = actor.getTypeId()
         this.abilMap = abilMap
 
@@ -26,27 +27,28 @@ class Transformation
         bar.setTime(0.)
         bar.setTimeScale(1. / duration)
 
-        cb = doAfter(duration) ->
-            BlzSetUnitSkin(actor, originalSkin)
-            for abil in this.abilMap
-                let newAbil = this.abilMap.get(abil)
-                if actor.hasAbility(newAbil)
-                    actor.removeAbility(newAbil)
-                actor.addAbility(abil)
+    function update(real dt) returns boolean
+        elapsed += dt
+        if elapsed >= duration
+            finish()
+            return true
+        return false
+
+    function finish()
+        BlzSetUnitSkin(actor, originalSkin)
+        for abil in abilMap
+            let newAbil = abilMap.get(abil)
+            if actor.hasAbility(newAbil)
+                actor.removeAbility(newAbil)
+            actor.addAbility(abil)
+        if bar != null
             bar.destr()
             bar = null
-            destroy this.abilMap
-            this.abilMap = null
-            cb = null
-            destroy this
+        destroy abilMap
+        abilMap = null
 
     ondestroy
-        if cb != null
-            destroy cb
         if bar != null
             bar.destr()
         if abilMap != null
             destroy abilMap
-
-public function transformUnit(unit actor, real duration, int newSkin, IterableMap<int, int> abilMap)
-    new Transformation(actor, duration, newSkin, abilMap)
