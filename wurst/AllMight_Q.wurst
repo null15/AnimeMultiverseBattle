@@ -5,21 +5,45 @@ import abilityDefinitions
 import SpellAPI
 import ClosureForGroups
 
+import Assets
+import Missiles
+
+function drawConeEdge(vec3 fromWhere, angle dir, real range)
+	// simple missile along one cone edge
+	let toWhere = fromWhere.toVec2().polarOffset(dir, range).withZ(fromWhere.z)
+	let m = new Missiles(fromWhere, toWhere)
+	m.setModel(Abilities.arrowMissile1)
+	m.setSpeed(800.)
+	m.launch()
+
+function drawCone(vec3 fromWhere, angle orientation, angle angle, real range)
+	// draw both edges
+	drawConeEdge(fromWhere, orientation - angle, range)
+	drawConeEdge(fromWhere, orientation + angle, range)
+
+function coneAngle(real angle) returns angle
+	return angle.fromDeg() / 2.
+
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_Q
+		// Unit Variables
 		let caster = GetTriggerUnit()
-		let uEnt = caster.getEntity()
-		let start = uEnt != null ? uEnt.getPos().add(0, 0, 25) : caster.getPos3Real().add(0, 0, 25)
-		let source2 = start.toVec2()
-		let aim = vec2(GetSpellTargetX(), GetSpellTargetY())
-		let bas = source2.angleTo(aim)
-		let range = 600.
+		let casterEntity = caster.getEntity()
 
-		let half = (60).fromDeg() / 2.
-		forUnitsInRange(source2, range) (unit u) ->
+		// "?" is a Ternary operator. We check if casterEntity is not null. If true, run the first expression, if false, run the last one. It works exactly like "if -> x else -> y"
+		// First expression is the one before ":", so: casterEntity.getPos()
+		// Second expression is the one after ":", so: caster.getPos3Real()
+		let casterPosZ = casterEntity != null ? casterEntity.getPos() : caster.getPos3Real()
+		let casterPos = casterPosZ.toVec2()
+		let coneOrientation = casterPos.angleTo(EventData.getSpellTargetPos())
+		let range = 900.
+		let coneAngle = coneAngle(30)
+
+		drawCone(casterPosZ, coneOrientation, coneAngle, range)
+		forUnitsInRange(casterPos, range) (unit u) ->
 			if u != caster and caster.isEnemyOf(u)
-				let pos = u.getPos().toVec3()
-				if isPointInCone(pos.x, pos.y, source2.x, source2.y, range, bas.radians(), half.radians())
+				let targetPos = u.getPos()
+				if isPointInCone(casterPos, targetPos, range, coneOrientation, coneAngle)
 					caster.damageTarget(u, 50, ATTACK_TYPE_HERO)
 
 init

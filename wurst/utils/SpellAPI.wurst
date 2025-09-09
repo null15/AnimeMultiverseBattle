@@ -17,12 +17,12 @@ function angleBetweenAngles(real a, real b) returns real
 	return delta
 
 /** Helper for when you want to use Cone-like Spells */
-public function isPointInCone(real targetX, real targetY, real coneX, real coneY, real coneRange, real coneOrientation, real coneAngleRange) returns boolean
-	let dx = targetX - coneX
-	let dy = targetY - coneY
+public function isPointInCone(vec2 source, vec2 target, real coneRange, angle coneOrientation, angle coneAngleRange) returns boolean
+	let dx = target.x - source.x
+	let dy = target.y - source.y
 	let dist = SquareRoot(dx*dx + dy*dy)
 	if dist > coneRange
 		return false
 	let ang = Atan2(dy, dx)
-	let angleDelta = angleBetweenAngles(ang, coneOrientation)
-	return angleDelta < coneAngleRange
+	let angleDelta = angleBetweenAngles(ang, coneOrientation.radians())
+	return angleDelta < coneAngleRange.radians()
