@@ -1,6 +1,6 @@
 package AnimationWrapper
 
-class AnimationController
+public class AnimationController
     unit actor
 
     construct(unit actor)

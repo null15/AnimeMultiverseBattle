@@ -1,0 +1,13 @@
+package AllMight_R
+
+import abilityDefinitions
+import Transformation
+import RegisterEvents
+
+function onCast()
+	if GetSpellAbilityId() == ALL_MIGHT_R
+		let caster = GetTriggerUnit()
+		transformUnit(caster, 5., "slam")
+
+init
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

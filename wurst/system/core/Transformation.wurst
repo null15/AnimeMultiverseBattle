@@ -3,19 +3,20 @@ package Transformation
 import ClosureTimers
 
 class Transformation
-    unit actor
-    CallbackSingle cb
+	unit actor
+	CallbackSingle cb
 
-    construct(unit actor, real duration, string anim)
-        this.actor = actor
-        SetUnitAnimation(actor, anim)
-        cb = doAfter(duration) ->
-            SetUnitAnimation(actor, "stand")
-            destroy this
+	construct(unit actor, real duration, string anim)
+		this.actor = actor
+		SetUnitAnimation(actor, anim)
+		cb = doAfter(duration) ->
+			SetUnitAnimation(actor, "stand")
+			cb = null
+			destroy this
 
-    ondestroy
-        if cb != null
-            destroy cb
+	ondestroy
+		if cb != null
+			destroy cb
 
 public function transformUnit(unit actor, real duration, string anim)
-    new Transformation(actor, duration, anim)
+	new Transformation(actor, duration, anim)
