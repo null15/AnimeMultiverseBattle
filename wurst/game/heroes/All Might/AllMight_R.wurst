@@ -1,19 +1,13 @@
 package AllMight_R
 
 import abilityDefinitions
-import EntitySystem
-import RegisterEvents
-import HashMap
-import UnitIds
+import Entity
 
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_R
 		let caster = GetTriggerUnit()
-		let map = new IterableMap<int, int>()
-		map.put(ALL_MIGHT_Q, ALL_MIGHT_Q_T)
-		map.put(ALL_MIGHT_E, ALL_MIGHT_E_T)
-		map.put(ALL_MIGHT_D, ALL_MIGHT_D_T)
-		caster.transformUnit(5., UnitIds.mountainking, map)
+		let casterEntity = caster.getEntity()
+		// Transform Logic
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

@@ -3,7 +3,6 @@ package EntitySystem
 import EntityManagement
 import ClosureTimers
 import HashMap
-import Transformation
 
 let unitPauseTimers = new HashMap<unit, CallbackSingle>()
 
@@ -13,7 +12,6 @@ let unitPauseTimers = new HashMap<unit, CallbackSingle>()
 public class HeroEntity extends UnitEntity
     boolean paused = false
     CallbackSingle pauseCb = null
-    Transformation transformation = null
 
     construct(unit actor)
         // super takes care of linking the unit with the entity
@@ -37,30 +35,12 @@ public class HeroEntity extends UnitEntity
             destroy pauseCb
             pauseCb = null
 
-    function startTransformation(real duration, int newSkin, IterableMap<int, int> abilMap)
-        if transformation != null
-            destroy transformation
-        transformation = new Transformation(actor, duration, newSkin, abilMap)
-
-    override function update()
-        super.update()
-        if transformation != null
-            if transformation.update(ANIMATION_PERIOD)
-                destroy transformation
-                transformation = null
-
     function isPaused() returns boolean
         return paused
 
     ondestroy
         if pauseCb != null
             destroy pauseCb
-        if transformation != null
-            destroy transformation
-
-public function frentityInit()
-    // Start the global entity update loop
-    startEntityLoop()
 
 public function unit.pauseTimed(real duration)
     let he = this.getEntity() castTo HeroEntity
@@ -94,7 +74,6 @@ public function unit.isPausedTimed() returns boolean
         return he.isPaused()
     return this.isPaused()
 
-public function unit.transformUnit(real duration, int newSkin, IterableMap<int, int> abilMap)
-    let he = this.getEntity() castTo HeroEntity
-    if he != null
-        he.startTransformation(duration, newSkin, abilMap)
+public function frentityInit()
+    // Start the global entity update loop
+    startEntityLoop()
