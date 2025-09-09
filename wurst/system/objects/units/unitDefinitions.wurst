@@ -1,0 +1,114 @@
+package unitDefinitions
+
+import ObjectIdGenerator
+import UnitObjEditing
+import UnitIds
+import Icons
+import AbilityIds
+import ObjectIds
+import Units
+
+public constant         PROGRESS_BAR_DUMMY           = compiletime(HERO_ID_GEN.next())
+
+function makeHero(
+	int heroID, int baseID, string icon, string displayName, string properName, string description, string model, real modelScale,
+	int strBase, real strPerLevel,
+	int agiBase, real agiPerLevel,
+	int intBase, real intPerLevel,
+	int hpMax, real hpReg,
+	int mpBase, int mpMax, real mpReg,
+	int armorBase, int armorPerLevel,
+	string normalSpells, string heroSpells,
+	int attack1DamageBase, int attack1Range, string attack1ProjectileArt, int attack1ProjectileSpeed,
+	int attack2DamageBase, int attack2Range, string attack2ProjectileArt, int attack2ProjectileSpeed)
+	let h = new HeroDefinition(heroID, baseID)
+	..setIconGameInterface(icon)..setIconScoreScreen(icon)
+	..setName("|cffd8e43a" + displayName)
+	..setProperNames(properName)
+	..setDescription(description)
+	..setModelFile(model)..setScalingValue(modelScale)
+	..setStartingStrength(strBase)..setStrengthPerLevel(strPerLevel)
+	..setStartingAgility(agiBase)..setAgilityPerLevel(agiPerLevel)
+	..setStartingIntelligence(intBase)..setIntelligencePerLevel(intPerLevel)
+	..setHitPointsMaximumBase(hpMax)..setHitPointsRegenerationRate(hpReg)
+	..setManaInitialAmount(mpBase)..setManaMaximum(mpMax)..setManaRegeneration(mpReg)
+	..setDefenseBase(armorBase)..setDefenseUpgradeBonus(armorPerLevel)
+	..setNormalAbilities(normalSpells)..setHeroAbilities(heroSpells)
+	..setTargetedAs(commaList(UnitTargetType.Hero, UnitTargetType.Ground, UnitTargetType.Alive))
+	..setArmorType(ArmorType.Hero)
+	..setArmorSoundType(ArmorSoundType.Flesh)
+	..setMovementType(MovementType.Foot)
+	..setSpeedBase(290)..setSpeedMaximum(522)..setSpeedMinimum(0)
+	..setTurnRate(0.60)
+	..setCollisionSize(32)
+	..setAcquisitionRange(600)
+	..setHotkey("")
+	..setIconScoreScreen(icon)
+	..hideHeroDeathMsg(true)
+	..setNameEditorSuffix("")
+	..setDeathType(1)
+	..setCanFlee(true)
+	..setAttacksEnabled(3)
+	..setAttack1ShowUI(true)..setAttack2ShowUI(true)
+	..setAttack1TargetsAllowed(commaList(UnitTargetType.Ground))
+	..setAttack2TargetsAllowed(commaList(UnitTargetType.Air))
+	..setAttack1DamageBase(attack1DamageBase)
+	..setAttack1DamageNumberofDice(2)..setAttack1DamageSidesperDie(6)
+	..setAttack1CooldownTime(1.60)
+	..setAttack1Range(attack1Range)
+	..setAttack1AttackType(AttackType.Hero)
+	..setAttack1WeaponType(WeaponType.MissileBounce)
+	..setAttack1ProjectileArt(attack1ProjectileArt)
+	..setAttack1ProjectileSpeed(attack1ProjectileSpeed)
+	..setAttack1ProjectileHomingEnabled(false)
+	..setAttack1RangeMotionBuffer(0.10)
+	..setAttack1MaximumNumberofTargets(1)
+	..setAttack1AreaofEffectFullDamage(0)..setAttack1AreaofEffectMediumDamage(0)..setAttack1AreaofEffectSmallDamage(0)
+	..setAttack1AreaofEffectTargets("")
+	..setAttack1AnimationDamagePoint(0.30)..setAttack1AnimationBackswingPoint(0.50)
+	..setAttack1DamageLossFactor(1.00)
+	..setAttack1DamageFactorSmall(1.00)..setAttack1DamageFactorMedium(1.00)
+	..setAttack1DamageSpillDistance(0)..setAttack1DamageSpillRadius(0)
+	..setAttack2DamageBase(attack2DamageBase)
+	..setAttack2DamageNumberofDice(2)..setAttack2DamageSidesperDie(6)
+	..setAttack2CooldownTime(1.80)
+	..setAttack2Range(attack2Range)
+	..setAttack2AttackType(AttackType.Hero)
+	..setAttack2WeaponType(WeaponType.Missile)
+	..setAttack2ProjectileArt(attack2ProjectileArt)
+	..setAttack2ProjectileSpeed(attack2ProjectileSpeed)
+	..setAttack2ProjectileHomingEnabled(true)
+	..setAttack2RangeMotionBuffer(0.10)
+	..setAttack2MaximumNumberofTargets(1)
+	..setAttack2AreaofEffectFullDamage(0)..setAttack2AreaofEffectMediumDamage(0)..setAttack2AreaofEffectSmallDamage(0)
+	..setAttack2AreaofEffectTargets("")
+	..setAttack2AnimationDamagePoint(0.30)..setAttack2AnimationBackswingPoint(0.50)
+	..setAttack2DamageLossFactor(1.00)
+	..setAttack2DamageFactorSmall(1.00)..setAttack2DamageFactorMedium(1.00)
+	..setAttack2DamageSpillDistance(0)..setAttack2DamageSpillRadius(0)
+	..setPortraitModelFile("")
+	..setArtSpecial("")
+	..setArtTarget("")
+	if strBase >= agiBase and strBase >= intBase
+		h..setPrimaryAttribute("Strength")
+	else if agiBase >= strBase and agiBase >= intBase
+		h..setPrimaryAttribute("Agility")
+	else
+		h..setPrimaryAttribute("Intelligence")
+
+@compiletime function generateHeroObject()
+	makeHero(
+		PROGRESS_BAR_DUMMY, UnitIds.paladin,
+		Icons.bTNAcorn, "Yone", "The Dreamwalker",
+		"A spirit walking in the Human realm, wielding two swords, also known as The Dreamwalker",
+		Units.theCaptain1, 1.2,
+		9, 1,
+		24, 4,
+		14, 2,
+		650, 3,
+		300, 300, 5,
+		1, 1,
+		commaList(AbilityIds.inventory),
+		commaList(AbilityIds.thunderClap, AbilityIds.mirrorImage, AbilityIds.criticalStrike),
+		24, 150, "", 0,
+		12, 500, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
