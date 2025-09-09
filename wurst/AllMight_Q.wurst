@@ -1,11 +1,10 @@
 package AllMight_Q
 
-import Missiles
 import Entity
 import abilityDefinitions
-import Units
+import SpellAPI
+import ClosureForGroups
 
-// When the spell is cast this function will run. Need Helper function to more easily create Cone-like spells.
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_Q
 		let caster = GetTriggerUnit()
@@ -14,28 +13,14 @@ function onCast()
 		let source2 = start.toVec2()
 		let aim = vec2(GetSpellTargetX(), GetSpellTargetY())
 		let bas = source2.angleTo(aim)
-		let count = 12
-		let spread = (60).fromDeg()
-		let stp = spread / (count - 1).toReal()
-		let half = spread / 2.
 		let range = 600.
-		for i = 0 to count - 1
-			let ang = bas - half + stp * i.toReal()
-			let target = source2.polarOffset(ang, range).withZ(25.)
-			let miss = new Missiles(start, target)
-			miss.setModel("Abilities\\Weapons\\FireBallMissile\\FireBallMissile.mdl")
-			miss.setSpeed(900.)
-			miss.collision = 50
 
-			miss.onHit() (unit u) ->
-				caster.damageTarget(u, 50, ATTACK_TYPE_HERO)
-				return u != caster and caster.isEnemyOf(u)
-
-			miss.onFinish() ->
-				flashEffect(Units.abominationExplosion, miss.getPos())
-				return true
-			miss.launch()
+		let half = (60).fromDeg() / 2.
+		forUnitsInRange(source2, range) (unit u) ->
+			if u != caster and caster.isEnemyOf(u)
+				let pos = u.getPos().toVec3()
+				if isPointInCone(pos.x, pos.y, source2.x, source2.y, range, bas.radians(), half.radians())
+					caster.damageTarget(u, 50, ATTACK_TYPE_HERO)
 
 init
-	// Listen to spell casts and call onCast for All Might's Q ability.
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
