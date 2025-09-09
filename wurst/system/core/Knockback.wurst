@@ -1,0 +1,9 @@
+package Knockback
+
+import Knockback3
+
+public function knockbackUnit(unit target, vec2 source, real distance, real duration)
+	let direction = (target.getPos() - source).norm()
+	let targetPos = target.getPos() + direction * distance
+	let groundSpeed = distance / duration
+	Knockback3.add(target, targetPos, groundSpeed)

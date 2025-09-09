@@ -1,0 +1,21 @@
+package AllMight_E
+
+import abilityDefinitions
+import Knockback
+import StatusEffects
+import AnimationWrapper
+import RegisterEvents
+
+function onCast()
+	if GetSpellAbilityId() == ALL_MIGHT_E
+		let caster = GetTriggerUnit()
+		let target = GetSpellTargetUnit()
+		if target != null and target.isAlive() and not target.isType(UNIT_TYPE_STRUCTURE) and caster.isEnemyOf(target)
+			let anim = new AnimationController(caster)
+			anim.playAttack()
+			destroy anim
+			knockbackUnit(target, caster.getPos(), 400., 0.5)
+			stunUnit(target, 1.)
+
+init
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

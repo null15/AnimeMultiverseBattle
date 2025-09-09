@@ -1,0 +1,72 @@
+package StatusEffects
+
+import ClosureTimers
+import ClosureForGroups
+import EntitySystem
+import abilityDefinitions
+
+class TimedBuff
+	unit target
+	int abil
+	CallbackSingle cb
+
+	construct(unit target, int abil, real duration)
+		this.target = target
+		this.abil = abil
+		target.addAbility(abil)
+		cb = doAfter(duration) ->
+			target.removeAbility(abil)
+			cb = null
+			destroy this
+
+	ondestroy
+		if cb != null
+			destroy cb
+
+class TimedMoveSpeed
+	unit target
+	real original
+	CallbackSingle cb
+
+	construct(unit target, real factor, real duration)
+		this.target = target
+		original = target.getMoveSpeed()
+		target.setMoveSpeed(original * factor)
+		cb = doAfter(duration) ->
+			target.setMoveSpeed(original)
+			cb = null
+			destroy this
+
+	ondestroy
+		if cb != null
+			destroy cb
+
+public function pauseUnit(unit target, real duration)
+	target.pauseTimed(duration)
+
+public function pauseInArea(vec2 center, real radius, real duration)
+	forUnitsInRange(center, radius) (unit u) ->
+		u.pauseTimed(duration)
+
+public function silenceUnit(unit target, real duration)
+	new TimedBuff(target, SILENCE_BUFF, duration)
+
+public function silenceInArea(vec2 center, real radius, real duration)
+	forUnitsInRange(center, radius) (unit u) ->
+		new TimedBuff(u, SILENCE_BUFF, duration)
+
+public function stunUnit(unit target, real duration)
+	target.pauseTimed(duration)
+	new TimedBuff(target, STUN_BUFF, duration)
+
+public function stunInArea(vec2 center, real radius, real duration)
+	forUnitsInRange(center, radius) (unit u) ->
+		stunUnit(u, duration)
+
+public function slowUnit(unit target, real factor, real duration)
+	new TimedMoveSpeed(target, factor, duration)
+	new TimedBuff(target, SLOW_BUFF, duration)
+
+public function slowInArea(vec2 center, real radius, real factor, real duration)
+	forUnitsInRange(center, radius) (unit u) ->
+		slowUnit(u, factor, duration)

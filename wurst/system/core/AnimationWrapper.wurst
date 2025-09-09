@@ -1,0 +1,16 @@
+package AnimationWrapper
+
+public class AnimationController
+    unit actor
+
+    construct(unit actor)
+        this.actor = actor
+
+    function playStand()
+        SetUnitAnimation(actor, "stand")
+
+    function playWalk()
+        SetUnitAnimation(actor, "walk")
+
+    function playAttack()
+        SetUnitAnimation(actor, "attack")
