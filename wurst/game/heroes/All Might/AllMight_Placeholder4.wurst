@@ -1,6 +1,6 @@
 package AllMight_Placeholder4
 
-import abilityDefinitions
+import objectIDs
 import RegisterEvents
 
 function onCast()

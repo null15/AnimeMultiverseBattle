@@ -1,7 +1,6 @@
 package AllMight_Transform
 
-import abilityDefinitions
-import unitDefinitions
+import objectIDs
 import HashMap
 import Transformation
 import RegisterEvents

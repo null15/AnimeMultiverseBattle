@@ -1,16 +1,13 @@
-package unitDefinitions
+package unitCompiletime
 
-import ObjectIdGenerator
 import UnitObjEditing
 import UnitIds
 import Icons
 import AbilityIds
 import ObjectIds
+import objectIDs
 import DummyRecycler
 import Units
-
-public constant 		ALL_MIGHT_POWER_SKIN 		= compiletime(HERO_ID_GEN.next())
-public constant         PROGRESS_BAR_DUMMY           = compiletime(UNIT_ID_GEN.next())
 
 @compiletime function defineAllMightPowerSkin()
 	new UnitDefinition(ALL_MIGHT_POWER_SKIN, UnitIds.paladin)

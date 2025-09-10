@@ -1,18 +1,8 @@
-package abilityDefinitions
+package abilityCompiletime
 
-import ChannelAbilityPreset
 import ElementList
-
-public constant ALL_MIGHT_MISSILE = compiletime(ABIL_ID_GEN.next())
-public constant ALL_MIGHT_PAUSE = compiletime(ABIL_ID_GEN.next())
-public constant ALL_MIGHT_PULL = compiletime(ABIL_ID_GEN.next())
-public constant ALL_MIGHT_PUSH = compiletime(ABIL_ID_GEN.next())
-public constant ALL_MIGHT_TRANSFORM = compiletime(ABIL_ID_GEN.next())
-public constant ALL_MIGHT_PLACEHOLDER0 = compiletime(ABIL_ID_GEN.next())
-public constant ALL_MIGHT_PLACEHOLDER1 = compiletime(ABIL_ID_GEN.next())
-public constant ALL_MIGHT_PLACEHOLDER2 = compiletime(ABIL_ID_GEN.next())
-public constant ALL_MIGHT_PLACEHOLDER3 = compiletime(ABIL_ID_GEN.next())
-public constant ALL_MIGHT_PLACEHOLDER4 = compiletime(ABIL_ID_GEN.next())
+import ChannelAbilityPreset
+import objectIDs
 
 @compiletime function defineAllMightAbilities()
 	new ChannelAbilityPreset(ALL_MIGHT_MISSILE, 1, true)
@@ -166,3 +156,13 @@ public constant ALL_MIGHT_PLACEHOLDER4 = compiletime(ABIL_ID_GEN.next())
 	..presetCooldown(lvl -> 1)
 	..presetButtonPosNormal(3, 1)
 	registerElementalSpell(Element.FIRE, ALL_MIGHT_PLACEHOLDER4)
+
+	new AbilityDefinitionBearform(ALL_MIGHT_BEARFORM)
+	..setRequirements("_")
+	..presetManaCost(lvl -> 0)
+	..setRequirementsLevels("_")
+	..presetDurationHero(lvl -> 0)
+	..presetDurationNormal(lvl -> 0)
+	..setName("All Might to All Might Evo")
+	..presetNormalFormUnit(lvl -> commaList(ALL_MIGHT_EVO))
+	..presetAlternateFormUnit(lvl -> commaList(ALL_MIGHT))

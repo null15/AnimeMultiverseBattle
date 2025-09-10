@@ -1,6 +1,6 @@
 package DraftHeroData
 import DraftAPI
-import heroDefinitions
+import objectIDs
 
 /** You can insert heroes in any order, the system automatically alphabetic sort them */
 public function defineHeroes()

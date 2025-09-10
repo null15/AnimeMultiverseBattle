@@ -1,7 +1,7 @@
 package AllMight_Missile
 
 import Entity
-import abilityDefinitions
+import objectIDs
 import SpellAPI
 import ClosureForGroups
 

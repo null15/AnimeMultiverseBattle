@@ -1,6 +1,6 @@
 package AllMight_Push
 
-import abilityDefinitions
+import objectIDs
 import RegisterEvents
 
 function onCast()
