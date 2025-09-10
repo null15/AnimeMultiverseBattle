@@ -9,7 +9,13 @@ import ObjectIds
 import DummyRecycler
 import Units
 
+public constant 		ALL_MIGHT_POWER_SKIN 		= compiletime(HERO_ID_GEN.next())
 public constant         PROGRESS_BAR_DUMMY           = compiletime(UNIT_ID_GEN.next())
+
+@compiletime function defineAllMightPowerSkin()
+	new UnitDefinition(ALL_MIGHT_POWER_SKIN, UnitIds.paladin)
+	..setName("All Might Power Skin")
+	..setModelFile(Units.arthas1)
 
 function makeDummy(int id, string modelPath)
 	new UnitDefinition(id, UnitIds.wisp)
@@ -59,10 +65,4 @@ function makeDummy(int id, string modelPath)
 		commaList(AbilityIds.invulnerable, AbilityIds.locust, DISABLE_AUTO_ACQUIRE_ATTACK_TARGETS_ABILITY_ID, AbilityIds.crowForm))
 
 @compiletime function generateDummyUnit()
-	makeDummy(PROGRESS_BAR_DUMMY, "Progressbar.mdx")
-public constant ALL_MIGHT_POWER_SKIN = compiletime(HERO_ID_GEN.next())
-
-@compiletime function defineAllMightPowerSkin()
-	new UnitDefinition(ALL_MIGHT_POWER_SKIN, UnitIds.paladin)
-	..setName("All Might Power Skin")
-	..setModelFile(Units.arthas1)
+	makeDummy(PROGRESS_BAR_DUMMY, "ProgressbarTransformation.mdx")
