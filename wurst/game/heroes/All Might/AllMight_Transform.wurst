@@ -1,0 +1,21 @@
+package AllMight_Transform
+
+import abilityDefinitions
+import unitDefinitions
+import HashMap
+import Transformation
+import RegisterEvents
+
+function onCast()
+	if GetSpellAbilityId() == ALL_MIGHT_TRANSFORM
+		let caster = GetTriggerUnit()
+		let swaps = new IterableMap<int,int>()
+		swaps.put(ALL_MIGHT_MISSILE, ALL_MIGHT_PLACEHOLDER0)
+		swaps.put(ALL_MIGHT_PULL, ALL_MIGHT_PLACEHOLDER1)
+		swaps.put(ALL_MIGHT_PUSH, ALL_MIGHT_PLACEHOLDER2)
+		swaps.put(ALL_MIGHT_PAUSE, ALL_MIGHT_PLACEHOLDER3)
+		swaps.put(ALL_MIGHT_TRANSFORM, ALL_MIGHT_PLACEHOLDER4)
+		Transformation.start(caster, ALL_MIGHT_POWER_SKIN, swaps, 10.)
+
+init
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

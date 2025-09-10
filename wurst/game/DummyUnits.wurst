@@ -1,8 +1,0 @@
-package DummyUnits
-
-import UnitIds
-
-init
-	let start = vec2(1000., 1000.)
-	for i = 0 to 4
-		createUnit(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start + vec2(i * 128., 0.))

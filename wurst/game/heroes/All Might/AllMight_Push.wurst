@@ -1,0 +1,11 @@
+package AllMight_Push
+
+import abilityDefinitions
+import RegisterEvents
+
+function onCast()
+	if GetSpellAbilityId() == ALL_MIGHT_PUSH
+		skip
+
+init
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

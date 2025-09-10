@@ -1,4 +1,4 @@
-package AllMight_Q
+package AllMight_Missile
 
 import Entity
 import abilityDefinitions
@@ -22,7 +22,7 @@ function drawCone(vec3 fromWhere, angle coneOrientation, angle coneAngle, real r
 	drawConeEdge(fromWhere, coneOrientation + coneAngle, range)
 
 function onCast()
-	if GetSpellAbilityId() == ALL_MIGHT_Q
+	if GetSpellAbilityId() == ALL_MIGHT_MISSILE
 		// Unit Variables
 		let caster = GetTriggerUnit()
 		let casterEntity = caster.getEntity()

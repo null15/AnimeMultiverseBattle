@@ -1,4 +1,4 @@
-package AllMight_W
+package AllMight_Pause
 
 import Missiles
 import ClosureForGroups
@@ -7,7 +7,7 @@ import abilityDefinitions
 import RegisterEvents
 
 function onCast()
-	if GetSpellAbilityId() == TIME_STOP
+	if GetSpellAbilityId() == ALL_MIGHT_PAUSE
 		let caster = GetTriggerUnit()
 		let center = vec2(GetSpellTargetX(), GetSpellTargetY())
 		let radius = 600.

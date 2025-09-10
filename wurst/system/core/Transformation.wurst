@@ -24,17 +24,22 @@ public class Transformation
         this.originalSkin = BlzGetUnitSkin(this.actor)
         this.onFinish = onFinish
         this.finished = false
+
+        // Unit Stuff
         active.put(actor, this)
         BlzSetUnitSkin(this.actor, newSkin)
-        swaps.forEach((int baseAbil, int transAbil) -> begin
+        swaps.forEach() (integer baseAbil, integer transAbil) ->
             this.actor.removeAbility(baseAbil)
             this.actor.addAbility(transAbil)
-        end)
+        
+        // Progress Bar
         this.bar = createUnit(this.actor.getOwner(), PROGRESS_BAR_DUMMY, this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 400) : this.actor.getPos3Real().add(0, 0, 400), angle(270))
             ..setVertexColor(this.actor.getOwner().getColor().toColor())
             ..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
             ..setAnimation(100)
-        this.cbPeriodicBar = doPeriodicallyTimed(0.032, duration, (CallbackCounted cb) -> begin
+
+        // Timer Stuff
+        this.cbPeriodicBar = doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
             let progressLeft = 1.0 - cb.progress()
             let value = (100.0 * progressLeft).toInt()
             this.bar
@@ -42,8 +47,7 @@ public class Transformation
                 ..setAnimation(value)
             if cb.isLast()
                 finish()
-        end)
-
+    
     static function start(unit actor, int newSkin, IterableMap<int, int> swaps, real duration) returns Transformation
         return Transformation.start(actor, newSkin, swaps, duration, null)
 
@@ -66,16 +70,14 @@ public class Transformation
             this.bar.setAnimation(0)
             this.bar.remove()
             this.bar = null
-        this.swaps.forEach((int baseAbil, int transAbil) -> begin
+        this.swaps.forEach() (integer baseAbil, integer transAbil) ->
             this.actor.removeAbility(transAbil)
             this.actor.addAbility(baseAbil)
-        end)
         BlzSetUnitSkin(this.actor, this.originalSkin)
         active.remove(this.actor)
         if this.onFinish != null
             this.onFinish.call()
             this.onFinish = null
-
         destroy this
 
     ondestroy
@@ -87,5 +89,4 @@ public class Transformation
             this.bar = null
         if active.has(this.actor)
             active.remove(this.actor)
-
         destroy this.swaps

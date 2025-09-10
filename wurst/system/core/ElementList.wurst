@@ -3,28 +3,34 @@ package ElementList
 import LinkedList
 
 enum Element
-	fire
-	ice
-	water
+	FIRE
+	EARTH
+	WATER
+	LIGHTNING
 
-let fireSpells = new LinkedList<int>()
-let iceSpells = new LinkedList<int>()
-let waterSpells = new LinkedList<int>()
+public LinkedList<int>		 FIRE_SPELLS			 = new LinkedList<int>()
+public LinkedList<int>		 EARTH_SPELLS			 = new LinkedList<int>()
+public LinkedList<int>		 WATER_SPELLS			 = new LinkedList<int>()
+public LinkedList<int>		 LIGHTNING_SPELLS		 = new LinkedList<int>()
 
-public function registerElementalSpell(Element e, int abilId)
-	switch e
-		case Element.fire
-			fireSpells.add(abilId)
-		case Element.ice
-			iceSpells.add(abilId)
-		case Element.water
-			waterSpells.add(abilId)
+public function registerElementalSpell(Element element, int abilId)
+	switch element
+		case Element.FIRE
+			FIRE_SPELLS.add(abilId)
+		case Element.EARTH
+			EARTH_SPELLS.add(abilId)
+		case Element.WATER
+			WATER_SPELLS.add(abilId)
+		case Element.LIGHTNING
+			LIGHTNING_SPELLS.add(abilId)
 
-public function getSpellsByElement(Element e) returns LinkedList<int>
-	switch e
-		case Element.fire
-			return fireSpells
-		case Element.ice
-			return iceSpells
-		case Element.water
-			return waterSpells
+public function getSpellsByElement(Element element) returns LinkedList<int>
+	switch element
+		case Element.FIRE
+			return FIRE_SPELLS
+		case Element.EARTH
+			return EARTH_SPELLS
+		case Element.WATER
+			return WATER_SPELLS
+		case Element.LIGHTNING
+			return LIGHTNING_SPELLS

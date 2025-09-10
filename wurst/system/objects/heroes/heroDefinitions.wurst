@@ -746,7 +746,7 @@ function makeHero(
 		120, 180, 1.2,
 		4, 1,
 		commaList(AbilityIds.inventory),
-		commaList(TIME_STOP, ALL_MIGHT_Q, ALL_MIGHT_E, ALL_MIGHT_D, ALL_MIGHT_R),
+		commaList(ALL_MIGHT_PAUSE, ALL_MIGHT_MISSILE, ALL_MIGHT_PULL, ALL_MIGHT_PUSH, ALL_MIGHT_TRANSFORM),
 		40, 150, "", 0,
 		0, 450, "", 0)
 
