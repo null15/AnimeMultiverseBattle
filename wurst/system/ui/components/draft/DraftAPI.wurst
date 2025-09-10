@@ -25,14 +25,14 @@ constant int PER_PAGE = 30
 
 /** Add Category Type to Hero */
 public enum CategoryType
-    STRENGTH
-    AGILITY
-    INTELLIGENCE
-    BRUISER
-    CARRY
-    SUPPORT
-    MELEE
-    RANGE
+	STRENGTH
+	AGILITY
+	INTELLIGENCE
+	BRUISER
+	CARRY
+	SUPPORT
+	MELEE
+	RANGE
 
 /** 
  * Hero draft entry.
@@ -40,48 +40,48 @@ public enum CategoryType
  * and stores a reference to the button frame.
  */
 public class HeroDraft
-    int unitID
-    string name
-    string aftername
-    string franchise
-    string franchiseKey
-    LinkedList<CategoryType> categories
-    string nameKey
-    string afterKey
+	int unitID
+	string name
+	string aftername
+	string franchise
+	string franchiseKey
+	LinkedList<CategoryType> categories
+	string nameKey
+	string afterKey
 
-    construct()
-        this.unitID = 0
-        this.name = ""
-        this.aftername = ""
-        this.franchise = ""
-        this.categories = new LinkedList<CategoryType>()
-        this.nameKey = ""
-        this.afterKey = ""
-        this.franchiseKey = ""
+	construct()
+		this.unitID = 0
+		this.name = ""
+		this.aftername = ""
+		this.franchise = ""
+		this.categories = new LinkedList<CategoryType>()
+		this.nameKey = ""
+		this.afterKey = ""
+		this.franchiseKey = ""
 
-    construct(int unitID, string name, string aftername, string franchise)
-        this.unitID = unitID
-        this.name = name
-        this.aftername = aftername
-        this.franchise = franchise
-        this.categories = new LinkedList<CategoryType>()
-        this.nameKey = name.toLowerCase()
-        this.afterKey = aftername.toLowerCase()
-        this.franchiseKey = franchise.toLowerCase()
+	construct(int unitID, string name, string aftername, string franchise)
+		this.unitID = unitID
+		this.name = name
+		this.aftername = aftername
+		this.franchise = franchise
+		this.categories = new LinkedList<CategoryType>()
+		this.nameKey = name.toLowerCase()
+		this.afterKey = aftername.toLowerCase()
+		this.franchiseKey = franchise.toLowerCase()
 
-    function fullName() returns string
-        if aftername != ""
-            return name + " " + aftername
-        return name
+	function fullName() returns string
+		if aftername != ""
+			return name + " " + aftername
+		return name
 
-    /** Adds categories to this hero, up to 30 unique categories. */
-    function addCategory(vararg CategoryType categories) returns LinkedList<CategoryType>
-        for category in categories
-            if this.categories.size() >= 30
-                return this.categories
-            if not this.categories.has(category)
-                this.categories.add(category)
-        return this.categories
+	/** Adds categories to this hero, up to 30 unique categories. */
+	function addCategory(vararg CategoryType categories) returns LinkedList<CategoryType>
+		for category in categories
+			if this.categories.size() >= 30
+				return this.categories
+			if not this.categories.has(category)
+				this.categories.add(category)
+		return this.categories
 
 /**
  * Per-player draft UI state.
@@ -89,20 +89,20 @@ public class HeroDraft
  * current page index, and max page available.
  */
 class DraftUIState
-    LinkedList<CategoryType> categories
-    int currentPage
-    int maxPage
+	LinkedList<CategoryType> categories
+	int currentPage
+	int maxPage
 
-    construct()
-        categories = new LinkedList<CategoryType>()
-        currentPage = 1
-        maxPage = 1
+	construct()
+		categories = new LinkedList<CategoryType>()
+		currentPage = 1
+		maxPage = 1
 
 public interface HeroPickListener
-    function onHeroPicked(int pid, int unitID)
+	function onHeroPicked(int pid, int unitID)
 
 public interface HeroSelectListener
-    function onHeroSelected(int pid)
+	function onHeroSelected(int pid)
 
 /* ============================================================
  * Global state
@@ -164,51 +164,51 @@ framehandle array tmpPageBuf
 
 /** Returns the BACKDROP child called "pickIcon" inside the img button. */
 public function getButtonIcon(framehandle btn) returns framehandle
-    let n = btn.getChildrenCount()
-    for i = 0 to n - 1
-        let ch = btn.getChild(i)
-        if ch != null and ch.getName() == "pickIcon"
-            return ch
-    return null
+	let n = btn.getChildrenCount()
+	for i = 0 to n - 1
+		let ch = btn.getChild(i)
+		if ch != null and ch.getName() == "pickIcon"
+			return ch
+	return null
 
 /** Schedule one refresh for this player after a small delay. */
 public function scheduleRefresh(int pid)
-    if refreshScheduled.get(pid)
-        return
+	if refreshScheduled.get(pid)
+		return
 
-    refreshScheduled.put(pid, true)
-    doAfter(DRAFT_REFRESH_DEBOUNCE) ->
-        refreshScheduled.put(pid, false)
-        refreshGrid(pid)
+	refreshScheduled.put(pid, true)
+	doAfter(DRAFT_REFRESH_DEBOUNCE) ->
+		refreshScheduled.put(pid, false)
+		refreshGrid(pid)
 
 /** Compare two heroes by (name, aftername), case-insensitive. */
 public function compareFullNames(HeroDraft a, HeroDraft b) returns int
-    let c1 = stringCompare(a.nameKey, b.nameKey)
-    if c1 != 0
-        return c1
-    return stringCompare(a.afterKey, b.afterKey)
+	let c1 = stringCompare(a.nameKey, b.nameKey)
+	if c1 != 0
+		return c1
+	return stringCompare(a.afterKey, b.afterKey)
 
 constant Comparator<HeroDraft> heroComparator = (a, b) -> compareFullNames(a, b)
 
 public function sortAllHeroesOnce()
-    allHeroes.sortWith(heroComparator)
+	allHeroes.sortWith(heroComparator)
 
 /** Mark hero button selected/unselected by text color + check glyph. */
 public function setButtonSelected(framehandle f, string baseText, boolean on)
-    if on
-        BlzFrameSetText(f, "|cff81b862✓ " + baseText + "|r")
-    else
-        BlzFrameSetText(f, baseText)
+	if on
+		BlzFrameSetText(f, "|cff81b862✓ " + baseText + "|r")
+	else
+		BlzFrameSetText(f, baseText)
 
 /** Refresh ON/TRUE visuals for hero buttons for the local player. */
 public function updateHeroSelectionVisual(int pid)
-    if GetLocalPlayer() != Player(pid)
-        return
-    let sel = selectedHeroByPid.get(pid)
-    for h in allHeroes
-        let f = heroBtnById.get(h.unitID)
-        if f != null
-            setButtonSelected(f, h.fullName(), sel != 0 and sel == h.unitID)
+	if GetLocalPlayer() != Player(pid)
+		return
+	let sel = selectedHeroByPid.get(pid)
+	for h in allHeroes
+		let f = heroBtnById.get(h.unitID)
+		if f != null
+			setButtonSelected(f, h.fullName(), sel != 0 and sel == h.unitID)
 
 /* ============================================================
  * Hero registration and lookup
@@ -217,69 +217,69 @@ public function updateHeroSelectionVisual(int pid)
 
 /** Register a hero into the draft pool (append only; sorting happens once later). */
 public function registerHero(int id, string name, string aftername, string franchise) returns HeroDraft
-    if name == ""
-        print("|cffff0000registerHero: name cannot be empty.|r")
-        return null
-    if heroById.has(id)
-        print("|cffff0000Duplicate hero id:|r " + id.toString() + " — ignoring second registration.")
-        return heroById.get(id)
-    let h = new HeroDraft(id, name, aftername, franchise)
-    allHeroes.add(h)
-    heroById.put(h.unitID, h)
-    return h
+	if name == ""
+		print("|cffff0000registerHero: name cannot be empty.|r")
+		return null
+	if heroById.has(id)
+		print("|cffff0000Duplicate hero id:|r " + id.toString() + " — ignoring second registration.")
+		return heroById.get(id)
+	let h = new HeroDraft(id, name, aftername, franchise)
+	allHeroes.add(h)
+	heroById.put(h.unitID, h)
+	return h
 
 public function addHeroPickListener(HeroPickListener l)
-    if l != null
-        pickListeners.add(l)
+	if l != null
+		pickListeners.add(l)
 
 public function notifyHeroPicked(int pid, int unitID)
-    for l in pickListeners
-        l.onHeroPicked(pid, unitID)
+	for l in pickListeners
+		l.onHeroPicked(pid, unitID)
 
 public function addHeroSelectListener(HeroSelectListener l)
-    if l != null
-        selectListeners.add(l)
+	if l != null
+		selectListeners.add(l)
 
 public function notifyHeroSelected(int pid)
-    for l in selectListeners
-        l.onHeroSelected(pid)
+	for l in selectListeners
+		l.onHeroSelected(pid)
 
 public function getHeroData(int id) returns HeroDraft
-    return heroById.get(id)
+	return heroById.get(id)
 
 public function getSelectedHero(int pid) returns int
-    return selectedHeroByPid.get(pid)
+	return selectedHeroByPid.get(pid)
 
 public function removeHero(int id)
-    let f = heroBtnById.get(id)
-    if f != null
-        BlzFrameSetVisible(f, false)
-        heroBtnById.remove(id)
-    let h = heroById.get(id)
-    if h != null
-        allHeroes.remove(h)
-        heroById.remove(id)
-    for i = 0 to 9
-        if selectedHeroByPid.get(i) == id
-            selectedHeroByPid.put(i, 0)
-            updateHeroSelectionVisual(i)
-            notifyHeroSelected(i)
-        scheduleRefresh(i)
+	let f = heroBtnById.get(id)
+	if f != null
+		BlzFrameSetVisible(f, false)
+		heroBtnById.remove(id)
+	let h = heroById.get(id)
+	if h != null
+		allHeroes.remove(h)
+		heroById.remove(id)
+	for i = 0 to 9
+		if selectedHeroByPid.get(i) == id
+			selectedHeroByPid.put(i, 0)
+			updateHeroSelectionVisual(i)
+			notifyHeroSelected(i)
+		scheduleRefresh(i)
 
 public function getRandomHeroId() returns int
-    if allHeroes.isEmpty()
-        return 0
-    let idx = GetRandomInt(0, allHeroes.size() - 1)
-    var i = 0
-    for h in allHeroes
-        if i == idx
-            return h.unitID
-        i++
-    return 0
+	if allHeroes.isEmpty()
+		return 0
+	let idx = GetRandomInt(0, allHeroes.size() - 1)
+	var i = 0
+	for h in allHeroes
+		if i == idx
+			return h.unitID
+		i++
+	return 0
 
 /** Get the button frame for a hero id, or null if not set. */
 public function getHeroButton(int id) returns framehandle
-    return heroBtnById.get(id)
+	return heroBtnById.get(id)
 
 /* ============================================================
  * Search and filtering
@@ -287,23 +287,23 @@ public function getHeroButton(int id) returns framehandle
  */
 
 public function setSearchQuery(int pid, string q)
-    var s = q
-    if s == null
-        s = ""
-    searchByPid.put(pid, s)
+	var s = q
+	if s == null
+		s = ""
+	searchByPid.put(pid, s)
 
 public function getSearchQuery(int pid) returns string
-    let s = searchByPid.get(pid)
-    if s == null
-        return ""
-    return s
+	let s = searchByPid.get(pid)
+	if s == null
+		return ""
+	return s
 
 /** Name/franchise substring match (case-insensitive). Empty query always matches. */
 public function heroMatchesQuery(HeroDraft h, string q) returns bool
-    if q == ""
-        return true
-    let s = q.toLowerCase()
-    return h.nameKey.contains(s) or h.afterKey.contains(s) or h.franchiseKey.contains(s)
+	if q == ""
+		return true
+	let s = q.toLowerCase()
+	return h.nameKey.contains(s) or h.afterKey.contains(s) or h.franchiseKey.contains(s)
 
 /* ============================================================
  * State and UI updates
@@ -312,129 +312,129 @@ public function heroMatchesQuery(HeroDraft h, string q) returns bool
 
 /** Ensure a DraftUIState exists for a player. */
 public function getDraftUI(int pid) returns DraftUIState
-    let st = uiState.get(pid)
-    if st == null
-        let ns = new DraftUIState()
-        uiState.put(pid, ns)
-        return ns
-    return st
+	let st = uiState.get(pid)
+	if st == null
+		let ns = new DraftUIState()
+		uiState.put(pid, ns)
+		return ns
+	return st
 
 /** Checks if hero matches all selected categories. */
 public function matchesAll(HeroDraft h, LinkedList<CategoryType> selected) returns bool
-    if selected.isEmpty()
-        return true
-    for cat in selected
-        if not h.categories.has(cat)
-            return false
-    return true
+	if selected.isEmpty()
+		return true
+	for cat in selected
+		if not h.categories.has(cat)
+			return false
+	return true
 
 public function updateCategoryButtons(int pid)
-    let st = getDraftUI(pid)
+	let st = getDraftUI(pid)
 
-    if GetLocalPlayer() != Player(pid)
-        return
+	if GetLocalPlayer() != Player(pid)
+		return
 
-    let q = getSearchQuery(pid)
-    for i = 1 to MAX_CATEGORIES
-        let btn = categoryBtns[i]
-        if btn != null
-            let cat = categoryTypeArray[i]
-            let isSelected = st.categories.has(cat)
+	let q = getSearchQuery(pid)
+	for i = 1 to MAX_CATEGORIES
+		let btn = categoryBtns[i]
+		if btn != null
+			let cat = categoryTypeArray[i]
+			let isSelected = st.categories.has(cat)
 
-            var enabled = isSelected
-            if not enabled
-                for h in allHeroes
-                    if matchesAll(h, st.categories) and heroMatchesQuery(h, q) and h.categories.has(cat)
-                        enabled = true
-                        break
+			var enabled = isSelected
+			if not enabled
+				for h in allHeroes
+					if matchesAll(h, st.categories) and heroMatchesQuery(h, q) and h.categories.has(cat)
+						enabled = true
+						break
 
-            BlzFrameSetEnable(btn, enabled)
+			BlzFrameSetEnable(btn, enabled)
 
-            let icon = categoryBtnIcons[i]
-            if icon != null
-                if isSelected
-                    icon.setTexture(catTexOn[i], 0, true)
-                else
-                    if enabled
-                        icon.setTexture(catTex[i], 0, true)
-                    else
-                        icon.setTexture(catTexDisabled[i], 0, true)
+			let icon = categoryBtnIcons[i]
+			if icon != null
+				if isSelected
+					icon.setTexture(catTexOn[i], 0, true)
+				else
+					if enabled
+						icon.setTexture(catTex[i], 0, true)
+					else
+						icon.setTexture(catTexDisabled[i], 0, true)
 
 /** Clamp a page number into range [1..maxP]. */
 public function clampPage(int page, int maxP) returns int
-    if page < 1
-        return 1
-    if page > maxP
-        return maxP
-    return page
+	if page < 1
+		return 1
+	if page > maxP
+		return maxP
+	return page
 
 /** Update enabled/disabled state of page buttons for a player. */
 public function updatePageButtons(int pid)
-    let st = getDraftUI(pid)
-    if GetLocalPlayer() == Player(pid)
-        for i = 1 to MAX_PAGES
-            if pageBtns[i] != null
-                if i <= st.maxPage
-                    BlzFrameSetEnable(pageBtns[i], true)
-                else
-                    BlzFrameSetEnable(pageBtns[i], false)
+	let st = getDraftUI(pid)
+	if GetLocalPlayer() == Player(pid)
+		for i = 1 to MAX_PAGES
+			if pageBtns[i] != null
+				if i <= st.maxPage
+					BlzFrameSetEnable(pageBtns[i], true)
+				else
+					BlzFrameSetEnable(pageBtns[i], false)
 
 /** Refresh hero grid for a player. */
 public function refreshGrid(int pid)
-    let st = getDraftUI(pid)
-    let q = getSearchQuery(pid)
+	let st = getDraftUI(pid)
+	let q = getSearchQuery(pid)
 
-    var total = 0
-    for h in allHeroes
-        if matchesAll(h, st.categories) and heroMatchesQuery(h, q)
-            total++
+	var total = 0
+	for h in allHeroes
+		if matchesAll(h, st.categories) and heroMatchesQuery(h, q)
+			total++
 
-    var maxP = (total + PER_PAGE - 1) div PER_PAGE
-    if maxP < 1
-        maxP = 1
-    st.maxPage = maxP
-    st.currentPage = clampPage(st.currentPage, st.maxPage)
+	var maxP = (total + PER_PAGE - 1) div PER_PAGE
+	if maxP < 1
+		maxP = 1
+	st.maxPage = maxP
+	st.currentPage = clampPage(st.currentPage, st.maxPage)
 
-    updatePageButtons(pid)
-    updateCategoryButtons(pid)
+	updatePageButtons(pid)
+	updateCategoryButtons(pid)
 
-    if GetLocalPlayer() != Player(pid)
-        return
+	if GetLocalPlayer() != Player(pid)
+		return
 
-    let startIdx = (st.currentPage - 1) * PER_PAGE
-    let endIdx = startIdx + PER_PAGE - 1
+	let startIdx = (st.currentPage - 1) * PER_PAGE
+	let endIdx = startIdx + PER_PAGE - 1
 
-    var pageCount = 0
-    var matchIdx = 0
-    for h in allHeroes
-        if matchesAll(h, st.categories) and heroMatchesQuery(h, q)
-            if matchIdx >= startIdx and matchIdx <= endIdx
-                let f = getHeroButton(h.unitID)
-                if f != null
-                    tmpPageBuf[pageCount] = f
-                    pageCount++
-            matchIdx++
+	var pageCount = 0
+	var matchIdx = 0
+	for h in allHeroes
+		if matchesAll(h, st.categories) and heroMatchesQuery(h, q)
+			if matchIdx >= startIdx and matchIdx <= endIdx
+				let f = getHeroButton(h.unitID)
+				if f != null
+					tmpPageBuf[pageCount] = f
+					pageCount++
+			matchIdx++
 
-    if GetLocalPlayer() == Player(pid)
-        for i = 0 to shownCount[pid] - 1
-            let f = shownNow[pid * PER_PAGE + i]
-            BlzFrameSetVisible(f, false)
-    shownCount[pid] = 0
+	if GetLocalPlayer() == Player(pid)
+		for i = 0 to shownCount[pid] - 1
+			let f = shownNow[pid * PER_PAGE + i]
+			BlzFrameSetVisible(f, false)
+	shownCount[pid] = 0
 
-    let g = heroGrid.getGrid()
-    for i = 0 to pageCount - 1
-        let f = tmpPageBuf[i]
-        let pos = g.indexPos(i)
-        setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, pos.x, pos.y)
-        if GetLocalPlayer() == Player(pid)
-            BlzFrameSetVisible(f, true)
-        else
-            BlzFrameSetVisible(f, false)
-        shownNow[pid * PER_PAGE + shownCount[pid]] = f
-        shownCount[pid]++
+	let g = heroGrid.getGrid()
+	for i = 0 to pageCount - 1
+		let f = tmpPageBuf[i]
+		let pos = g.indexPos(i)
+		setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, pos.x, pos.y)
+		if GetLocalPlayer() == Player(pid)
+			BlzFrameSetVisible(f, true)
+		else
+			BlzFrameSetVisible(f, false)
+		shownNow[pid * PER_PAGE + shownCount[pid]] = f
+		shownCount[pid]++
 
-    if GetLocalPlayer() == Player(pid)
-        updateHeroSelectionVisual(pid)
+	if GetLocalPlayer() == Player(pid)
+		updateHeroSelectionVisual(pid)
 
 /* ============================================================
  * Button wiring
@@ -443,34 +443,34 @@ public function refreshGrid(int pid)
 
 /** Toggle categories and refresh; also updates button enabled-states. */
 public function wireCategoryButtons()
-    for i = 1 to MAX_CATEGORIES
-        if categoryBtns[i] != null
-            let idx = i
-            categoryBtns[idx].onClick() ->
-                BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
-                let pid = GetPlayerId(GetTriggerPlayer())
-                let st = getDraftUI(pid)
-                let cname = categoryTypeArray[idx]
-                if st.categories.has(cname)
-                    st.categories.remove(cname)
-                else
-                    st.categories.add(cname)
-                st.currentPage = 1
-                updateCategoryButtons(pid)
-                scheduleRefresh(pid)
+	for i = 1 to MAX_CATEGORIES
+		if categoryBtns[i] != null
+			let idx = i
+			categoryBtns[idx].onClick() ->
+				BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
+				let pid = GetPlayerId(GetTriggerPlayer())
+				let st = getDraftUI(pid)
+				let cname = categoryTypeArray[idx]
+				if st.categories.has(cname)
+					st.categories.remove(cname)
+				else
+					st.categories.add(cname)
+				st.currentPage = 1
+				updateCategoryButtons(pid)
+				scheduleRefresh(pid)
 
 /** Wire page buttons to change pages. */
 public function wirePageButtons()
-    for i = 1 to MAX_PAGES
-        if pageBtns[i] != null
-            let idx = i
-            pageBtns[idx].onClick() ->
-                BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
-                let pid = GetPlayerId(GetTriggerPlayer())
-                let st = getDraftUI(pid)
-                if idx <= st.maxPage
-                    st.currentPage = idx
-                    scheduleRefresh(pid)
+	for i = 1 to MAX_PAGES
+		if pageBtns[i] != null
+			let idx = i
+			pageBtns[idx].onClick() ->
+				BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
+				let pid = GetPlayerId(GetTriggerPlayer())
+				let st = getDraftUI(pid)
+				if idx <= st.maxPage
+					st.currentPage = idx
+					scheduleRefresh(pid)
 
 /* ============================================================
  * Init
@@ -478,11 +478,11 @@ public function wirePageButtons()
  */
 
 init
-    categoryTypeArray[1] = CategoryType.STRENGTH
-    categoryTypeArray[2] = CategoryType.AGILITY
-    categoryTypeArray[3] = CategoryType.INTELLIGENCE
-    categoryTypeArray[4] = CategoryType.BRUISER
-    categoryTypeArray[5] = CategoryType.CARRY
-    categoryTypeArray[6] = CategoryType.SUPPORT
-    categoryTypeArray[7] = CategoryType.MELEE
-    categoryTypeArray[8] = CategoryType.RANGE
+	categoryTypeArray[1] = CategoryType.STRENGTH
+	categoryTypeArray[2] = CategoryType.AGILITY
+	categoryTypeArray[3] = CategoryType.INTELLIGENCE
+	categoryTypeArray[4] = CategoryType.BRUISER
+	categoryTypeArray[5] = CategoryType.CARRY
+	categoryTypeArray[6] = CategoryType.SUPPORT
+	categoryTypeArray[7] = CategoryType.MELEE
+	categoryTypeArray[8] = CategoryType.RANGE

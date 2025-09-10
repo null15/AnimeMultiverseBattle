@@ -1,17 +1,17 @@
-package AllMight_E
+package AllMight_D_T
 
 import abilityDefinitions
-import Knockback
+import Pull
 import StatusEffects
 import RegisterEvents
 
 function onCast()
-	if GetSpellAbilityId() == ALL_MIGHT_E
+	if GetSpellAbilityId() == ALL_MIGHT_D_T
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
 		if target != null and target.isAlive() and not target.isType(UNIT_TYPE_STRUCTURE) and caster.isEnemyOf(target)
-			knockbackUnit(target, caster.getPos(), 400., 0.5)
-			stunUnit(target, 1.)
+			pullUnit(target, caster.getPos(), 600., 0.6)
+			slowUnit(target, 0.5, 3.)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

@@ -2,36 +2,20 @@ package Pull
 
 import ClosureTimers
 
-constant real PULL_PERIOD = 1./40.
-
-class PullEffect
-	unit target
-	vec2 direction
-	real speed
-	real traveled = 0.
-	real maxDistance
-	CallbackPeriodic cb
-
-	construct(unit target, vec2 source, real distance, real duration)
-		this.target = target
-		direction = source - target.getPos()
-		direction = direction.norm()
-		maxDistance = distance
-		speed = distance / duration
-		cb = doPeriodically(PULL_PERIOD, _ -> move())
-
-	function move()
-		if not target.isAlive() or traveled >= maxDistance
-			destroy this
-		else
-			let stp = speed * PULL_PERIOD
-			traveled += stp
-			let newPos = target.getPos() + direction * stp
-			target.setPos(newPos)
-
-	ondestroy
-		if cb != null
-			destroy cb
-
 public function pullUnit(unit target, vec2 source, real distance, real duration)
-	new PullEffect(target, source, distance, duration)
+	if not target.isAlive()
+		return
+	let toSource = source - target.getPos()
+	var moveDist = distance
+	let distToSource = toSource.length()
+	if distToSource < moveDist
+		moveDist = distToSource
+	if moveDist > 0.
+		let startPos = target.getPos()
+		let direction = toSource.norm()
+		let finalPos = startPos + direction * moveDist
+		doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
+			target.setPos(startPos + direction * (moveDist * cb.progress()))
+			if cb.isLast()
+				target.setPos(finalPos)
+				destroy cb

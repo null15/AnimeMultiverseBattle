@@ -10,70 +10,70 @@ let unitPauseTimers = new HashMap<unit, CallbackSingle>()
 // The entity is like a backpack where we can store extra data
 // and it keeps track of the unit's position for us.
 public class HeroEntity extends UnitEntity
-    boolean paused = false
-    CallbackSingle pauseCb = null
+	boolean paused = false
+	CallbackSingle pauseCb = null
 
-    construct(unit actor)
-        // super takes care of linking the unit with the entity
-        super(actor)
+	construct(unit actor)
+		// super takes care of linking the unit with the entity
+		super(actor)
 
-    function pauseTimed(real duration)
-        if pauseCb != null
-            destroy pauseCb
-        if not paused
-            actor.pause()
-            paused = true
-        pauseCb = doAfter(duration) ->
-            pauseCb = null
-            this.resume()
+	function pauseTimed(real duration)
+		if pauseCb != null
+			destroy pauseCb
+		if not paused
+			actor.pause()
+			paused = true
+		pauseCb = doAfter(duration) ->
+			pauseCb = null
+			this.resume()
 
-    function resume()
-        if paused
-            actor.unpause()
-            paused = false
-        if pauseCb != null
-            destroy pauseCb
-            pauseCb = null
+	function resume()
+		if paused
+			actor.unpause()
+			paused = false
+		if pauseCb != null
+			destroy pauseCb
+			pauseCb = null
 
-    function isPaused() returns boolean
-        return paused
+	function isPaused() returns boolean
+		return paused
 
-    ondestroy
-        if pauseCb != null
-            destroy pauseCb
+	ondestroy
+		if pauseCb != null
+			destroy pauseCb
 
 public function unit.pauseTimed(real duration)
-    let he = this.getEntity() castTo HeroEntity
-    if he != null
-        he.pauseTimed(duration)
-    else
-        this.pause()
-        if unitPauseTimers.has(this)
-            let old = unitPauseTimers.get(this)
-            destroy old
-        let cb = doAfter(duration) ->
-            this.unpause()
-            unitPauseTimers.remove(this)
-        unitPauseTimers.put(this, cb)
+	let he = this.getEntity() castTo HeroEntity
+	if he != null
+		he.pauseTimed(duration)
+	else
+		this.pause()
+		if unitPauseTimers.has(this)
+			let old = unitPauseTimers.get(this)
+			destroy old
+		let cb = doAfter(duration) ->
+			this.unpause()
+			unitPauseTimers.remove(this)
+		unitPauseTimers.put(this, cb)
 
 public function unit.clearTimedPause()
-    let he = this.getEntity() castTo HeroEntity
-    if he != null
-        he.resume()
-    else
-        if unitPauseTimers.has(this)
-            let cb = unitPauseTimers.get(this)
-            destroy cb
-            unitPauseTimers.remove(this)
-        if this.isPaused()
-            this.unpause()
+	let he = this.getEntity() castTo HeroEntity
+	if he != null
+		he.resume()
+	else
+		if unitPauseTimers.has(this)
+			let cb = unitPauseTimers.get(this)
+			destroy cb
+			unitPauseTimers.remove(this)
+		if this.isPaused()
+			this.unpause()
 
 public function unit.isPausedTimed() returns boolean
-    let he = this.getEntity() castTo HeroEntity
-    if he != null
-        return he.isPaused()
-    return this.isPaused()
+	let he = this.getEntity() castTo HeroEntity
+	if he != null
+		return he.isPaused()
+	return this.isPaused()
 
 public function frentityInit()
-    // Start the global entity update loop
-    startEntityLoop()
+	// Start the global entity update loop
+	startEntityLoop()
