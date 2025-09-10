@@ -29,22 +29,19 @@ public class Transformation
 		..setVertexColor(this.actor.getOwner().getColor().toColor())
 		..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
 		..setAnimation(100)
-		
+
 		// Timer Stuff
 		this.cbPeriodicBar = doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
-			let progressLeft = (cb.getCount() * 0.032) / duration // 1.0 → 0.0
-			let clamped      = progressLeft > 1.0 ? 1.0 : (progressLeft < 0.0 ? 0.0 : progressLeft)
-			let value        = (100.0 * clamped).toInt()          // 100 → 0
-
+			let progressLeft = (1.0 - cb.progress())
+			let value        = (100.0 * progressLeft).toInt()
 			this.bar
-				..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
-				..setAnimation(value)
-			print(value)
+			..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
+			..setAnimation(value)
 			if cb.isLast()
 				this.bar.setAnimation(0)
 				this.bar.remove()
 				destroy this.cbPeriodicBar
-			
+
 		this.cb = doAfter(duration) ->
 			finish()
 

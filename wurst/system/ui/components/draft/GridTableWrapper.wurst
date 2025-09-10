@@ -57,10 +57,6 @@ public class GridCell
     function layoutInstant()
         grid.layoutInstant()
 
-    /** Animate items into their slots over the given duration. */
-    function layoutAnimated(real duration)
-        grid.layoutAnimated(duration)
-
     /**
      * Wrap this grid cell in a framed container with a backdrop.
      * - Useful for visual grouping (e.g. a bordered box).
