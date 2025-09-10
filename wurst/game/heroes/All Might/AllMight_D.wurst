@@ -14,8 +14,6 @@ function onCast()
 		forUnitsInRange(center, radius) (unit u) ->
 			if u != caster and u.isAlive() and not u.isType(UNIT_TYPE_STRUCTURE) and caster.isEnemyOf(u)
 				Pull.towardsPoint(u, center, 300., 0.5)
-				Pull.toUnit(target, source, speed) (real t) ->
-					// code here, but what for?
 				slowUnit(u, 0.5, 3.)
 
 init
