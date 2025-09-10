@@ -5,7 +5,7 @@
 **Resource:** HP / Mana
 
 ## G - Hell’s Contract
-- Whenever an enemy hero kills an ally near enma, they receive a **Hell Contract** mark.
+- Whenever an enemy hero kills an ally near enma, they receive a **Hell Contract** mark (works with creeps!!).
 - Marked enemies take extra damage from all of enma's abilities.
 - If enma herself kills a marked enemy, they suffer an additional death timer penalty.
 
