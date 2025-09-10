@@ -1,0 +1,11 @@
+package AllMight_Placeholder4
+
+import abilityDefinitions
+import RegisterEvents
+
+function onCast()
+	if GetSpellAbilityId() == ALL_MIGHT_PLACEHOLDER4
+		skip
+
+init
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
