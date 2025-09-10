@@ -13,7 +13,7 @@
 - **Enhanced** (Fa Jin charges): Short-range whip pulls enemy to Deku. Scales with **missing HP**.
 
 ## W – Smokescreen
-- Base: Small cloud, damages + invisibility for Xs. Stuns.
+- Base: Small cloud, damages + invisibility for Xs.
 - **Enhanced**: Larger AoE, blinds, MS burst. Scales with **missing HP**.
 
 ## E – Fa Jin
