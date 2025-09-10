@@ -2,20 +2,90 @@ package Pull
 
 import ClosureTimers
 
-public function pullUnit(unit target, vec2 source, real distance, real duration)
-	if not target.isAlive()
-		return
-	let toSource = source - target.getPos()
-	var moveDist = distance
-	let distToSource = toSource.length()
-	if distToSource < moveDist
-		moveDist = distToSource
-	if moveDist > 0.
-		let startPos = target.getPos()
-		let direction = toSource.norm()
-		let finalPos = startPos + direction * moveDist
-		doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
-			target.setPos(startPos + direction * (moveDist * cb.progress()))
-			if cb.isLast()
-				target.setPos(finalPos)
-				destroy cb
+public interface PullEasing
+    function get(real t) returns real
+
+@configurable let PERIOD = 0.032
+@configurable PullEasing DEFAULT_EASING = (real t) -> t
+
+public class Pull
+    unit target
+    vec2 startPos
+    vec2 endPos
+    real distance
+    PullEasing easing
+    CallbackCounted cb
+
+    construct(unit target, vec2 endPos, real duration, PullEasing easing)
+        this.target = target
+        this.startPos = target.getPos()
+        this.endPos = endPos
+        this.distance = (endPos - this.startPos).length()
+        this.easing = easing
+        let direction = (endPos - this.startPos).norm()
+        this.cb = doPeriodicallyTimed(PERIOD, duration) (CallbackCounted c) ->
+            if this.target.isAlive()
+                let progress = this.easing.get(c.progress())
+                this.target.setPos(this.startPos + direction * (this.distance * progress))
+                if c.isLast()
+                    this.target.setPos(this.endPos)
+                    destroy this
+            else
+                destroy this
+
+    static function toPointTimed(unit target, vec2 dest, real duration) returns Pull
+        return Pull.toPointTimed(target, dest, duration, DEFAULT_EASING)
+
+    static function toPointTimed(unit target, vec2 dest, real duration, PullEasing easing) returns Pull
+        if not target.isAlive()
+            return null
+        return new Pull(target, dest, duration, easing)
+
+    static function toPoint(unit target, vec2 dest, real speed) returns Pull
+        return Pull.toPoint(target, dest, speed, DEFAULT_EASING)
+
+    static function toPoint(unit target, vec2 dest, real speed, PullEasing easing) returns Pull
+        let distance = (dest - target.getPos()).length()
+        if speed <= 0. or distance <= 0.
+            return null
+        let duration = distance / speed
+        return Pull.toPointTimed(target, dest, duration, easing)
+
+    static function towardsPoint(unit target, vec2 source, real distance, real duration) returns Pull
+        return Pull.towardsPoint(target, source, distance, duration, DEFAULT_EASING)
+
+    static function towardsPoint(unit target, vec2 source, real distance, real duration, PullEasing easing) returns Pull
+        if not target.isAlive()
+            return null
+        let toSource = source - target.getPos()
+        var moveDist = distance
+        let distToSource = toSource.length()
+        if distToSource < moveDist
+            moveDist = distToSource
+        if moveDist <= 0.
+            return null
+        let dest = target.getPos() + toSource.norm() * moveDist
+        return new Pull(target, dest, duration, easing)
+
+    static function toUnit(unit target, unit source, real speed) returns Pull
+        return Pull.toUnit(target, source, speed, DEFAULT_EASING)
+
+    static function toUnit(unit target, unit source, real speed, PullEasing easing) returns Pull
+        return Pull.toPoint(target, source.getPos(), speed, easing)
+
+    static function toUnitTimed(unit target, unit source, real duration) returns Pull
+        return Pull.toUnitTimed(target, source, duration, DEFAULT_EASING)
+
+    static function toUnitTimed(unit target, unit source, real duration, PullEasing easing) returns Pull
+        return Pull.toPointTimed(target, source.getPos(), duration, easing)
+
+    static function towardsUnit(unit target, unit source, real distance, real duration) returns Pull
+        return Pull.towardsUnit(target, source, distance, duration, DEFAULT_EASING)
+
+    static function towardsUnit(unit target, unit source, real distance, real duration, PullEasing easing) returns Pull
+        return Pull.towardsPoint(target, source.getPos(), distance, duration, easing)
+
+    ondestroy
+        if this.cb != null
+            destroy this.cb
+            this.cb = null

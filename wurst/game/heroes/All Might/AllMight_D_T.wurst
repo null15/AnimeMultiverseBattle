@@ -10,7 +10,7 @@ function onCast()
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
 		if target != null and target.isAlive() and not target.isType(UNIT_TYPE_STRUCTURE) and caster.isEnemyOf(target)
-			pullUnit(target, caster.getPos(), 600., 0.6)
+			Pull.towardsUnit(target, caster, 600., 0.6)
 			slowUnit(target, 0.5, 3.)
 
 init

@@ -13,7 +13,7 @@ function onCast()
 		let radius = 600.
 		forUnitsInRange(center, radius) (unit u) ->
 			if u != caster and u.isAlive() and not u.isType(UNIT_TYPE_STRUCTURE) and caster.isEnemyOf(u)
-				pullUnit(u, center, 300., 0.5)
+				Pull.towardsPoint(u, center, 300., 0.5)
 				slowUnit(u, 0.5, 3.)
 
 init

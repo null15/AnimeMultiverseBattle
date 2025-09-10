@@ -40,7 +40,6 @@ public class Transformation
 			if cb.isLast()
 				this.bar.setAnimation(0)
 				this.bar.remove()
-				destroy this.cbPeriodicBar
 
 		this.cb = doAfter(duration) ->
 			finish()
@@ -50,18 +49,16 @@ public class Transformation
 			this.actor.removeAbility(transAbil)
 			this.actor.addAbility(baseAbil)
 		BlzSetUnitSkin(this.actor, this.originalSkin)
-		if this.bar != null
-			this.bar.remove()
-			this.bar = null
-		this.cb = null
-		this.cbPeriodicBar = null
 		destroy this
 
 	ondestroy
 		if this.cb != null
 			destroy this.cb
+			this.cb = null
 		if this.cbPeriodicBar != null
 			destroy this.cbPeriodicBar
+			this.cbPeriodicBar = null
 		if this.bar != null
 			this.bar.remove()
+			this.bar = null
 		destroy this.swaps
