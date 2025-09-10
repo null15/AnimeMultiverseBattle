@@ -10,7 +10,6 @@ public class Transformation
 	int originalSkin
 	IterableMap<int,int> swaps
 	unit bar
-	CallbackSingle cb
 	CallbackCounted cbPeriodicBar
 
 	construct(unit actor, int newSkin, IterableMap<int,int> swaps, real duration)
@@ -33,16 +32,15 @@ public class Transformation
 		// Timer Stuff
 		this.cbPeriodicBar = doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
 			let progressLeft = (1.0 - cb.progress())
-			let value		 = (100.0 * progressLeft).toInt()
+			let value = (100.0 * progressLeft).toInt()
 			this.bar
 			..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
 			..setAnimation(value)
 			if cb.isLast()
 				this.bar.setAnimation(0)
 				this.bar.remove()
-
-		this.cb = doAfter(duration) ->
-			finish()
+				this.cbPeriodicBar = null
+				finish()
 
 	function finish()
 		this.swaps.forEach() (int baseAbil, int transAbil) ->
@@ -52,9 +50,6 @@ public class Transformation
 		destroy this
 
 	ondestroy
-		if this.cb != null
-			destroy this.cb
-			this.cb = null
 		if this.cbPeriodicBar != null
 			destroy this.cbPeriodicBar
 			this.cbPeriodicBar = null
