@@ -7,46 +7,46 @@ import HashMap
  *  - `anchor`: which framepoint (e.g. FRAMEPOINT_CENTER, TOPLEFT, …) was used.
  */
 public class FramePos
-    real x
-    real y
-    boolean isRelative
-    framepointtype anchor
+	real x
+	real y
+	boolean isRelative
+	framepointtype anchor
 
-    construct(real x, real y, boolean isRelative, framepointtype anchor)
-        this.x = x
-        this.y = y
-        this.isRelative = isRelative
-        this.anchor = anchor
+	construct(real x, real y, boolean isRelative, framepointtype anchor)
+		this.x = x
+		this.y = y
+		this.isRelative = isRelative
+		this.anchor = anchor
 
 /** Stores the last known position of frames (absolute or relative). */
 constant posMap = new HashMap<framehandle, FramePos>()
 
 /** Sets the absolute position of a frame, and remembers it. */
 public function setAbsPointTracked(framehandle f, framepointtype point, real x, real y)
-    BlzFrameClearAllPoints(f)
-    BlzFrameSetAbsPoint(f, point, x, y)
-    var p = posMap.get(f)
-    if p == null
-        posMap.put(f, new FramePos(x, y, false, point))
-    else
-        p.x = x
-        p.y = y
-        p.isRelative = false
-        p.anchor = point
+	BlzFrameClearAllPoints(f)
+	BlzFrameSetAbsPoint(f, point, x, y)
+	var p = posMap.get(f)
+	if p == null
+		posMap.put(f, new FramePos(x, y, false, point))
+	else
+		p.x = x
+		p.y = y
+		p.isRelative = false
+		p.anchor = point
 
 /** Sets the relative position of a frame to its parent, and remembers it. */
 public function setRelativePointTracked(framehandle f, framepointtype point, real x, real y)
-    BlzFrameClearAllPoints(f)
-    BlzFrameSetPoint(f, point, BlzFrameGetParent(f), FRAMEPOINT_TOPLEFT, x, y)
-    var p = posMap.get(f)
-    if p == null
-        posMap.put(f, new FramePos(x, y, true, point))
-    else
-        p.x = x
-        p.y = y
-        p.isRelative = true
-        p.anchor = point
+	BlzFrameClearAllPoints(f)
+	BlzFrameSetPoint(f, point, BlzFrameGetParent(f), FRAMEPOINT_TOPLEFT, x, y)
+	var p = posMap.get(f)
+	if p == null
+		posMap.put(f, new FramePos(x, y, true, point))
+	else
+		p.x = x
+		p.y = y
+		p.isRelative = true
+		p.anchor = point
 
 /** Gets the last stored position of a frame, or null if it was never tracked. */
 public function getPos(framehandle f) returns FramePos
-    return posMap.get(f)
+	return posMap.get(f)

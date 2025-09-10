@@ -2,10 +2,10 @@ package DraftTimer
 
 import ClosureTimers
 
-public int DRAFT_CURRENT_TIME           = 1
-public int DRAFT_TURN_TIMEOUT           = 1
-public int DRAFT_PICK_PHASE             = 1
-public int DRAFT_COUNTDOWN_DELAY        = 1
+public int DRAFT_CURRENT_TIME		   = 1
+public int DRAFT_TURN_TIMEOUT		   = 1
+public int DRAFT_PICK_PHASE			 = 1
+public int DRAFT_COUNTDOWN_DELAY		= 1
 framehandle timerTens = null
 framehandle timerOnes = null
 CallbackPeriodic countdownCb = null
@@ -16,62 +16,62 @@ string array numberTex
 string array redNumberTex
 
 init
-    for i = 0 to 9
-        numberTex[i] = "UI\\Textures\\number_" + i.toString() + ".dds"
-        if i <= 5
-            redNumberTex[i] = "UI\\Textures\\red_number_" + i.toString() + ".dds"
+	for i = 0 to 9
+		numberTex[i] = "UI\\Textures\\number_" + i.toString() + ".dds"
+		if i <= 5
+			redNumberTex[i] = "UI\\Textures\\red_number_" + i.toString() + ".dds"
 
 public function initDraftTimer(framehandle tens, framehandle ones)
-    timerTens = tens
-    timerOnes = ones
-    setDraftTime(DRAFT_CURRENT_TIME)
+	timerTens = tens
+	timerOnes = ones
+	setDraftTime(DRAFT_CURRENT_TIME)
 
 function updateDisplay()
-    if DRAFT_CURRENT_TIME < 10
-        if not singleDigit
-            singleDigit = true
-            timerTens.hide()
-            timerOnes.clearAllPoints()
-            timerOnes.setPoint(FRAMEPOINT_LEFT, timerTens, FRAMEPOINT_LEFT, 0.0200, 0)
-        if DRAFT_CURRENT_TIME <= 5
-            timerOnes.setTexture(redNumberTex[DRAFT_CURRENT_TIME], 0, true)
-        else
-            timerOnes.setTexture(numberTex[DRAFT_CURRENT_TIME], 0, true)
-    else
-        if singleDigit
-            singleDigit = false
-            timerTens.show()
-            timerOnes.clearAllPoints()
-            timerOnes.setPoint(FRAMEPOINT_LEFT, timerTens, FRAMEPOINT_RIGHT, 0, 0)
-        let tens = DRAFT_CURRENT_TIME div 10
-        let ones = DRAFT_CURRENT_TIME % 10
-        timerTens.setTexture(numberTex[tens], 0, true)
-        timerOnes.setTexture(numberTex[ones.toInt()], 0, true)
+	if DRAFT_CURRENT_TIME < 10
+		if not singleDigit
+			singleDigit = true
+			timerTens.hide()
+			timerOnes.clearAllPoints()
+			timerOnes.setPoint(FRAMEPOINT_LEFT, timerTens, FRAMEPOINT_LEFT, 0.0200, 0)
+		if DRAFT_CURRENT_TIME <= 5
+			timerOnes.setTexture(redNumberTex[DRAFT_CURRENT_TIME], 0, true)
+		else
+			timerOnes.setTexture(numberTex[DRAFT_CURRENT_TIME], 0, true)
+	else
+		if singleDigit
+			singleDigit = false
+			timerTens.show()
+			timerOnes.clearAllPoints()
+			timerOnes.setPoint(FRAMEPOINT_LEFT, timerTens, FRAMEPOINT_RIGHT, 0, 0)
+		let tens = DRAFT_CURRENT_TIME div 10
+		let ones = DRAFT_CURRENT_TIME % 10
+		timerTens.setTexture(numberTex[tens], 0, true)
+		timerOnes.setTexture(numberTex[ones.toInt()], 0, true)
 
 public function startDraftTimer(int duration, Callback cb)
-    if countdownCb != null
-        destroy countdownCb
-    finishCb = cb
-    setDraftTime(duration)
-    countdownCb = doPeriodically(1.0) (CallbackPeriodic c) ->
-        if DRAFT_CURRENT_TIME > 0
-            DRAFT_CURRENT_TIME--
-            updateDisplay()
-            if DRAFT_CURRENT_TIME == 0
-                destroy c
-                countdownCb = null
-                if finishCb != null
-                    doAfter(DRAFT_COUNTDOWN_DELAY.toReal()) ->
-                        finishCb.call()
+	if countdownCb != null
+		destroy countdownCb
+	finishCb = cb
+	setDraftTime(duration)
+	countdownCb = doPeriodically(1.0) (CallbackPeriodic c) ->
+		if DRAFT_CURRENT_TIME > 0
+			DRAFT_CURRENT_TIME--
+			updateDisplay()
+			if DRAFT_CURRENT_TIME == 0
+				destroy c
+				countdownCb = null
+				if finishCb != null
+					doAfter(DRAFT_COUNTDOWN_DELAY.toReal()) ->
+						finishCb.call()
 
 public function getDraftTime() returns int
-    return DRAFT_CURRENT_TIME
+	return DRAFT_CURRENT_TIME
 
 public function setDraftTime(int value)
-    DRAFT_CURRENT_TIME = value
-    if DRAFT_CURRENT_TIME < 0
-        DRAFT_CURRENT_TIME = 0
-    if DRAFT_CURRENT_TIME > 60
-        DRAFT_CURRENT_TIME = 60
-    updateDisplay()
+	DRAFT_CURRENT_TIME = value
+	if DRAFT_CURRENT_TIME < 0
+		DRAFT_CURRENT_TIME = 0
+	if DRAFT_CURRENT_TIME > 60
+		DRAFT_CURRENT_TIME = 60
+	updateDisplay()
 

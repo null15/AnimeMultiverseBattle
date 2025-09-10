@@ -33,7 +33,7 @@ public class Transformation
 		// Timer Stuff
 		this.cbPeriodicBar = doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
 			let progressLeft = (1.0 - cb.progress())
-			let value        = (100.0 * progressLeft).toInt()
+			let value		 = (100.0 * progressLeft).toInt()
 			this.bar
 			..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
 			..setAnimation(value)

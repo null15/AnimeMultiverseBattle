@@ -11,217 +11,217 @@ import ClosureTimers
 import DraftHeroData
 
 function setupCategoryButtons()
-    for i = 1 to MAX_CATEGORIES
-        categoryBtns[i] = imgBtn(catTex[i])
-            ..setWidth(categoryPageSize)
-            ..setHeight(categoryPageSize)
-        categoryBtnIcons[i] = getButtonIcon(categoryBtns[i])
+	for i = 1 to MAX_CATEGORIES
+		categoryBtns[i] = imgBtn(catTex[i])
+			..setWidth(categoryPageSize)
+			..setHeight(categoryPageSize)
+		categoryBtnIcons[i] = getButtonIcon(categoryBtns[i])
 
 function setupPageButtons()
-    for i = 1 to MAX_PAGES
-        pageBtns[i] = btn(i.toString())
-            ..setWidth(categoryPageSize)
-            ..setHeight(categoryPageSize)
+	for i = 1 to MAX_PAGES
+		pageBtns[i] = btn(i.toString())
+			..setWidth(categoryPageSize)
+			..setHeight(categoryPageSize)
 
 function createTeamPickedTable(int startPid, int endPid, string icon, real padding) returns TableLayout
-    let tbl = new TableLayout(0.1575, 0.315)
-    int last = startPid - 1
-    for i = startPid to endPid
-        if players[i].isIngame()
-            last = i
-    for i = startPid to endPid
-        let p = players[i]
-        if p.isIngame()
-            tbl..row()..center()
-            ..add(h5(GetPlayerName(p)))..padBot(0.0025)
-            tbl..row()
-            let btn = imgBtn(icon)..setWidth(teamPickBannerWidth)..setHeight(teamPickBannerHeight)
-            pickIconByPid[i] = getButtonIcon(btn)
-            if i != last
-                tbl..add(btn)..padBot(padding)..growX()
-            else
-                tbl..add(btn)..growX()
-    return tbl
+	let tbl = new TableLayout(0.1575, 0.315)
+	int last = startPid - 1
+	for i = startPid to endPid
+		if players[i].isIngame()
+			last = i
+	for i = startPid to endPid
+		let p = players[i]
+		if p.isIngame()
+			tbl..row()..center()
+			..add(h5(GetPlayerName(p)))..padBot(0.0025)
+			tbl..row()
+			let btn = imgBtn(icon)..setWidth(teamPickBannerWidth)..setHeight(teamPickBannerHeight)
+			pickIconByPid[i] = getButtonIcon(btn)
+			if i != last
+				tbl..add(btn)..padBot(padding)..growX()
+			else
+				tbl..add(btn)..growX()
+	return tbl
 
 function draftScreen()
-    hideOriginFrames()
-    getFrame("ConsoleUIBackdrop", 0).setSize(0, 0.0001)
+	hideOriginFrames()
+	getFrame("ConsoleUIBackdrop", 0).setSize(0, 0.0001)
 
-    let parent = createFrame("FRAME", "DraftParent", getFrame("ConsoleUIBackdrop", 0), "", 0)
-    defaultFrameParent = parent
+	let parent = createFrame("FRAME", "DraftParent", getFrame("ConsoleUIBackdrop", 0), "", 0)
+	defaultFrameParent = parent
 
-    let team1Bans = new TableLayout(0.3, 0.0675)
-    ..row()..center()
-    for i = 1 to 5
-        let btn = imgBtn("UI\\Textures\\Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize)
-        team1BanSlots[i] = getButtonIcon(btn)
-        if i < 5
-            team1Bans..add(btn)..padRight(0.005)
-        else
-            team1Bans..add(btn)
+	let team1Bans = new TableLayout(0.3, 0.0675)
+	..row()..center()
+	for i = 1 to 5
+		let btn = imgBtn("UI\\Textures\\Strength_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize)
+		team1BanSlots[i] = getButtonIcon(btn)
+		if i < 5
+			team1Bans..add(btn)..padRight(0.005)
+		else
+			team1Bans..add(btn)
 
-    let team2Bans = new TableLayout(0.3, 0.0675)
-    ..row()..center()
-    for i = 1 to 5
-        let btn2 = imgBtn("UI\\Textures\\Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize)
-        team2BanSlots[i] = getButtonIcon(btn2)
-        if i < 5
-            team2Bans..add(btn2)..padRight(0.005)
-        else
-            team2Bans..add(btn2)
+	let team2Bans = new TableLayout(0.3, 0.0675)
+	..row()..center()
+	for i = 1 to 5
+		let btn2 = imgBtn("UI\\Textures\\Intelligence_enabled.dds")..setWidth(banIconSize)..setHeight(banIconSize)
+		team2BanSlots[i] = getButtonIcon(btn2)
+		if i < 5
+			team2Bans..add(btn2)..padRight(0.005)
+		else
+			team2Bans..add(btn2)
 
-    let timerTens = img("UI\\Textures\\number_6.dds", 0.0400, 0.0400, true)
-    let timerOnes = img("UI\\Textures\\number_0.dds", 0.0400, 0.0400, true)
-    let timerTable = new TableLayout(0.126, 0.0675)
-        ..row()..center()
-        ..add(timerTens)
-        ..add(timerOnes)
-    initDraftTimer(timerTens, timerOnes)
+	let timerTens = img("UI\\Textures\\number_6.dds", 0.0400, 0.0400, true)
+	let timerOnes = img("UI\\Textures\\number_0.dds", 0.0400, 0.0400, true)
+	let timerTable = new TableLayout(0.126, 0.0675)
+		..row()..center()
+		..add(timerTens)
+		..add(timerOnes)
+	initDraftTimer(timerTens, timerOnes)
 
-    let categoryPageButtonsTable = new TableLayout(0.2, 0.0625)
-        ..row()
-        ..add(categoryBtns[1])..add(categoryBtns[2])..add(categoryBtns[3])..add(categoryBtns[4])
-        ..add(categoryBtns[5])..add(categoryBtns[6])..add(categoryBtns[7])..add(categoryBtns[8])
-        ..add(h1(""))..growX()
-        ..add(pageBtns[1])..add(pageBtns[2])..add(pageBtns[3])
+	let categoryPageButtonsTable = new TableLayout(0.2, 0.0625)
+		..row()
+		..add(categoryBtns[1])..add(categoryBtns[2])..add(categoryBtns[3])..add(categoryBtns[4])
+		..add(categoryBtns[5])..add(categoryBtns[6])..add(categoryBtns[7])..add(categoryBtns[8])
+		..add(h1(""))..growX()
+		..add(pageBtns[1])..add(pageBtns[2])..add(pageBtns[3])
 
-    let team1PickedTable = createTeamPickedTable(0, 4, "UI\\Textures\\Strength_enabled.dds", 0.0075)
+	let team1PickedTable = createTeamPickedTable(0, 4, "UI\\Textures\\Strength_enabled.dds", 0.0075)
 
-    let team2PickedTable = createTeamPickedTable(5, 9, "UI\\Textures\\Intelligence_enabled.dds", 0.0075)
+	let team2PickedTable = createTeamPickedTable(5, 9, "UI\\Textures\\Intelligence_enabled.dds", 0.0075)
 
-    heroGrid = new GridCell(0.4, 0.220, 10, heroIconSize, heroIconSize, 0.006)
+	heroGrid = new GridCell(0.4, 0.220, 10, heroIconSize, heroIconSize, 0.006)
 
-    for h in allHeroes
-        let f = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
-        let hid = h.unitID
-        f.setParent(heroGrid.getGrid().containerFrame)
-        f.onClick() ->
-            BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
-            let pid = GetPlayerId(GetTriggerPlayer())
-            selectedHeroByPid.put(pid, hid)
-            updateHeroSelectionVisual(pid)
-            notifyHeroSelected(pid)
-            notifyHeroPicked(pid, hid)
-        heroBtnById.put(hid, f)
-        BlzFrameSetVisible(f, false)
+	for h in allHeroes
+		let f = btn(h.fullName())..setHeight(heroIconSize)..setWidth(heroIconSize)
+		let hid = h.unitID
+		f.setParent(heroGrid.getGrid().containerFrame)
+		f.onClick() ->
+			BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
+			let pid = GetPlayerId(GetTriggerPlayer())
+			selectedHeroByPid.put(pid, hid)
+			updateHeroSelectionVisual(pid)
+			notifyHeroSelected(pid)
+			notifyHeroPicked(pid, hid)
+		heroBtnById.put(hid, f)
+		BlzFrameSetVisible(f, false)
 
-    let mainTable = new TableLayout(0.8, 0.315)
-        ..row()..center()
-        ..add(categoryPageButtonsTable.createContainerEx(parent))..padLeft(0.005)..padRight(0.005)..growX()
-        ..row()
-        ..add(p("--------------------------------------------------------------------------------------------------------------------------------------------------"))..padLeft(0.02)
-        ..row()
-        ..add(heroGrid.createContainerEx(parent))..growX()
+	let mainTable = new TableLayout(0.8, 0.315)
+		..row()..center()
+		..add(categoryPageButtonsTable.createContainerEx(parent))..padLeft(0.005)..padRight(0.005)..growX()
+		..row()
+		..add(p("--------------------------------------------------------------------------------------------------------------------------------------------------"))..padLeft(0.02)
+		..row()
+		..add(heroGrid.createContainerEx(parent))..growX()
 
-    let chatContainer = createDraftChat(parent)
+	let chatContainer = createDraftChat(parent)
 
-    let miscTable = new TableLayout(0.265, 0.175)
-    ..row()..center()
-    confirmBtn = imgBtn("UI\\Textures\\Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350)
-    randomBtn = imgBtn("UI\\Textures\\Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350)
-    confirmBtnIcon = getButtonIcon(confirmBtn)
-    randomBtnIcon = getButtonIcon(randomBtn)
-    BlzFrameSetEnable(confirmBtn, false)
-    confirmBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
-    BlzFrameSetEnable(randomBtn, false)
-    randomBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
-    miscTable..add(confirmBtn)..padRight(0.01)..padTop(0.01)
-    miscTable..add(randomBtn)..padTop(0.01)
-    ..row()..center()
-    infoTitle = h3("Draft System Explanation")..setHeight(0.025)..setWidth(0.225)..setTextAlignment(TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_CENTER)
-    miscTable..add(infoTitle)..padTop(0.02)
-    ..row()..center()
-    infoText = p("During Ban Phase, select a hero then click Ban to remove the hero from the playable pool. When it is your turn to pick, select a hero and click Confirm to lock-in.")..setTextAlignment(TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_CENTER)..setHeight(0.05)
-    miscTable..add(infoText)..growX()..padTop(0.005)
+	let miscTable = new TableLayout(0.265, 0.175)
+	..row()..center()
+	confirmBtn = imgBtn("UI\\Textures\\Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350)
+	randomBtn = imgBtn("UI\\Textures\\Intelligence_enabled.dds")..setWidth(0.100)..setHeight(0.0350)
+	confirmBtnIcon = getButtonIcon(confirmBtn)
+	randomBtnIcon = getButtonIcon(randomBtn)
+	BlzFrameSetEnable(confirmBtn, false)
+	confirmBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
+	BlzFrameSetEnable(randomBtn, false)
+	randomBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
+	miscTable..add(confirmBtn)..padRight(0.01)..padTop(0.01)
+	miscTable..add(randomBtn)..padTop(0.01)
+	..row()..center()
+	infoTitle = h3("Draft System Explanation")..setHeight(0.025)..setWidth(0.225)..setTextAlignment(TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_CENTER)
+	miscTable..add(infoTitle)..padTop(0.02)
+	..row()..center()
+	infoText = p("During Ban Phase, select a hero then click Ban to remove the hero from the playable pool. When it is your turn to pick, select a hero and click Confirm to lock-in.")..setTextAlignment(TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_CENTER)..setHeight(0.05)
+	miscTable..add(infoText)..growX()..padTop(0.005)
 
-    let abilityDescription = new TableLayout(0.380, 0.175)
-    ..row()
-    heroNameText = h2("Namikaze Minato")..setWidth(0.250)..setHeight(0.020)..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_LEFT)
-    abilityDescription..add(heroNameText)..padBot(0.0035)
-    ..row()
-    heroRolesText = p("Hero Roles")..setWidth(0.250)..setHeight(0.0125)..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_LEFT)
-    abilityDescription..add(heroRolesText)..padBot(0.005)
-    ..row()..center()..padBot(0.01)
-    abilityIcons[1] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
-    abilityTexts[1] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
-    abilityDescription..add(abilityIcons[1])
-    abilityDescription..add(abilityTexts[1])..padLeft(0.0025)..padTop(0.0025)
-    abilityIcons[2] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
-    abilityTexts[2] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
-    abilityDescription..add(abilityIcons[2])
-    abilityDescription..add(abilityTexts[2])..padLeft(0.0025)..padTop(0.0025)
-    ..row()..center()..padBot(0.01)
-    abilityIcons[3] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
-    abilityTexts[3] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
-    abilityDescription..add(abilityIcons[3])
-    abilityDescription..add(abilityTexts[3])..padLeft(0.0025)..padTop(0.0025)
-    abilityIcons[4] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
-    abilityTexts[4] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
-    abilityDescription..add(abilityIcons[4])
-    abilityDescription..add(abilityTexts[4])..padLeft(0.0025)..padTop(0.0025)
-    ..row()..center()..padBot(0.01)
-    abilityIcons[5] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
-    abilityTexts[5] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
-    abilityDescription..add(abilityIcons[5])
-    abilityDescription..add(abilityTexts[5])..padLeft(0.0025)..padTop(0.0025)
-    abilityIcons[6] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
-    abilityTexts[6] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
-    abilityDescription..add(abilityIcons[6])
-    abilityDescription..add(abilityTexts[6])..padLeft(0.0025)..padTop(0.0025)
+	let abilityDescription = new TableLayout(0.380, 0.175)
+	..row()
+	heroNameText = h2("Namikaze Minato")..setWidth(0.250)..setHeight(0.020)..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_LEFT)
+	abilityDescription..add(heroNameText)..padBot(0.0035)
+	..row()
+	heroRolesText = p("Hero Roles")..setWidth(0.250)..setHeight(0.0125)..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_LEFT)
+	abilityDescription..add(heroRolesText)..padBot(0.005)
+	..row()..center()..padBot(0.01)
+	abilityIcons[1] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
+	abilityTexts[1] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+	abilityDescription..add(abilityIcons[1])
+	abilityDescription..add(abilityTexts[1])..padLeft(0.0025)..padTop(0.0025)
+	abilityIcons[2] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
+	abilityTexts[2] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+	abilityDescription..add(abilityIcons[2])
+	abilityDescription..add(abilityTexts[2])..padLeft(0.0025)..padTop(0.0025)
+	..row()..center()..padBot(0.01)
+	abilityIcons[3] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
+	abilityTexts[3] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+	abilityDescription..add(abilityIcons[3])
+	abilityDescription..add(abilityTexts[3])..padLeft(0.0025)..padTop(0.0025)
+	abilityIcons[4] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
+	abilityTexts[4] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+	abilityDescription..add(abilityIcons[4])
+	abilityDescription..add(abilityTexts[4])..padLeft(0.0025)..padTop(0.0025)
+	..row()..center()..padBot(0.01)
+	abilityIcons[5] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
+	abilityTexts[5] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+	abilityDescription..add(abilityIcons[5])
+	abilityDescription..add(abilityTexts[5])..padLeft(0.0025)..padTop(0.0025)
+	abilityIcons[6] = img("UI\\Textures\\Intelligence_enabled.dds", 0.0235, 0.0235, true)
+	abilityTexts[6] = p("Ability Name")..setTextAlignment(TEXT_JUSTIFY_LEFT, TEXT_JUSTIFY_TOP)..setHeight(0.0235)..setWidth(0.145)
+	abilityDescription..add(abilityIcons[6])
+	abilityDescription..add(abilityTexts[6])..padLeft(0.0025)..padTop(0.0025)
 
-    let rootTable = new TableLayout(1.065, 0.6)
-        ..row()..center()
-        ..add(team1Bans.createContainerEx(parent))..padLeft(0.07)..padBot(0.01)
-        ..add(timerTable.createContainerEx(parent))..padBot(0.01)
-        ..add(team2Bans.createContainerEx(parent))..padRight(0.07)..padBot(0.01)
-        ..row()..center()
-        ..add(team1PickedTable.createFramedContainer(parent))
-        ..add(mainTable.createFramedContainer(parent))..growX()
-        ..add(team2PickedTable.createFramedContainer(parent))
-        ..row()..center()
-        ..add(chatContainer)..growX()
-        ..add(miscTable.createFramedContainer(parent))..growX()
-        ..add(abilityDescription.createFramedContainer(parent))
+	let rootTable = new TableLayout(1.065, 0.6)
+		..row()..center()
+		..add(team1Bans.createContainerEx(parent))..padLeft(0.07)..padBot(0.01)
+		..add(timerTable.createContainerEx(parent))..padBot(0.01)
+		..add(team2Bans.createContainerEx(parent))..padRight(0.07)..padBot(0.01)
+		..row()..center()
+		..add(team1PickedTable.createFramedContainer(parent))
+		..add(mainTable.createFramedContainer(parent))..growX()
+		..add(team2PickedTable.createFramedContainer(parent))
+		..row()..center()
+		..add(chatContainer)..growX()
+		..add(miscTable.createFramedContainer(parent))..growX()
+		..add(abilityDescription.createFramedContainer(parent))
 
-    let rootFrame = rootTable.createFrame()
-        ..clearAllPoints()
-        ..setAbsPoint(FRAMEPOINT_CENTER, 0.4, 0.3)
-    rootTable.applyToCascade(rootFrame)
-    draftRootFrame = rootFrame
+	let rootFrame = rootTable.createFrame()
+		..clearAllPoints()
+		..setAbsPoint(FRAMEPOINT_CENTER, 0.4, 0.3)
+	rootTable.applyToCascade(rootFrame)
+	draftRootFrame = rootFrame
 
-    wireCategoryButtons()
-    wirePageButtons()
-    confirmBtn.onClick() ->
-        BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
-        onConfirmClick(GetPlayerId(GetTriggerPlayer()))
-    randomBtn.onClick() ->
-        BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
-        onRandomClick(GetPlayerId(GetTriggerPlayer()))
+	wireCategoryButtons()
+	wirePageButtons()
+	confirmBtn.onClick() ->
+		BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
+		onConfirmClick(GetPlayerId(GetTriggerPlayer()))
+	randomBtn.onClick() ->
+		BlzGetTriggerFrame().unfocus(GetTriggerPlayer())
+		onRandomClick(GetPlayerId(GetTriggerPlayer()))
 
-    let pidLocal = GetPlayerId(GetLocalPlayer())
-    let st = getDraftUI(pidLocal)
-    st.currentPage = 1
-    shownCount[pidLocal] = 0
-    refreshGrid(pidLocal)
-    startDraft()
+	let pidLocal = GetPlayerId(GetLocalPlayer())
+	let st = getDraftUI(pidLocal)
+	st.currentPage = 1
+	shownCount[pidLocal] = 0
+	refreshGrid(pidLocal)
+	startDraft()
 
-    defaultFrameParent = GAME_UI
+	defaultFrameParent = GAME_UI
 
 init
-    string array categoryImgNames
-    categoryImgNames[0] = "Strength"
-    categoryImgNames[1] = "Agility"
-    categoryImgNames[2] = "Intelligence"
-    for i = 1 to MAX_CATEGORIES
-        let name = categoryImgNames[((i - 1) % 3).toInt()]
-        catTex[i] = "UI\\Textures\\" + name + ".dds"
-        catTexOn[i] = "UI\\Textures\\" + name + "_enabled.dds"
-        catTexDisabled[i] = "UI\\Textures\\" + name + "_disabled.dds"
-    setupCategoryButtons()
-    setupPageButtons()
+	string array categoryImgNames
+	categoryImgNames[0] = "Strength"
+	categoryImgNames[1] = "Agility"
+	categoryImgNames[2] = "Intelligence"
+	for i = 1 to MAX_CATEGORIES
+		let name = categoryImgNames[((i - 1) % 3).toInt()]
+		catTex[i] = "UI\\Textures\\" + name + ".dds"
+		catTexOn[i] = "UI\\Textures\\" + name + "_enabled.dds"
+		catTexDisabled[i] = "UI\\Textures\\" + name + "_disabled.dds"
+	setupCategoryButtons()
+	setupPageButtons()
 
-    nullTimer() ->
-        GAME_UI.getChild(5).setVisible(false)
-        defineHeroes()
-        sortAllHeroesOnce()
-        draftScreen()
+	nullTimer() ->
+		GAME_UI.getChild(5).setVisible(false)
+		defineHeroes()
+		sortAllHeroesOnce()
+		draftScreen()

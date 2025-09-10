@@ -3,24 +3,24 @@ package ChatSystem
 public framehandle textArea = null
 
 function appendChat(player p, string msg)
-    if textArea != null
-        BlzFrameAddText(textArea, GetPlayerName(p) + ": " + msg)
+	if textArea != null
+		BlzFrameAddText(textArea, GetPlayerName(p) + ": " + msg)
 
 function onPlayerChat()
-    let p = GetTriggerPlayer()
-    let msg = GetEventPlayerChatString()
-    appendChat(p, msg)
+	let p = GetTriggerPlayer()
+	let msg = GetEventPlayerChatString()
+	appendChat(p, msg)
 
 public function createChat()
-    let parent = createFrame("FRAME", "ChatParent", getFrame("ConsoleUIBackdrop", 0), "", 0)
+	let parent = createFrame("FRAME", "ChatParent", getFrame("ConsoleUIBackdrop", 0), "", 0)
 
-    textArea = BlzCreateFrame("BigBnetTextArea", parent, 0, 0)
-    BlzFrameSetAbsPoint(textArea, FRAMEPOINT_TOPLEFT, 0, 0)
-    BlzFrameSetSize(textArea, 0.35, 0.15)
-    BlzFrameSetPoint(textArea, FRAMEPOINT_TOPLEFT, BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON, 0), FRAMEPOINT_TOPRIGHT, -0.025, -0.225)
+	textArea = BlzCreateFrame("BigBnetTextArea", parent, 0, 0)
+	BlzFrameSetAbsPoint(textArea, FRAMEPOINT_TOPLEFT, 0, 0)
+	BlzFrameSetSize(textArea, 0.35, 0.15)
+	BlzFrameSetPoint(textArea, FRAMEPOINT_TOPLEFT, BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON, 0), FRAMEPOINT_TOPRIGHT, -0.025, -0.225)
 
 init
-    let chatTrigger = CreateTrigger()
-    for i = 0 to 9
-        chatTrigger.registerPlayerChatEvent(players[i], "", false)
-    chatTrigger.addAction(() -> onPlayerChat())
+	let chatTrigger = CreateTrigger()
+	for i = 0 to 9
+		chatTrigger.registerPlayerChatEvent(players[i], "", false)
+	chatTrigger.addAction(() -> onPlayerChat())

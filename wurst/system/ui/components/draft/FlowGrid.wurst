@@ -30,52 +30,52 @@ public constant activePeriodicTimers = new LinkedList<CallbackPeriodic>()
  * - `containerFrame`: optional parent frame.
  */
 public class SimpleGrid
-    int layoutGen = 0
-    real originX
-    real originY
-    real cellW
-    real cellH
-    real gapX
-    real gapY
-    int cols
-    constant items = new LinkedList<framehandle>()
-    framehandle containerFrame = null
+	int layoutGen = 0
+	real originX
+	real originY
+	real cellW
+	real cellH
+	real gapX
+	real gapY
+	int cols
+	constant items = new LinkedList<framehandle>()
+	framehandle containerFrame = null
 
-    /** Create a new grid at (originX, originY). */
-    construct(real originX, real originY, int cols, real cellW, real cellH, real gap)
-        this.originX = originX
-        this.originY = originY
-        this.cols    = cols
-        this.cellW   = cellW
-        this.cellH   = cellH
-        this.gapX    = gap
-        this.gapY    = gap
+	/** Create a new grid at (originX, originY). */
+	construct(real originX, real originY, int cols, real cellW, real cellH, real gap)
+		this.originX = originX
+		this.originY = originY
+		this.cols	= cols
+		this.cellW   = cellW
+		this.cellH   = cellH
+		this.gapX	= gap
+		this.gapY	= gap
 
-    /** Add a frame to the grid. Will be re-parented to container if available. */
-    function add(framehandle f)
-        items.add(f)
-        if containerFrame != null
-            f.setParent(containerFrame)
+	/** Add a frame to the grid. Will be re-parented to container if available. */
+	function add(framehandle f)
+		items.add(f)
+		if containerFrame != null
+			f.setParent(containerFrame)
 
-    /** Remove a frame from the grid. */
-    function remove(framehandle f)
-        items.remove(f)
+	/** Remove a frame from the grid. */
+	function remove(framehandle f)
+		items.remove(f)
 
-    /** Compute grid position of an item index as (x, y). */
-    function indexPos(int idx) returns vec2
-        let col = idx % cols
-        let row = idx div cols
-        let x = originX + col * (cellW + gapX)
-        let y = originY - row * (cellH + gapY)
-        return vec2(x, y)
+	/** Compute grid position of an item index as (x, y). */
+	function indexPos(int idx) returns vec2
+		let col = idx % cols
+		let row = idx div cols
+		let x = originX + col * (cellW + gapX)
+		let y = originY - row * (cellH + gapY)
+		return vec2(x, y)
 
-    /** Place all items instantly (no animation). */
-    function layoutInstant()
-        var i = 0
-        for f in items
-            let pos = indexPos(i)
-            if containerFrame != null
-                setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, pos.x, pos.y)
-            else
-                setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, pos.x, pos.y)
-            i++
+	/** Place all items instantly (no animation). */
+	function layoutInstant()
+		var i = 0
+		for f in items
+			let pos = indexPos(i)
+			if containerFrame != null
+				setRelativePointTracked(f, FRAMEPOINT_TOPLEFT, pos.x, pos.y)
+			else
+				setAbsPointTracked(f, FRAMEPOINT_TOPLEFT, pos.x, pos.y)
+			i++

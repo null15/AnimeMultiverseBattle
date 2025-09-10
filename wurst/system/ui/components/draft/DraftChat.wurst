@@ -12,84 +12,84 @@ bool array chatFocused
 constant CHAT_SYNC_PREFIX = "dchat"
 
 public function createDraftChat(framehandle parent) returns framehandle
-    if not loadTOCFile("UI\\Includes\\HideChat.toc")
-        printLog(Loglevel.ERROR, "Could not load HideChat.toc")
-    if not loadTOCFile("UI\\Includes\\DraftSystem.toc")
-        printLog(Loglevel.ERROR, "Could not load DraftSystem.toc")
+	if not loadTOCFile("UI\\Includes\\HideChat.toc")
+		printLog(Loglevel.ERROR, "Could not load HideChat.toc")
+	if not loadTOCFile("UI\\Includes\\DraftSystem.toc")
+		printLog(Loglevel.ERROR, "Could not load DraftSystem.toc")
 
-    let chatTable = new TableLayout(0.380, 0.175)
-    chatContainer = chatTable.createFramedContainer(parent)
+	let chatTable = new TableLayout(0.380, 0.175)
+	chatContainer = chatTable.createFramedContainer(parent)
 
-    chatHistoryFrame = createFrame(FramehandleTypeNames.textarea, "DraftChatHistory", chatContainer, "EscMenuTextAreaTemplate", 0)
-    chatHistoryFrame
-        ..setPoint(FRAMEPOINT_TOPLEFT, chatContainer, FRAMEPOINT_TOPLEFT, 0.011, -0.011)
-        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.010, 0.047)
-        ..setEnabled(false)
+	chatHistoryFrame = createFrame(FramehandleTypeNames.textarea, "DraftChatHistory", chatContainer, "EscMenuTextAreaTemplate", 0)
+	chatHistoryFrame
+		..setPoint(FRAMEPOINT_TOPLEFT, chatContainer, FRAMEPOINT_TOPLEFT, 0.011, -0.011)
+		..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.010, 0.047)
+		..setEnabled(false)
 
-    chatInputFrame = createFrame(FramehandleTypeNames.editbox, "DraftChatInput", chatContainer, "EscMenuEditBoxTemplate", 0)
-    chatInputFrame
-        ..setPoint(FRAMEPOINT_TOPLEFT, chatHistoryFrame, FRAMEPOINT_BOTTOMLEFT, 0.0, -0.001)
-        ..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.0105, 0.012)
-        ..setText("")
+	chatInputFrame = createFrame(FramehandleTypeNames.editbox, "DraftChatInput", chatContainer, "EscMenuEditBoxTemplate", 0)
+	chatInputFrame
+		..setPoint(FRAMEPOINT_TOPLEFT, chatHistoryFrame, FRAMEPOINT_BOTTOMLEFT, 0.0, -0.001)
+		..setPoint(FRAMEPOINT_BOTTOMRIGHT, chatContainer, FRAMEPOINT_BOTTOMRIGHT, -0.0105, 0.012)
+		..setText("")
 
-    chatInputFrame.onEditboxEnter(() -> sendChat())
+	chatInputFrame.onEditboxEnter(() -> sendChat())
 
-    return chatContainer
+	return chatContainer
 
 function appendChat(player p, string msg)
-    BlzFrameAddText(chatHistoryFrame, GetPlayerName(p) + ": " + msg)
+	BlzFrameAddText(chatHistoryFrame, GetPlayerName(p) + ": " + msg)
 
 function sendChat()
-    let p = GetTriggerPlayer()
-    let pid = GetPlayerId(p)
-    let msg = chatInputFrame.getText()
-    if msg.length() == 0
-        chatInputFrame.setFocus(p, false)
-        chatFocused[pid] = false
-        return
-    BlzSendSyncData(CHAT_SYNC_PREFIX, msg)
-    chatInputFrame.setText("")
-    chatInputFrame.setFocus(p, false)
-    chatFocused[pid] = false
+	let p = GetTriggerPlayer()
+	let pid = GetPlayerId(p)
+	let msg = chatInputFrame.getText()
+	if msg.length() == 0
+		chatInputFrame.setFocus(p, false)
+		chatFocused[pid] = false
+		return
+	BlzSendSyncData(CHAT_SYNC_PREFIX, msg)
+	chatInputFrame.setText("")
+	chatInputFrame.setFocus(p, false)
+	chatFocused[pid] = false
 
 function onChatSync()
-    let p = GetTriggerPlayer()
-    let msg = BlzGetTriggerSyncData()
-    appendChat(p, msg)
+	let p = GetTriggerPlayer()
+	let msg = BlzGetTriggerSyncData()
+	appendChat(p, msg)
 
 function onPlayerChat()
-    let p = GetTriggerPlayer()
-    let msg = GetEventPlayerChatString()
-    appendChat(p, msg)
+	let p = GetTriggerPlayer()
+	let msg = GetEventPlayerChatString()
+	appendChat(p, msg)
 
 function onEnterPressed()
-    let p = GetTriggerPlayer()
-    if GetLocalPlayer() != p
-        return
-    let pid = GetPlayerId(p)
-    if chatInputFrame == null or not chatInputFrame.isVisible()
-        return
-    if not chatFocused[pid]
-        chatInputFrame.setFocus(p, true)
-        chatFocused[pid] = true
-    else
-        let text = chatInputFrame.getText()
-        if text.length() == 0
-            chatInputFrame.setFocus(p, false)
-            chatFocused[pid] = false
+	let p = GetTriggerPlayer()
+	if GetLocalPlayer() != p
+		return
+	let pid = GetPlayerId(p)
+	if chatInputFrame == null or not chatInputFrame.isVisible()
+		return
+	if not chatFocused[pid]
+		chatInputFrame.setFocus(p, true)
+		chatFocused[pid] = true
+	else
+		let text = chatInputFrame.getText()
+		if text.length() == 0
+			chatInputFrame.setFocus(p, false)
+			chatFocused[pid] = false
 
 init
-    let syncTrig = CreateTrigger()
-    for i = 0 to 9
-        BlzTriggerRegisterPlayerSyncEvent(syncTrig, players[i], CHAT_SYNC_PREFIX, false)
-    syncTrig.addAction(() -> onChatSync())
+	let syncTrig = CreateTrigger()
+	for i = 0 to 9
+		BlzTriggerRegisterPlayerSyncEvent(syncTrig, players[i], CHAT_SYNC_PREFIX, false)
+	syncTrig.addAction(() -> onChatSync())
 
-    let chatTrig = CreateTrigger()
-    for i = 0 to 9
-        chatTrig.registerPlayerChatEvent(players[i], "", false)
-    chatTrig.addAction(() -> onPlayerChat())
+	let chatTrig = CreateTrigger()
+	for i = 0 to 9
+		chatTrig.registerPlayerChatEvent(players[i], "", false)
+	chatTrig.addAction(() -> onPlayerChat())
 
-    let keyTrig = CreateTrigger()
-    for i = 0 to 9
-        keyTrig.registerPlayerKeyPress(players[i], OSKEY_RETURN, OSKEY_META.NONE, true)
-    keyTrig.addAction(() -> onEnterPressed())
+	let keyTrig = CreateTrigger()
+	for i = 0 to 9
+		keyTrig.registerPlayerKeyPress(players[i], OSKEY_RETURN, OSKEY_META.NONE, true)
+	keyTrig.addAction(() -> onEnterPressed())

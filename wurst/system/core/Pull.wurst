@@ -3,19 +3,19 @@ package Pull
 import ClosureTimers
 
 public function pullUnit(unit target, vec2 source, real distance, real duration)
-    if not target.isAlive()
-        return
-    let toSource = source - target.getPos()
-    var moveDist = distance
-    let distToSource = toSource.length()
-    if distToSource < moveDist
-        moveDist = distToSource
-    if moveDist > 0.
-        let startPos = target.getPos()
-        let direction = toSource.norm()
-        let finalPos = startPos + direction * moveDist
-        doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
-            target.setPos(startPos + direction * (moveDist * cb.progress()))
-            if cb.isLast()
-                target.setPos(finalPos)
-                destroy cb
+	if not target.isAlive()
+		return
+	let toSource = source - target.getPos()
+	var moveDist = distance
+	let distToSource = toSource.length()
+	if distToSource < moveDist
+		moveDist = distToSource
+	if moveDist > 0.
+		let startPos = target.getPos()
+		let direction = toSource.norm()
+		let finalPos = startPos + direction * moveDist
+		doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
+			target.setPos(startPos + direction * (moveDist * cb.progress()))
+			if cb.isLast()
+				target.setPos(finalPos)
+				destroy cb

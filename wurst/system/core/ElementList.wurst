@@ -3,28 +3,28 @@ package ElementList
 import LinkedList
 
 enum Element
-    fire
-    ice
-    water
+	fire
+	ice
+	water
 
 let fireSpells = new LinkedList<int>()
 let iceSpells = new LinkedList<int>()
 let waterSpells = new LinkedList<int>()
 
 public function registerElementalSpell(Element e, int abilId)
-    switch e
-        case Element.fire
-            fireSpells.add(abilId)
-        case Element.ice
-            iceSpells.add(abilId)
-        case Element.water
-            waterSpells.add(abilId)
+	switch e
+		case Element.fire
+			fireSpells.add(abilId)
+		case Element.ice
+			iceSpells.add(abilId)
+		case Element.water
+			waterSpells.add(abilId)
 
 public function getSpellsByElement(Element e) returns LinkedList<int>
-    switch e
-        case Element.fire
-            return fireSpells
-        case Element.ice
-            return iceSpells
-        case Element.water
-            return waterSpells
+	switch e
+		case Element.fire
+			return fireSpells
+		case Element.ice
+			return iceSpells
+		case Element.water
+			return waterSpells

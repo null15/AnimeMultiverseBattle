@@ -25,9 +25,9 @@ public framehandle array abilityTexts
 public framehandle draftRootFrame = null
 
 enum DraftPhase
-    BAN
-    PICK
-    DONE
+	BAN
+	PICK
+	DONE
 
 DraftPhase phase = DraftPhase.BAN
 int firstTeam = 0
@@ -40,280 +40,280 @@ HashMap<int, bool> hasPicked = new HashMap<int, bool>()
 HashMap<int, int> heroPicked = new HashMap<int, int>()
 
 class InfoUpdater implements HeroPickListener
-    override function onHeroPicked(int pid, int unitID)
-        if GetLocalPlayer() != players[pid]
-            return
-        updateHeroInfo(unitID)
+	override function onHeroPicked(int pid, int unitID)
+		if GetLocalPlayer() != players[pid]
+			return
+		updateHeroInfo(unitID)
 
 class ConfirmButtonUpdater implements HeroSelectListener
-    override function onHeroSelected(int pid)
-        updateConfirmButton(pid)
+	override function onHeroSelected(int pid)
+		updateConfirmButton(pid)
 
 function categoryName(CategoryType c) returns string
-    switch c
-        case CategoryType.STRENGTH
-            return "Strength"
-        case CategoryType.AGILITY
-            return "Agility"
-        case CategoryType.INTELLIGENCE
-            return "Intelligence"
-        case CategoryType.BRUISER
-            return "Bruiser"
-        case CategoryType.CARRY
-            return "Carry"
-        case CategoryType.SUPPORT
-            return "Support"
-        case CategoryType.MELEE
-            return "Melee"
-        case CategoryType.RANGE
-            return "Range"
+	switch c
+		case CategoryType.STRENGTH
+			return "Strength"
+		case CategoryType.AGILITY
+			return "Agility"
+		case CategoryType.INTELLIGENCE
+			return "Intelligence"
+		case CategoryType.BRUISER
+			return "Bruiser"
+		case CategoryType.CARRY
+			return "Carry"
+		case CategoryType.SUPPORT
+			return "Support"
+		case CategoryType.MELEE
+			return "Melee"
+		case CategoryType.RANGE
+			return "Range"
 
 function updateHeroInfo(int unitID)
-    let h = getHeroData(unitID)
-    if h == null
-        return
-    if heroNameText != null
-        heroNameText.setText(h.fullName())
-    if heroRolesText != null
-        var txt = ""
-        var first = true
-        for c in h.categories
-            if not first
-                txt += ", "
-            txt += categoryName(c)
-            first = false
-        heroRolesText.setText(txt)
-    for i = 1 to 6
-        if abilityIcons[i] != null
-            abilityIcons[i].setTexture(catTexOn[(((i - 1) % 3) + 1).toInt()], 0, true)
-        if abilityTexts[i] != null
-            abilityTexts[i].setText("Ability " + i.toString())
+	let h = getHeroData(unitID)
+	if h == null
+		return
+	if heroNameText != null
+		heroNameText.setText(h.fullName())
+	if heroRolesText != null
+		var txt = ""
+		var first = true
+		for c in h.categories
+			if not first
+				txt += ", "
+			txt += categoryName(c)
+			first = false
+		heroRolesText.setText(txt)
+	for i = 1 to 6
+		if abilityIcons[i] != null
+			abilityIcons[i].setTexture(catTexOn[(((i - 1) % 3) + 1).toInt()], 0, true)
+		if abilityTexts[i] != null
+			abilityTexts[i].setText("Ability " + i.toString())
 
 function updateInfo(string title, string text)
-    if infoTitle != null
-        infoTitle.setText(title)
-    if infoText != null
-        infoText.setText(text)
+	if infoTitle != null
+		infoTitle.setText(title)
+	if infoText != null
+		infoText.setText(text)
 
 public function updateConfirmButton(int pid)
-    if GetLocalPlayer() != players[pid] or confirmBtn == null
-        return
-    var enabled = false
-    if phase == DraftPhase.BAN
-        if not hasBanned.get(pid) and getSelectedHero(pid) != 0
-            enabled = true
-    else if phase == DraftPhase.PICK
-        if currentTurn != null and currentTurn.has(pid) and not hasPicked.get(pid) and getSelectedHero(pid) != 0
-            enabled = true
-    BlzFrameSetEnable(confirmBtn, enabled)
-    if confirmBtnIcon != null
-        if enabled
-            confirmBtnIcon.setTexture("UI\\Textures\\Intelligence.dds", 0, true)
-        else
-            confirmBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
+	if GetLocalPlayer() != players[pid] or confirmBtn == null
+		return
+	var enabled = false
+	if phase == DraftPhase.BAN
+		if not hasBanned.get(pid) and getSelectedHero(pid) != 0
+			enabled = true
+	else if phase == DraftPhase.PICK
+		if currentTurn != null and currentTurn.has(pid) and not hasPicked.get(pid) and getSelectedHero(pid) != 0
+			enabled = true
+	BlzFrameSetEnable(confirmBtn, enabled)
+	if confirmBtnIcon != null
+		if enabled
+			confirmBtnIcon.setTexture("UI\\Textures\\Intelligence.dds", 0, true)
+		else
+			confirmBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
 
 function updateAllConfirmButtons()
-    for i = 0 to 9
-        updateConfirmButton(i)
+	for i = 0 to 9
+		updateConfirmButton(i)
 
 public function updateRandomButton(int pid)
-    if GetLocalPlayer() != players[pid] or randomBtn == null
-        return
-    var enabled = false
-    if phase == DraftPhase.PICK
-        if currentTurn != null and currentTurn.has(pid) and not hasPicked.get(pid)
-            enabled = true
-    BlzFrameSetEnable(randomBtn, enabled)
-    if randomBtnIcon != null
-        if enabled
-            randomBtnIcon.setTexture("UI\\Textures\\Intelligence.dds", 0, true)
-        else
-            randomBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
+	if GetLocalPlayer() != players[pid] or randomBtn == null
+		return
+	var enabled = false
+	if phase == DraftPhase.PICK
+		if currentTurn != null and currentTurn.has(pid) and not hasPicked.get(pid)
+			enabled = true
+	BlzFrameSetEnable(randomBtn, enabled)
+	if randomBtnIcon != null
+		if enabled
+			randomBtnIcon.setTexture("UI\\Textures\\Intelligence.dds", 0, true)
+		else
+			randomBtnIcon.setTexture("UI\\Textures\\Intelligence_disabled.dds", 0, true)
 
 function updateAllRandomButtons()
-    for i = 0 to 9
-        updateRandomButton(i)
+	for i = 0 to 9
+		updateRandomButton(i)
 
 public function onConfirmClick(int pid)
-    if phase == DraftPhase.BAN
-        if hasBanned.get(pid)
-            return
-        let sel = getSelectedHero(pid)
-        if sel != 0
-            hasBanned.put(pid, true)
-            banHero(pid, sel)
-            updateConfirmButton(pid)
-            updateRandomButton(pid)
-    else if phase == DraftPhase.PICK
-        if currentTurn == null or not currentTurn.has(pid)
-            return
-        if hasPicked.get(pid)
-            return
-        var sel = getSelectedHero(pid)
-        if sel == 0
-            sel = getRandomHeroId()
-        pickHero(pid, sel)
-        checkTurnDone()
-        updateConfirmButton(pid)
-        updateRandomButton(pid)
+	if phase == DraftPhase.BAN
+		if hasBanned.get(pid)
+			return
+		let sel = getSelectedHero(pid)
+		if sel != 0
+			hasBanned.put(pid, true)
+			banHero(pid, sel)
+			updateConfirmButton(pid)
+			updateRandomButton(pid)
+	else if phase == DraftPhase.PICK
+		if currentTurn == null or not currentTurn.has(pid)
+			return
+		if hasPicked.get(pid)
+			return
+		var sel = getSelectedHero(pid)
+		if sel == 0
+			sel = getRandomHeroId()
+		pickHero(pid, sel)
+		checkTurnDone()
+		updateConfirmButton(pid)
+		updateRandomButton(pid)
 
 public function onRandomClick(int pid)
-    if phase != DraftPhase.PICK
-        return
-    if currentTurn == null or not currentTurn.has(pid)
-        return
-    if hasPicked.get(pid)
-        return
-    pickHero(pid, getRandomHeroId())
-    checkTurnDone()
-    updateConfirmButton(pid)
-    updateRandomButton(pid)
+	if phase != DraftPhase.PICK
+		return
+	if currentTurn == null or not currentTurn.has(pid)
+		return
+	if hasPicked.get(pid)
+		return
+	pickHero(pid, getRandomHeroId())
+	checkTurnDone()
+	updateConfirmButton(pid)
+	updateRandomButton(pid)
 
 function banHero(int pid, int heroId)
-    removeHero(heroId)
-    let slot = banSlotByPid[pid]
-    if slot != null
-        slot.setTexture(BlzGetAbilityIcon(heroId), 0, true)
+	removeHero(heroId)
+	let slot = banSlotByPid[pid]
+	if slot != null
+		slot.setTexture(BlzGetAbilityIcon(heroId), 0, true)
 
 function pickHero(int pid, int heroId)
-    removeHero(heroId)
-    heroPicked.put(pid, heroId)
-    hasPicked.put(pid, true)
-    let icon = pickIconByPid[pid]
-    if icon != null
-        icon.setTexture(BlzGetAbilityIcon(heroId), 0, true)
+	removeHero(heroId)
+	heroPicked.put(pid, heroId)
+	hasPicked.put(pid, true)
+	let icon = pickIconByPid[pid]
+	if icon != null
+		icon.setTexture(BlzGetAbilityIcon(heroId), 0, true)
 
 function setupPlayers()
-    team1Players.clear()
-    team2Players.clear()
-    for i = 0 to 9
-        if players[i].isIngame()
-            if i < 5
-                team1Players.add(i)
-            else
-                team2Players.add(i)
-    var idx = 1
-    for pid in team1Players
-        banSlotByPid[pid] = team1BanSlots[idx]
-        idx++
-    idx = 1
-    for pid in team2Players
-        banSlotByPid[pid] = team2BanSlots[idx]
-        idx++
+	team1Players.clear()
+	team2Players.clear()
+	for i = 0 to 9
+		if players[i].isIngame()
+			if i < 5
+				team1Players.add(i)
+			else
+				team2Players.add(i)
+	var idx = 1
+	for pid in team1Players
+		banSlotByPid[pid] = team1BanSlots[idx]
+		idx++
+	idx = 1
+	for pid in team2Players
+		banSlotByPid[pid] = team2BanSlots[idx]
+		idx++
 
 function take(LinkedList<int> src, int start, int count) returns LinkedList<int>
-    let res = new LinkedList<int>()
-    var idx = 0
-    for p in src
-        if idx >= start and res.size() < count
-            res.add(p)
-        idx++
-    return res
+	let res = new LinkedList<int>()
+	var idx = 0
+	for p in src
+		if idx >= start and res.size() < count
+			res.add(p)
+		idx++
+	return res
 
 function addTurn(LinkedList<int> t)
-    if not t.isEmpty()
-        pickTurns.add(t)
+	if not t.isEmpty()
+		pickTurns.add(t)
 
 function buildPickTurns()
-    pickTurns.clear()
-    var f = 0
-    var s = 0
-    if firstTeam == 0
-        addTurn(take(team1Players, f, 1))
-        f += 1
-        addTurn(take(team2Players, s, 2))
-        s += 2
-        addTurn(take(team1Players, f, 2))
-        f += 2
-        addTurn(take(team2Players, s, 2))
-        s += 2
-        addTurn(take(team1Players, f, 2))
-        addTurn(take(team2Players, s, 1))
-    else
-        addTurn(take(team2Players, s, 1))
-        s += 1
-        addTurn(take(team1Players, f, 2))
-        f += 2
-        addTurn(take(team2Players, s, 2))
-        s += 2
-        addTurn(take(team1Players, f, 2))
-        f += 2
-        addTurn(take(team2Players, s, 2))
-        addTurn(take(team1Players, f, 1))
+	pickTurns.clear()
+	var f = 0
+	var s = 0
+	if firstTeam == 0
+		addTurn(take(team1Players, f, 1))
+		f += 1
+		addTurn(take(team2Players, s, 2))
+		s += 2
+		addTurn(take(team1Players, f, 2))
+		f += 2
+		addTurn(take(team2Players, s, 2))
+		s += 2
+		addTurn(take(team1Players, f, 2))
+		addTurn(take(team2Players, s, 1))
+	else
+		addTurn(take(team2Players, s, 1))
+		s += 1
+		addTurn(take(team1Players, f, 2))
+		f += 2
+		addTurn(take(team2Players, s, 2))
+		s += 2
+		addTurn(take(team1Players, f, 2))
+		f += 2
+		addTurn(take(team2Players, s, 2))
+		addTurn(take(team1Players, f, 1))
 
 function startNextTurn()
-    if pickTurns.isEmpty()
-        finishDraft()
-        return
-    currentTurn = pickTurns.dequeue()
-    for pid in currentTurn
-        hasPicked.put(pid, false)
-    startDraftTimer(DRAFT_TURN_TIMEOUT, () -> onTurnTimeout())
-    updateAllConfirmButtons()
-    updateAllRandomButtons()
+	if pickTurns.isEmpty()
+		finishDraft()
+		return
+	currentTurn = pickTurns.dequeue()
+	for pid in currentTurn
+		hasPicked.put(pid, false)
+	startDraftTimer(DRAFT_TURN_TIMEOUT, () -> onTurnTimeout())
+	updateAllConfirmButtons()
+	updateAllRandomButtons()
 
 function onTurnTimeout()
-    for pid in currentTurn
-        if not hasPicked.get(pid)
-            pickHero(pid, getRandomHeroId())
-            updateConfirmButton(pid)
-            updateRandomButton(pid)
-    checkTurnDone()
+	for pid in currentTurn
+		if not hasPicked.get(pid)
+			pickHero(pid, getRandomHeroId())
+			updateConfirmButton(pid)
+			updateRandomButton(pid)
+	checkTurnDone()
 
 function checkTurnDone()
-    var done = true
-    for pid in currentTurn
-        if not hasPicked.get(pid)
-            done = false
-            break
-    if done
-        startNextTurn()
+	var done = true
+	for pid in currentTurn
+		if not hasPicked.get(pid)
+			done = false
+			break
+	if done
+		startNextTurn()
 
 function finishDraft()
-    phase = DraftPhase.DONE
-    updateInfo("Draft Complete", "Heroes spawning soon")
-    startDraftTimer(DRAFT_COUNTDOWN_DELAY, () -> spawnHeroes())
-    updateAllConfirmButtons()
-    updateAllRandomButtons()
+	phase = DraftPhase.DONE
+	updateInfo("Draft Complete", "Heroes spawning soon")
+	startDraftTimer(DRAFT_COUNTDOWN_DELAY, () -> spawnHeroes())
+	updateAllConfirmButtons()
+	updateAllRandomButtons()
 
 function resetChatFrames()
-    if chatContainer != null
-        chatContainer.disable()
-        chatContainer.hide()
-    if chatInputFrame != null
-        chatInputFrame.hide()
-    GAME_UI.getChild(5).setVisible(true)
-    createChat()
+	if chatContainer != null
+		chatContainer.disable()
+		chatContainer.hide()
+	if chatInputFrame != null
+		chatInputFrame.hide()
+	GAME_UI.getChild(5).setVisible(true)
+	createChat()
 
 function spawnHeroes()
-    if draftRootFrame != null
-        draftRootFrame.hide()
-    resetChatFrames()
-    getFrame("ConsoleUIBackdrop", 0).setSize(0, 0.130)
-    showOriginFrames()
-    for i = 0 to 9
-        let hid = heroPicked.get(i)
-        if hid != 0
-            new HeroEntity(createUnit(players[i], hid, vec2(0, 0))..setLevel(10, false))
-    frentityInit()
+	if draftRootFrame != null
+		draftRootFrame.hide()
+	resetChatFrames()
+	getFrame("ConsoleUIBackdrop", 0).setSize(0, 0.130)
+	showOriginFrames()
+	for i = 0 to 9
+		let hid = heroPicked.get(i)
+		if hid != 0
+			new HeroEntity(createUnit(players[i], hid, vec2(0, 0))..setLevel(10, false))
+	frentityInit()
 
 public function startDraft()
-    phase = DraftPhase.BAN
-    firstTeam = GetRandomInt(0, 1)
-    setupPlayers()
-    buildPickTurns()
-    updateInfo("Ban Phase", "Select a hero and confirm to ban")
-    startDraftTimer(DRAFT_PICK_PHASE, () -> startPickPhase())
-    updateAllConfirmButtons()
-    updateAllRandomButtons()
+	phase = DraftPhase.BAN
+	firstTeam = GetRandomInt(0, 1)
+	setupPlayers()
+	buildPickTurns()
+	updateInfo("Ban Phase", "Select a hero and confirm to ban")
+	startDraftTimer(DRAFT_PICK_PHASE, () -> startPickPhase())
+	updateAllConfirmButtons()
+	updateAllRandomButtons()
 
 function startPickPhase()
-    phase = DraftPhase.PICK
-    updateInfo("Pick Phase", "Select your hero and confirm")
-    updateAllConfirmButtons()
-    updateAllRandomButtons()
-    startNextTurn()
+	phase = DraftPhase.PICK
+	updateInfo("Pick Phase", "Select your hero and confirm")
+	updateAllConfirmButtons()
+	updateAllRandomButtons()
+	startNextTurn()
 
 init
-    addHeroPickListener(new InfoUpdater())
-    addHeroSelectListener(new ConfirmButtonUpdater())
+	addHeroPickListener(new InfoUpdater())
+	addHeroSelectListener(new ConfirmButtonUpdater())
