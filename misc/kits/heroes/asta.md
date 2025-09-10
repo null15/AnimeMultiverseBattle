@@ -6,7 +6,7 @@
 
 ## G - Anti-Magic Flow
 - Whenever asta or an ally negates a spell effect (via W reflect, E seal, or T form), asta gains **Anti-Magic** Stacks.
-- Each stack grants bonus resistances.
+- Each stack grants bonus spell damage reduction.
 - At max stacks, his next ability is empowered (wider slash, stronger reflect, or stronger seal).
 
 ## Q - Demon-Slayer Sweep
@@ -15,7 +15,7 @@
 
 ## W - Demon-Destroyer Seal
 - Asta strikes a target with the demon-destroyer sword, creating a sealing slash.
-- Enemy hit is purged of buffs and receive a debuff: his damage dealt is reduced for a short duration.
+- Enemy hit is purged of buffs and dealt damage.
 - If cast on an ally, removes negative debuffs instead.
 
 ## E - Demon-Dweller Reflect
@@ -25,14 +25,12 @@
 
 ## R - Black Asta
 - Asta channels liebe’s anti-magic, entering his **Black Asta** form for a duration.
-- Gains bonus movement speed, attack range, and damage reduction.
 - Basic attacks fire anti-magic projectiles (short-range) that cancel enemy passives or damage reductions.
 - While active, W (reflect) absorbs multiple projectiles instead of just one.
 
 ## T - Devil Union: Anti-Magic Overdrive
 - Asta fully unites with liebe, entering **Devil Union** form for a short time.
-- Gains massive **HP** shield scaling with **Strength**.
-- **Q:** Wide aoe slash that also knocks back enemies.
+- **Q:** Wide aoe slash.
 - **W:** Reflects all spells in the area around asta instead of just one.
 - **E:** Seal becomes aoe, stripping buffs from everyone in range.
 - **R:** **Black Asta** automatically activates during **Devil Union**.

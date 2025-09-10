@@ -15,7 +15,7 @@
 
 ## Q - Black Kamehameha
 - Base: Beam attack that deals damage in a line
-- **Enhanced**: Beam becomes wider and slows enemies.
+- **Enhanced**: Beam becomes wider.
 
 ## W - Instant Transmission Strike
 - Teleports behind target enemy and strikes for damage
@@ -23,16 +23,15 @@
 
 ## E - Divine Marker
 - Places a divine energy marker at target location within range, granting small vision around the mark for 7 seconds. Recast to teleport instantly to the marked location
-- **Enhanced**: Teleporting creates aoe damage explosion at arrival point.
+- **Enhanced**: Teleporting creates aoe damage explosion at arrival point applying **bleeding** to enemies hit.
 
 ## R - God Slicer Dance  
 - Multiple ki blade strikes in target area over 3 seconds
-- **Enhanced**: Each slash reduces enemy healing. (Values to be discussed).
+- **Enhanced**: Each slash damage scales with each **bleeding** dots enemies have.
 
 ## T - Super Saiyan Rose 
 - Pink divine aura surrounds black.
 - All abilities gain extended range.
-- Immune to silence effects.
 - Combat experience builds 200% faster.
 - Enhanced effects active regardless of experience level.
 
