@@ -11,7 +11,7 @@ public class Transformation
 	IterableMap<int,int> swaps
 	unit bar
 	CallbackSingle cb
-	CallbackPeriodic cbPeriodic
+	CallbackCounted cbPeriodicBar
 
 	construct(unit actor, int newSkin, IterableMap<int,int> swaps, real duration)
 		this.actor = actor
@@ -26,11 +26,25 @@ public class Transformation
 
 		// Progress Bar
 		this.bar = createUnit(this.actor.getOwner(), PROGRESS_BAR_DUMMY, this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 400) : this.actor.getPos3Real().add(0, 0, 400), angle(270))
-		this.bar..setTimeScale(((1 / duration) * 100) * 0.01)..setVertexColor(this.actor.getOwner().getColor().toColor())
-
+		..setVertexColor(this.actor.getOwner().getColor().toColor())
+		..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
+		..setAnimation(100)
+		
 		// Timer Stuff
-		this.cbPeriodic = doPeriodically(0.032) (CallbackPeriodic cb) ->
-			this.bar.setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
+		this.cbPeriodicBar = doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
+			let progressLeft = (cb.getCount() * 0.032) / duration // 1.0 → 0.0
+			let clamped      = progressLeft > 1.0 ? 1.0 : (progressLeft < 0.0 ? 0.0 : progressLeft)
+			let value        = (100.0 * clamped).toInt()          // 100 → 0
+
+			this.bar
+				..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
+				..setAnimation(value)
+			print(value)
+			if cb.isLast()
+				this.bar.setAnimation(0)
+				this.bar.remove()
+				destroy this.cbPeriodicBar
+			
 		this.cb = doAfter(duration) ->
 			finish()
 
@@ -43,13 +57,14 @@ public class Transformation
 			this.bar.remove()
 			this.bar = null
 		this.cb = null
-		this.cbPeriodic = null
+		this.cbPeriodicBar = null
 		destroy this
 
 	ondestroy
 		if this.cb != null
 			destroy this.cb
-			destroy this.cbPeriodic
+		if this.cbPeriodicBar != null
+			destroy this.cbPeriodicBar
 		if this.bar != null
 			this.bar.remove()
 		destroy this.swaps
