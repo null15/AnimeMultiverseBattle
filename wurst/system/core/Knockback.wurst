@@ -2,8 +2,15 @@ package Knockback
 
 import Knockback3
 
-public function knockbackUnit(unit target, vec2 source, real distance, real duration)
-	let direction = (target.getPos() - source).norm()
-	let targetPos = target.getPos() + direction * distance
-	let groundSpeed = distance / duration
-	Knockback3.add(target, targetPos, groundSpeed)
+public class Knockback
+	static function apply(unit target, vec2 source, real distance, real duration)
+		let direction = (target.getPos() - source).norm()
+		let targetPos = target.getPos() + direction * distance
+		let groundSpeed = distance / duration
+		Knockback3.add(target, targetPos, groundSpeed)
+
+	static function applyWithSpeed(unit target, vec2 source, real distance, real speed)
+		if speed <= 0.
+			return
+		let duration = distance / speed
+		Knockback.apply(target, source, distance, duration)

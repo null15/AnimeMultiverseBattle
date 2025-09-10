@@ -13,9 +13,9 @@ function onCast()
 		let radius = 600.
 		forUnitsInRange(center, radius) (unit u) ->
 			if u != caster and u.isAlive() and not u.isType(UNIT_TYPE_STRUCTURE) and caster.isEnemyOf(u)
-				knockbackUnit(u, center, 500., 0.6)
+				Knockback.apply(u, center, 500., 0.6)
 				stunUnit(u, 0.5)
-		knockbackUnit(caster, center, 300., 0.4)
+			Knockback.apply(caster, center, 300., 0.4)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

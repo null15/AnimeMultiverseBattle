@@ -10,7 +10,7 @@ function onCast()
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
 		if target != null and target.isAlive() and not target.isType(UNIT_TYPE_STRUCTURE) and caster.isEnemyOf(target)
-			knockbackUnit(target, caster.getPos(), 400., 0.5)
+			Knockback.apply(target, caster.getPos(), 400., 0.5)
 			stunUnit(target, 1.)
 
 init

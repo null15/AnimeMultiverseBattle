@@ -6,54 +6,86 @@ import unitDefinitions
 import Entity
 
 public class Transformation
-	unit actor
-	int originalSkin
-	IterableMap<int,int> swaps
-	unit bar
-	CallbackCounted cbPeriodicBar
+    static HashMap<unit, Transformation> active = new HashMap<unit, Transformation>
+    unit actor
+    int originalSkin
+    IterableMap<int, int> swaps
+    unit bar
+    CallbackCounted cbPeriodicBar
+    // optional callback invoked when the transformation ends
+    Callback onFinish
+    bool finished
 
-	construct(unit actor, int newSkin, IterableMap<int,int> swaps, real duration)
-		this.actor = actor
-		this.swaps = swaps
-		this.originalSkin = BlzGetUnitSkin(this.actor)
+    construct(unit actor, int newSkin, IterableMap<int, int> swaps, real duration, Callback onFinish)
+        if active.has(actor)
+            active.get(actor).finish()
+        this.actor = actor
+        this.swaps = swaps
+        this.originalSkin = BlzGetUnitSkin(this.actor)
+        this.onFinish = onFinish
+        this.finished = false
+        active.put(actor, this)
+        BlzSetUnitSkin(this.actor, newSkin)
+        swaps.forEach((int baseAbil, int transAbil) -> begin
+            this.actor.removeAbility(baseAbil)
+            this.actor.addAbility(transAbil)
+        end)
+        this.bar = createUnit(this.actor.getOwner(), PROGRESS_BAR_DUMMY, this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 400) : this.actor.getPos3Real().add(0, 0, 400), angle(270))
+            ..setVertexColor(this.actor.getOwner().getColor().toColor())
+            ..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
+            ..setAnimation(100)
+        this.cbPeriodicBar = doPeriodicallyTimed(0.032, duration, (CallbackCounted cb) -> begin
+            let progressLeft = 1.0 - cb.progress()
+            let value = (100.0 * progressLeft).toInt()
+            this.bar
+                ..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
+                ..setAnimation(value)
+            if cb.isLast()
+                finish()
+        end)
 
-		// Unit Skin & Abilities
-		BlzSetUnitSkin(this.actor, newSkin)
-		swaps.forEach() (int baseAbil, int transAbil) ->
-			this.actor.removeAbility(baseAbil)
-			this.actor.addAbility(transAbil)
+    static function start(unit actor, int newSkin, IterableMap<int, int> swaps, real duration) returns Transformation
+        return Transformation.start(actor, newSkin, swaps, duration, null)
 
-		// Progress Bar
-		this.bar = createUnit(this.actor.getOwner(), PROGRESS_BAR_DUMMY, this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 400) : this.actor.getPos3Real().add(0, 0, 400), angle(270))
-		..setVertexColor(this.actor.getOwner().getColor().toColor())
-		..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
-		..setAnimation(100)
+    static function start(unit actor, int newSkin, IterableMap<int, int> swaps, real duration, Callback onFinish) returns Transformation
+        if actor == null or not actor.isAlive()
+            return null
+        return new Transformation(actor, newSkin, swaps, duration, onFinish)
 
-		// Timer Stuff
-		this.cbPeriodicBar = doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
-			let progressLeft = (1.0 - cb.progress())
-			let value = (100.0 * progressLeft).toInt()
-			this.bar
-			..setPosReal(this.actor.getEntity() != null ? this.actor.getEntity().getPos().add(0, 0, 300) : this.actor.getPos3Real().add(0, 0, 300))
-			..setAnimation(value)
-			if cb.isLast()
-				this.bar.setAnimation(0)
-				this.bar.remove()
-				this.cbPeriodicBar = null
-				finish()
+    function cancel()
+        finish()
 
-	function finish()
-		this.swaps.forEach() (int baseAbil, int transAbil) ->
-			this.actor.removeAbility(transAbil)
-			this.actor.addAbility(baseAbil)
-		BlzSetUnitSkin(this.actor, this.originalSkin)
-		destroy this
+    function finish()
+        if this.finished
+            return 
+        this.finished = true
+        if this.cbPeriodicBar != null
+            destroy this.cbPeriodicBar
+            this.cbPeriodicBar = null
+        if this.bar != null
+            this.bar.setAnimation(0)
+            this.bar.remove()
+            this.bar = null
+        this.swaps.forEach((int baseAbil, int transAbil) -> begin
+            this.actor.removeAbility(transAbil)
+            this.actor.addAbility(baseAbil)
+        end)
+        BlzSetUnitSkin(this.actor, this.originalSkin)
+        active.remove(this.actor)
+        if this.onFinish != null
+            this.onFinish.call()
+            this.onFinish = null
 
-	ondestroy
-		if this.cbPeriodicBar != null
-			destroy this.cbPeriodicBar
-			this.cbPeriodicBar = null
-		if this.bar != null
-			this.bar.remove()
-			this.bar = null
-		destroy this.swaps
+        destroy this
+
+    ondestroy
+        if this.cbPeriodicBar != null
+            destroy this.cbPeriodicBar
+            this.cbPeriodicBar = null
+        if this.bar != null
+            this.bar.remove()
+            this.bar = null
+        if active.has(this.actor)
+            active.remove(this.actor)
+
+        destroy this.swaps

@@ -15,7 +15,7 @@ function onCast()
 		swaps.put(ALL_MIGHT_Q, ALL_MIGHT_Q_T)
 		swaps.put(ALL_MIGHT_E, ALL_MIGHT_E_T)
 		swaps.put(ALL_MIGHT_D, ALL_MIGHT_D_T)
-		new Transformation(caster, ALL_MIGHT_POWER_SKIN, swaps, 10.)
+		Transformation.start(caster, ALL_MIGHT_POWER_SKIN, swaps, 10.)
 
 		// dummybar = CreateNUnitsAtLoc( 1, PROGRESS_BAR_DUMMY, GetOwningPlayer(caster), Location(caster.getX(), caster.getY()), 270.00 ).get(0)
 		// dummybar = CreateUnit(caster.getOwner(), PROGRESS_BAR_DUMMY, caster.getX(), caster.getY(), 270)
