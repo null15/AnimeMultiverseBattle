@@ -1,51 +1,17 @@
 package Pull
 
-import ClosureTimers
-import TerrainUtils
-
-constant real PULL_PERIOD = 1./ 40.
-
-class PullEffect
-    unit target
-    vec2 source
-    real speed
-    real traveled = 0.
-    real maxDistance
-    CallbackPeriodic cb
-
-    construct(unit target, vec2 source, real distance, real duration)
-        this.target = target
-        this.source = source
-        maxDistance = distance
-        speed = distance / duration
-        cb = doPeriodically(PULL_PERIOD, (_) -> move())
-
-    function move()
-        if not target.isAlive()
-            destroy this
-        else
-            let currentPos = target.getPos()
-            let toSource = source - currentPos
-            let distToSource = toSource.length()
-            let remaining = maxDistance - traveled
-            if distToSource <= 0.or remaining <= 0.
-                destroy this
-            else
-                var stp = speed * PULL_PERIOD
-                if stp > remaining
-                    stp = remaining
-                if stp > distToSource
-                    stp = distToSource
-                let nextPos = currentPos + toSource.norm() * stp
-                if nextPos.isTerrainWalkable()
-                    target.setPos(nextPos)
-                    traveled += stp
-                else
-                    destroy this
-
-    ondestroy
-        if cb != null
-            destroy cb
+import Knockback3
 
 public function pullUnit(unit target, vec2 source, real distance, real duration)
-    new PullEffect(target, source, distance, duration)
+    if not target.isAlive()
+        return
+    let toSource = source - target.getPos()
+    var moveDist = distance
+    let distToSource = toSource.length()
+    if distToSource < moveDist
+        moveDist = distToSource
+    if moveDist > 0.
+        let direction = toSource.norm()
+        let targetPos = target.getPos() + direction * moveDist
+        let groundSpeed = moveDist / duration
+        Knockback3.add(target, targetPos, groundSpeed)
