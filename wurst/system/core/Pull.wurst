@@ -1,6 +1,6 @@
 package Pull
 
-import Knockback3
+import ClosureTimers
 
 public function pullUnit(unit target, vec2 source, real distance, real duration)
     if not target.isAlive()
@@ -11,7 +11,11 @@ public function pullUnit(unit target, vec2 source, real distance, real duration)
     if distToSource < moveDist
         moveDist = distToSource
     if moveDist > 0.
+        let startPos = target.getPos()
         let direction = toSource.norm()
-        let targetPos = target.getPos() + direction * moveDist
-        let groundSpeed = moveDist / duration
-        Knockback3.add(target, targetPos, groundSpeed)
+        let finalPos = startPos + direction * moveDist
+        doPeriodicallyTimed(0.032, duration) (CallbackCounted cb) ->
+            target.setPos(startPos + direction * (moveDist * cb.progress()))
+            if cb.isLast()
+                target.setPos(finalPos)
+                destroy cb
