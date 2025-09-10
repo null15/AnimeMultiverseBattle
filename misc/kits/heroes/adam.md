@@ -6,19 +6,16 @@
 
 ## G - First Man
 - Adam deals bonus damage to Gods/Demi-god/Myth tagged heroes.
-- If adam is near a **Forbidden Apple** he gains a big lifesteal bonus.
-- If a **Forbidden Apple** comes into contact with any **Water** source, it grows bigger and roots nearby enemies.
-- If a **Forbidden Apple** comes into contact with any **Fire** source, it melts and nearby enemies take damage scalling with their max **HP**.
+- Everytime adam damages an enemy hero, the cd on the copied skill is slightly reduced.
 
 ## Q - Forbidden Apple
 - Adam throws the **Forbidden Apple** to a target location and damages enemies.
 - The apple remains for a duration.
-- Enemies near the apple are slightly slowed.
-- If adam casts an ability while near the apple, it bursts, dealing aoe damage and healing adam slightly.
+- If adam casts an ability while near the apple, it bursts, dealing aoe damage.
 
 ## W - Divine Jab
 - Adam delivers a lightning-fast punch to a target.
-- If used on an enemy near the **Forbidden Apple**, the enemy is stunned and dealt true damage.
+- If used on an enemy near the **Forbidden Apple**, the enemy is stunned.
 
 ## E - Inherited Eye
 - Adam activates his godlike eyes, copying an enemy’s technique.
@@ -27,18 +24,12 @@
 - After casting, it reverts back to **Inherited Eye (E)**.
 
 ## R - Divine Reflection
-- **Passive:** Adam gains bonus attack speed.
-- **Active:** Adam instantly dodges the next enemy ability/projectile and counterattacks.
-- Counterattack deals damage equal to the ability blocked + adam’s attack damage.
-- If triggered near a **Forbidden Apple**, the target's armor is reduced.
+- Adam instantly moves to the enemy on the next damage instance taken (does not block any damage, if adam dies it doesnt fire).
+- If triggered near a **Forbidden Apple** target takes damage again.
 
 ## T - God’s Rebellion
 - Adam unleashes his full fury.
-- Adam gains massive attack speed and lifesteal.
-- While active, every third attack deals bonus true damage scaling with adam's attack damage.
-- Adam takes 2% less damage from all sources.
-- After the duration, adam takes minor self-damage.
-- if a **Forbidden Apple** is nearby when this ability is cast, Adam restores 30% of his **HP**.
+- While active, every third attack automatically uses the last copied ability.
 - If the duration ends while a **Forbidden Apple** is nearby, adam unleashes a tantrum and enemies take damage.
 
 ---

@@ -15,27 +15,27 @@
 
 ## W - Temporal Rend
 - Cronus rips apart the timeline of a single enemy.
-- Enemy takes **true damage**.
-- If the target is under **Time Scar**, the ability briefly silences the target.
-- **Enhanced**: Can execute **low HP** enemies.
+- Enemy takes damage.
+- If the target is under **Time Scar**, damage scales with the amount of **slow** debuffs target has.
+- **Enhanced**: Target cannot gain/increase its movement speed.
 
 ## E - Pause of Providence
 - Cronus manipulates time to stop its flow.
 - **On ally/self**: Places in stasis (immune, cannot act for 2 seconds). If used on ally cronus is slowed by 30%.
-- **On enemy**: Reduces attack speed and movement speed massively for 3 seconds.
+- **On enemy**: Reduces enemy movement speed massively for 3 seconds.
 - **Enhanced**: **On ally/self**: Cronus doesnt get slowed.
-- **Enhanced**: **On enemy**: Slow becomes a root.
+- **Enhanced**: **On enemy**: Slow is stronger.
 
 ## R - God Maximum Time Break
 - Cronus fires a medium sized green lightning saw dealing huge damage.
-- Damage scales harder against **single targets**.
+- Damage scales harder against **slowed** enemies.
 - **Enhanced**: If enemies are under **Pause World**, they take additional bonus damage.
 
 ## T - Pause World
 - Cronus activates his rider power to pause the battlefield.
 - Freezes all units in a radius for 1.5 seconds (they are unaffected by damage until it ends, can be used to set up fights or escapes).
-- When the pause ends, cronus and his nearby allies gain bonus attack speed and movement speed for 4 seconds.
-- At the end enemies are still recovering from the pause, and are slowed by 5%.
+- At the end enemies that were hit take damage.
+- For each **slowed** enemy hit, damage increases.
 
 ---
 
