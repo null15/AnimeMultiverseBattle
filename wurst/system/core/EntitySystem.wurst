@@ -14,7 +14,6 @@ public class HeroEntity extends UnitEntity
 	CallbackSingle pauseCb = null
 
 	construct(unit actor)
-		// super takes care of linking the unit with the entity
 		super(actor)
 
 	function pauseTimed(real duration)
