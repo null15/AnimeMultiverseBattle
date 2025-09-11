@@ -7,7 +7,7 @@ import objectIDs
 import RegisterEvents
 
 function onCast()
-	if GetSpellAbilityId() == ALL_MIGHT_PAUSE_BASE
+	if GetSpellAbilityId() == ALL_MIGHT_PAUSE1
 		let caster = GetTriggerUnit()
 		let center = vec2(GetSpellTargetX(), GetSpellTargetY())
 		let radius = 600.

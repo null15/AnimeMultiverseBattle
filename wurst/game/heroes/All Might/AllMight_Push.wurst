@@ -4,7 +4,7 @@ import objectIDs
 import RegisterEvents
 
 function onCast()
-	if GetSpellAbilityId() == ALL_MIGHT_PUSH_BASE
+	if GetSpellAbilityId() == ALL_MIGHT_PUSH1
 		skip
 
 init
