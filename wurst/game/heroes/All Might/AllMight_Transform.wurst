@@ -9,7 +9,7 @@ function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_TRANSFORM
 		let caster = GetTriggerUnit()
 		let swaps = new IterableMap<int,int>()
-		swaps.put(ALL_MIGHT_MISSILE, ALL_MIGHT_PLACEHOLDER0)
+		swaps.put(ALL_MIGHT_MISSILE1, ALL_MIGHT_PLACEHOLDER0)
 		swaps.put(ALL_MIGHT_PULL, ALL_MIGHT_PLACEHOLDER1)
 		swaps.put(ALL_MIGHT_PUSH, ALL_MIGHT_PLACEHOLDER2)
 		swaps.put(ALL_MIGHT_PAUSE, ALL_MIGHT_PLACEHOLDER3)

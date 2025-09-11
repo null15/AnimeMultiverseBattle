@@ -7,6 +7,7 @@ import LinkedList
 import DraftChat
 import ChatSystem
 import EntitySystem
+import Hero
 
 public framehandle array team1BanSlots
 public framehandle array team2BanSlots
@@ -294,7 +295,7 @@ function spawnHeroes()
 	for i = 0 to 9
 		let hid = heroPicked.get(i)
 		if hid != 0
-			new HeroEntity(createUnit(players[i], hid, vec2(0, 0))..setLevel(10, false))
+			Hero.create(players[i], hid, vec2(0, 0))..setLevel(10, false)
 	frentityInit()
 
 public function startDraft()

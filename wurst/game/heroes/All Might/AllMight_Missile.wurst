@@ -22,7 +22,7 @@ function drawCone(vec3 fromWhere, angle coneOrientation, angle coneAngle, real r
 	drawConeEdge(fromWhere, coneOrientation + coneAngle, range)
 
 function onCast()
-	if GetSpellAbilityId() == ALL_MIGHT_MISSILE
+	if GetSpellAbilityId() == ALL_MIGHT_MISSILE1
 		// Unit Variables
 		let caster = GetTriggerUnit()
 		let casterEntity = caster.getEntity()

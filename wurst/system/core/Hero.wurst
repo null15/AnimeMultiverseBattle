@@ -1,0 +1,28 @@
+package Hero
+
+import EntitySystem
+
+public class Hero
+	static Hero array heroes
+	unit actor
+	HeroEntity entity
+
+	construct(unit actor)
+		this.actor = actor
+		this.entity = new HeroEntity(actor)
+		heroes[actor.getOwner().getId()] = this
+
+	static function create(player owner, int unitId, vec2 pos) returns unit
+		let u = createUnit(owner, unitId, pos)
+		new Hero(u)
+		return u
+
+	static function get(int pid) returns unit
+		let h = heroes[pid]
+		return h != null ? h.actor : null
+
+	ondestroy
+		if entity != null
+			destroy entity
+
+init
