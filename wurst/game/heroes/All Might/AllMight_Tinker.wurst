@@ -5,14 +5,14 @@ import Hero
 import objectIDs
 
 init
-    EventListener.add(EVENT_PLAYER_CHAT_FILTER) -> 
-        if EventData.getChatMessage() == "1"
-            let p = EventData.getTriggerPlayer()
-            let u = Hero.get(p.getId())
-            print("Tinkering Upgrade for "+Hero.get(p.getId()).getName())
-            u.setAbilityLevel(ALL_MIGHT_TINKER_UPG, 1)
-        if EventData.getChatMessage() == "1"
-            let p = EventData.getTriggerPlayer()
-            let u = Hero.get(p.getId())
-            print("Tinkering Upgrade for "+Hero.get(p.getId()).getName())
-            u.setAbilityLevel(ALL_MIGHT_TINKER_UPG, 1)
+	EventListener.add(EVENT_PLAYER_CHAT_FILTER) -> 
+		if EventData.getChatMessage() == "1"
+			let p = EventData.getTriggerPlayer()
+			let u = Hero.get(p.getId())
+			print("Tinkering Upgrade for "+Hero.get(p.getId()).getName())
+			u.setAbilityLevel(ALL_MIGHT_TINKER_UPG, 1)
+		if EventData.getChatMessage() == "2"
+			let p = EventData.getTriggerPlayer()
+			let u = Hero.get(p.getId())
+			print("Tinkering Upgrade for "+Hero.get(p.getId()).getName())
+			u.setAbilityLevel(ALL_MIGHT_TINKER_UPG, 2)
