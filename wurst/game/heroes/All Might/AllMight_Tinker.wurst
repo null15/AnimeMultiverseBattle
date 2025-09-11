@@ -10,9 +10,11 @@ init
 			let p = EventData.getTriggerPlayer()
 			let u = Hero.get(p.getId())
 			print("Tinkering Upgrade for "+Hero.get(p.getId()).getName())
-			u.setAbilityLevel(ALL_MIGHT_TINKER_UPG, 1)
+			u.setAbilityLevel(ALL_MIGHT_SWAPPER1, 1)
+			u.setAbilityLevel(ALL_MIGHT_SWAPPER2, 1)
 		if EventData.getChatMessage() == "2"
 			let p = EventData.getTriggerPlayer()
 			let u = Hero.get(p.getId())
 			print("Tinkering Upgrade for "+Hero.get(p.getId()).getName())
-			u.setAbilityLevel(ALL_MIGHT_TINKER_UPG, 2)
+			u.setAbilityLevel(ALL_MIGHT_SWAPPER1, 2)
+			u.setAbilityLevel(ALL_MIGHT_SWAPPER2, 2)

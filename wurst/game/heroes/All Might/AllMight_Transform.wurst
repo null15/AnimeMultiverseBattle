@@ -6,14 +6,9 @@ import Transformation
 import RegisterEvents
 
 function onCast()
-	if GetSpellAbilityId() == ALL_MIGHT_TRANSFORM
+	if GetSpellAbilityId() == ALL_MIGHT_TRANSFORM_BASE
 		let caster = GetTriggerUnit()
 		let swaps = new IterableMap<int,int>()
-		swaps.put(ALL_MIGHT_MISSILE1, ALL_MIGHT_PLACEHOLDER0)
-		swaps.put(ALL_MIGHT_PULL, ALL_MIGHT_PLACEHOLDER1)
-		swaps.put(ALL_MIGHT_PUSH, ALL_MIGHT_PLACEHOLDER2)
-		swaps.put(ALL_MIGHT_PAUSE, ALL_MIGHT_PLACEHOLDER3)
-		swaps.put(ALL_MIGHT_TRANSFORM, ALL_MIGHT_PLACEHOLDER4)
 		Transformation.start(caster, ALL_MIGHT_POWER_SKIN, swaps, 10.)
 
 init

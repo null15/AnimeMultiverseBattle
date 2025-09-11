@@ -1,11 +1,11 @@
 package AllMight_Placeholder3
 
-import objectIDs
-import RegisterEvents
+// import objectIDs
+// import RegisterEvents
 
 function onCast()
-	if GetSpellAbilityId() == ALL_MIGHT_PLACEHOLDER3
+// 	if GetSpellAbilityId() == ALL_MIGHT_PLACEHOLDER3
 		skip
 
 init
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
+	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
