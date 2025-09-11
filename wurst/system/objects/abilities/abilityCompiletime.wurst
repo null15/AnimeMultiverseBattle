@@ -272,13 +272,3 @@ import objectIDs
 	..presetCooldown(lvl -> 1)
 	..presetButtonPosNormal(3, 1)
 	registerElementalSpell(Element.LIGHTNING, ALL_MIGHT_TRANSFORM2)
-
-	new AbilityDefinitionBearform(ALL_MIGHT_BEARFORM)
-	..setRequirements("_")
-	..presetManaCost(lvl -> 0)
-	..setRequirementsLevels("_")
-	..presetDurationHero(lvl -> 0)
-	..presetDurationNormal(lvl -> 0)
-	..setName("All Might to All Might Evo")
-	..presetNormalFormUnit(lvl -> commaList(ALL_MIGHT_EVO))
-	..presetAlternateFormUnit(lvl -> commaList(ALL_MIGHT))

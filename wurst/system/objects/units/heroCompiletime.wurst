@@ -678,22 +678,6 @@ function makeHero(
 		0, 450, "", 0)
 
 	makeHero(
-		ALL_MIGHT_EVO, UnitIds.paladin,
-		Icons.bTNFootman, "All Might Evo", "Symbol of Peace",
-		"Smiles in the face of danger with overwhelming power.",
-		Units.theCaptain1, 1.15,
-		32, 3.8,
-		20, 2.0,
-		12, 1.0,
-		920, 4.2,
-		120, 180, 1.2,
-		4, 1,
-		commaList(AbilityIds.inventory),
-		commaList("_"),
-		40, 150, "", 0,
-		0, 450, "", 0)
-
-	makeHero(
 		OCHACO_URARAKA, UnitIds.paladin,
 		Icons.bTNFootman, "Ochaco Uraraka", "Zero Gravity",
 		"Turns foes weightless while aiding allies.",
