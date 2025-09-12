@@ -58,6 +58,8 @@ function makeHero(
 	..setNameEditorSuffix("")
 	// Death type: 1 = Does not decay (hero-like corpses)
 	..setDeathType(1)
+	..setAnimationCastBackswing(0)
+	..setAnimationCastPoint(0)
 	..setCanFlee(true)
 	// Attacks
 	..setAttacksEnabled(3) // 1=A1, 2=A2, 3=both
