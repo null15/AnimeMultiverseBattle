@@ -43,11 +43,12 @@ public class Pull
 		if this.finished
 			return
 		this.finished = true
-		this.actor.setPathing(true)
+		if this.actor != null
+			this.actor.setPathing(true)
+			active.remove(this.actor)
 		if this.cb != null
 			destroy this.cb
 			this.cb = null
-		active.remove(this.actor)
 		destroy this
 
 	static function toUnit(unit target, unit source, real stopRange, real speed) returns Pull
