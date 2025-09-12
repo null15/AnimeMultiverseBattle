@@ -1,4 +1,65 @@
 package Pull
 
+import ClosureTimers
+import HashMap
+
 public class Pull
-	// Apply Pull Mechanic
+	static HashMap<unit, Pull> active = new HashMap<unit, Pull>
+
+	unit actor
+	vec2 destination
+	real stopRange
+	real speed
+	CallbackPeriodic cb
+	bool finished
+
+	construct(unit actor, vec2 destination, real stopRange, real speed)
+		if active.has(actor)
+			active.get(actor).stop()
+		this.actor = actor
+		this.destination = destination
+		this.stopRange = stopRange
+		this.speed = speed
+		this.finished = false
+		this.actor.setPathing(false)
+		active.put(actor, this)
+		this.cb = doPeriodically(0.03125) (CallbackPeriodic c) ->
+			this.update()
+
+	function update()
+		if this.actor == null or not this.actor.isAlive()
+			stop()
+			return
+		let currentPos = this.actor.getPos()
+		let diff = this.destination - currentPos
+		let dist = diff.length()
+		if dist <= this.stopRange
+			stop()
+			return
+		let iter = diff.norm() * this.speed * 0.03125
+		this.actor.setPos(currentPos + iter)
+
+	function stop()
+		if this.finished
+			return
+		this.finished = true
+		this.actor.setPathing(true)
+		if this.cb != null
+			destroy this.cb
+			this.cb = null
+		active.remove(this.actor)
+		destroy this
+
+	static function toUnit(unit target, unit source, real stopRange, real speed) returns Pull
+		if target == null or source == null
+			return null
+		return new Pull(target, source.getPos(), stopRange, speed)
+
+	static function toPoint(unit target, vec2 point, real stopRange, real speed) returns Pull
+		if target == null
+			return null
+		return new Pull(target, point, stopRange, speed)
+
+	ondestroy
+		this.actor = null
+		this.cb = null
