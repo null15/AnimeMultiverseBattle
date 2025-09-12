@@ -1,30 +1,4 @@
 package Pull
 
-import Knockback3
-
 public class Pull
-	static function apply(unit target, vec2 source, real distance, real duration)
-		if duration <= 0.
-			return
-		let offset = source - target.getPos()
-		let maxDist = offset.length()
-		if maxDist <= 0.
-			return
-		let direction = offset.norm()
-		let travel = distance > maxDist ? maxDist : distance
-		let targetPos = target.getPos() + direction * travel
-		let groundSpeed = travel / duration
-		Knockback3.add(target, targetPos, groundSpeed)
-
-	static function applyWithSpeed(unit target, vec2 source, real distance, real speed)
-		if speed <= 0.
-			return
-		let duration = distance / speed
-		Pull.apply(target, source, distance, duration)
-
-	static function toCaster(unit target, unit caster, real speed)
-		if speed <= 0.
-			return
-		let source = caster.getPos()
-		let distance = (source - target.getPos()).length()
-		Pull.applyWithSpeed(target, source, distance, speed)
+	// Apply Pull Mechanic

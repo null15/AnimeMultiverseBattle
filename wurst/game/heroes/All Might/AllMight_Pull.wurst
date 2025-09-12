@@ -1,21 +1,20 @@
 package AllMight_Pull
 
-import objectIDs
+// import objectIDs
 import RegisterEvents
-import Pull
-import ClosureForGroups
+// import ClosureForGroups
 
 function onCast()
-	if GetSpellAbilityId() == ALL_MIGHT_PULL1
-		let caster = GetTriggerUnit()
-		Pull.apply(GetSpellTargetUnit(), caster.getPos(), 600, 1)
-		print("Pulling target: " + GetSpellTargetUnit().getName())
-	if  GetSpellAbilityId() == ALL_MIGHT_PULL2
-		let caster = GetTriggerUnit()
-		forUnitsInRange(EventData.getSpellTargetPos(), 600) (unit u) ->
-			if caster.isEnemyOf(u)
-				Pull.applyWithSpeed(u, EventData.getSpellTargetPos(), 300, 300)
-		print("Pulling AoE")
+	// if GetSpellAbilityId() == ALL_MIGHT_PULL1
+		// let caster = GetTriggerUnit()
+		// Pull. ST
+		// print("Pulling target: " + GetSpellTargetUnit().getName())
+	// if  GetSpellAbilityId() == ALL_MIGHT_PULL2
+		// let caster = GetTriggerUnit()
+		// forUnitsInRange(EventData.getSpellTargetPos(), 600) (unit u) ->
+			// if caster.isEnemyOf(u)
+			// Pull. AoE
+		// print("Pulling AoE")
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
