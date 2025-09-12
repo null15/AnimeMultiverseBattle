@@ -127,7 +127,7 @@ import objectIDs
 	..setTooltipNormalExtended(1, "Knocks a target back and stuns. (Evo)")
 	..presetIcon(Icons.bTNStormBolt)
 	..setHeroAbility(true)
-	..presetTargetTypes(Targettype.UNIT)
+	..presetTargetTypes(Targettype.POINT)
 	..presetManaCost(lvl -> 1)
 	..setHotkeyLearn("W")
 	..setHotkeyNormal("W")

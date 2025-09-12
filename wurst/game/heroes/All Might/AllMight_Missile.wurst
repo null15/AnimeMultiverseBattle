@@ -12,7 +12,7 @@ function drawConeEdge(vec3 fromWhere, angle coneOrientation, real range)
 	// simple missile along one cone edge
 	let toWhere = fromWhere.toVec2().polarOffset(coneOrientation, range).withZ(fromWhere.z)
 	let m = new Missiles(fromWhere, toWhere)
-	m.setModel(Abilities.arrowMissile1)
+	m.setModel(Abilities.fireBallMissile)
 	m.setSpeed(800.)
 	m.launch()
 
@@ -32,9 +32,15 @@ function onCast()
 		// Second expression is the one after ":", so: caster.getPos3Real()
 		let casterPosZ = casterEntity != null ? casterEntity.getPos() : caster.getPos3Real()
 		let casterPos = casterPosZ.toVec2()
-		let coneOrientation = casterPos.angleTo(EventData.getSpellTargetPos())
+
 		let range = 900.
+		let coneOrientation = casterPos.angleTo(EventData.getSpellTargetPos())		
 		let coneAngle = coneAngle(30)
+
+		new Missiles(casterPosZ, EventData.getSpellTargetPos().toVec3().add(0, 0, 50))
+		..setModel(Abilities.cannonTowerMissile)
+		..setSpeed(1200)
+		..launch()
 
 		drawCone(casterPosZ, coneOrientation, coneAngle, range)
 		forUnitsInRange(casterPos, range) (unit u) ->
