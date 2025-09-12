@@ -2,22 +2,25 @@ package Pull
 
 import ClosureTimers
 import HashMap
+import TerrainUtils
 
 public class Pull
 	static HashMap<unit, Pull> active = new HashMap<unit, Pull>
 
 	unit actor
 	vec2 destination
+	unit destinationUnit
 	real stopRange
 	real speed
 	CallbackPeriodic cb
 	bool finished
 
-	construct(unit actor, vec2 destination, real stopRange, real speed)
+	construct(unit actor, vec2 destination, real stopRange, real speed, unit destinationUnit)
 		if active.has(actor)
 			active.get(actor).stop()
 		this.actor = actor
 		this.destination = destination
+		this.destinationUnit = destinationUnit
 		this.stopRange = stopRange
 		this.speed = speed
 		this.finished = false
@@ -30,6 +33,11 @@ public class Pull
 		if this.actor == null or not this.actor.isAlive()
 			stop()
 			return
+		if this.destinationUnit != null
+			if not this.destinationUnit.isAlive()
+				stop()
+				return
+			this.destination = this.destinationUnit.getPos()
 		let currentPos = this.actor.getPos()
 		let diff = this.destination - currentPos
 		let dist = diff.length()
@@ -37,7 +45,11 @@ public class Pull
 			stop()
 			return
 		let iter = diff.norm() * this.speed * 0.03125
-		this.actor.setPos(currentPos + iter)
+		let nextPos = currentPos + iter
+		if not nextPos.isTerrainWalkable()
+			stop()
+			return
+		this.actor.setPos(nextPos)
 
 	function stop()
 		if this.finished
@@ -54,13 +66,14 @@ public class Pull
 	static function toUnit(unit target, unit source, real stopRange, real speed) returns Pull
 		if target == null or source == null
 			return null
-		return new Pull(target, source.getPos(), stopRange, speed)
+		return new Pull(target, source.getPos(), stopRange, speed, source)
 
 	static function toPoint(unit target, vec2 point, real stopRange, real speed) returns Pull
 		if target == null
 			return null
-		return new Pull(target, point, stopRange, speed)
+		return new Pull(target, point, stopRange, speed, null)
 
 	ondestroy
 		this.actor = null
 		this.cb = null
+		this.destinationUnit = null
