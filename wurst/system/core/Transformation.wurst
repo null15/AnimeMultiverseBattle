@@ -5,10 +5,6 @@ import HashMap
 import Entity
 import objectIDs
 
-// Needs more work. Look into Tinkers Engineering. https://www.hiveworkshop.com/threads/engineering-upgrade.302459/
-// Why more work? because when all spells maxed, its fine. Maybe be able to set ability back to original level later when evo over.
-// Or try tinker engineering way.
-
 public class Transformation
 	static HashMap<unit, Transformation> active = new HashMap<unit, Transformation>
 	unit actor
