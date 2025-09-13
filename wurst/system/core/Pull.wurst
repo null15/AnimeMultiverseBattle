@@ -2,7 +2,8 @@ package Pull
 
 import ClosureTimers
 import HashMap
-import TerrainUtils
+import EntitySystem
+import EntityManagement
 
 public class Pull
 	static HashMap<unit, Pull> active = new HashMap<unit, Pull>
@@ -33,7 +34,7 @@ public class Pull
 		if this.actor == null or not this.actor.isAlive()
 			stop()
 			return
-		if this.actor.isPaused()
+		if this.actor.isPausedTimed()
 			return
 		if this.destinationUnit != null
 			if not this.destinationUnit.isAlive()
