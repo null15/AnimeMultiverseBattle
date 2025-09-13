@@ -4,7 +4,7 @@ import EntityManagement
 import ClosureTimers
 import HashMap
 
-let unitPauseTimers = new HashMap<unit, CallbackSingle>()
+let unitPauseTimers = new HashMap<unit, LinkedList<CallbackSingle>>()
 
 /** Entity Wrapper for our Objects. With this, we're able to accurately keep track of our object data.
 * For example, pause relative and pause absolute, we can accurately keep this information accurate, allowing two types of pauses to co-exist.
@@ -12,31 +12,31 @@ let unitPauseTimers = new HashMap<unit, CallbackSingle>()
 */
 public class UnitsEntity extends UnitEntity
 	boolean paused = false
-	boolean basicPaused = false
-	boolean absPaused = false
-	CallbackSingle pauseCb = null
-	CallbackSingle absPauseCb = null
+	int basicPauseCount = 0
+	int absPauseCount = 0
+	LinkedList<CallbackSingle> pauseCbs = new LinkedList<CallbackSingle>()
+	LinkedList<CallbackSingle> absPauseCbs = new LinkedList<CallbackSingle>()
 
 	construct(unit actor)
 		super(actor)
 
 	function pauseTimed(real duration, boolean absolute)
 		if absolute
-			absPaused = true
-			if absPauseCb != null
-				destroy absPauseCb
-			absPauseCb = doAfter(duration) ->
-				absPauseCb = null
-				absPaused = false
+			absPauseCount += 1
+			CallbackSingle cb = null
+			cb = doAfter(duration) ->
+				absPauseCbs.remove(cb)
+				absPauseCount -= 1
 				this.updatePause()
+			absPauseCbs.add(cb)
 		else
-			basicPaused = true
-			if pauseCb != null
-				destroy pauseCb
-			pauseCb = doAfter(duration) ->
-				pauseCb = null
-				basicPaused = false
+			basicPauseCount += 1
+			CallbackSingle cb = null
+			cb = doAfter(duration) ->
+				pauseCbs.remove(cb)
+				basicPauseCount -= 1
 				this.updatePause()
+			pauseCbs.add(cb)
 		if not paused
 			actor.pause()
 			paused = true
@@ -45,33 +45,33 @@ public class UnitsEntity extends UnitEntity
 		pauseTimed(duration, false)
 
 	function resume()
-		basicPaused = false
-		absPaused = false
+		for cb in pauseCbs
+			destroy cb
+		pauseCbs.clear()
+		for cb in absPauseCbs
+			destroy cb
+		absPauseCbs.clear()
+		basicPauseCount = 0
+		absPauseCount = 0
 		updatePause()
 
 	function updatePause()
-		if not basicPaused and not absPaused
+		if basicPauseCount == 0 and absPauseCount == 0
 			if paused
 				actor.unpause()
 				paused = false
-			if pauseCb != null
-				destroy pauseCb
-				pauseCb = null
-			if absPauseCb != null
-				destroy absPauseCb
-				absPauseCb = null
 
 	function isPaused() returns boolean
-		return basicPaused or absPaused
+		return basicPauseCount > 0 or absPauseCount > 0
 
 	function isAbsPaused() returns boolean
-		return absPaused
+		return absPauseCount > 0
 
 	ondestroy
-		if pauseCb != null
-			destroy pauseCb
-		if absPauseCb != null
-			destroy absPauseCb
+		for cb in pauseCbs
+			destroy cb
+		for cb in absPauseCbs
+			destroy cb
 
 public function unit.pauseTimed(real duration, boolean absolute)
 	let u = this.getEntity() castTo UnitsEntity
@@ -79,13 +79,17 @@ public function unit.pauseTimed(real duration, boolean absolute)
 		u.pauseTimed(duration, absolute)
 	else
 		this.pause()
-		if unitPauseTimers.has(this)
-			let old = unitPauseTimers.get(this)
-			destroy old
-		let cb = doAfter(duration) ->
-			this.unpause()
-			unitPauseTimers.remove(this)
-		unitPauseTimers.put(this, cb)
+		var list = unitPauseTimers.get(this)
+		if list == null
+			list = new LinkedList<CallbackSingle>()
+			unitPauseTimers.put(this, list)
+		CallbackSingle cb = null
+		cb = doAfter(duration) ->
+			list.remove(cb)
+			if list.size() == 0
+				this.unpause()
+				unitPauseTimers.remove(this)
+		list.add(cb)
 
 public function unit.pauseTimed(real duration)
 	this.pauseTimed(duration, false)
@@ -95,9 +99,10 @@ public function unit.clearTimedPause()
 	if u != null
 		u.resume()
 	else
-		if unitPauseTimers.has(this)
-			let cb = unitPauseTimers.get(this)
-			destroy cb
+		let list = unitPauseTimers.get(this)
+		if list != null
+			for cb in list
+				destroy cb
 			unitPauseTimers.remove(this)
 		if this.isPaused()
 			this.unpause()
@@ -146,5 +151,4 @@ public class Unit
 			units[uniqueID] = null
 
 public function frentityInit()
-	// Start the global entity update loop
 	startEntityLoop()
