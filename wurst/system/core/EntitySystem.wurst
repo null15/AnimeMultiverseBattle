@@ -132,7 +132,8 @@ public class Unit
 		if units[uniqueID].actor == null
 			units[uniqueID] = this
 		else
-			printLog(Loglevel.ERROR, "Attempted to index over another unit. Index: (" + this.uniqueID.toString() + "). Unit: ("+this.actor.getName()+")")
+			printLog(Loglevel.ERROR, "Attempted to index over another unit.\nYou tried to index |cffff0000Unit|r (|cffffd900" +
+			this.actor.getName() + ", " + uniqueID.toString() + "|r) over |cffff0000Unit|r (|cffffd700" + units[uniqueID].actor.getName() + ", " + uniqueID.toString() + "|r)")
 
 	static function create(player owner, int unitId, vec2 pos, int uniqueID) returns unit
 		let u = createUnit(owner, unitId, pos)

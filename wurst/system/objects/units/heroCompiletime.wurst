@@ -27,7 +27,7 @@ function makeHero(
 	int attack2DamageBase, int attack2Range, string attack2ProjectileArt, int attack2ProjectileSpeed)
 	let h = new HeroDefinition(heroID, baseID)
 	..setIconGameInterface(icon)..setIconScoreScreen(icon)
-	..setName("|cffd8e43a" + displayName)
+	..setName(displayName)
 	..setProperNames(properName)
 	..setDescription(description)
 	..setModelFile(model)..setScalingValue(modelScale)
