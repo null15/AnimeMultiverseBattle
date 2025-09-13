@@ -73,9 +73,9 @@ public class UnitsEntity extends UnitEntity
 			destroy absPauseCb
 
 public function unit.pauseTimed(real duration, boolean absolute)
-	let he = this.getEntity() castTo UnitsEntity
-	if he != null
-		he.pauseTimed(duration, absolute)
+	let u = this.getEntity() castTo UnitsEntity
+	if u != null
+		u.pauseTimed(duration, absolute)
 	else
 		this.pause()
 		if unitPauseTimers.has(this)
@@ -90,9 +90,9 @@ public function unit.pauseTimed(real duration)
 	this.pauseTimed(duration, false)
 
 public function unit.clearTimedPause()
-	let he = this.getEntity() castTo UnitsEntity
-	if he != null
-		he.resume()
+	let u = this.getEntity() castTo UnitsEntity
+	if u != null
+		u.resume()
 	else
 		if unitPauseTimers.has(this)
 			let cb = unitPauseTimers.get(this)
@@ -102,15 +102,15 @@ public function unit.clearTimedPause()
 			this.unpause()
 
 public function unit.isPausedTimed() returns boolean
-	let he = this.getEntity() castTo UnitsEntity
-	if he != null
-		return he.isPaused()
+	let u = this.getEntity() castTo UnitsEntity
+	if u != null
+		return u.isPaused()
 	return this.isPaused()
 
 public function unit.isAbsolutePausedTimed() returns boolean
-	let he = this.getEntity() castTo UnitsEntity
-	if he != null
-		return he.isAbsPaused()
+	let u = this.getEntity() castTo UnitsEntity
+	if u != null
+		return u.isAbsPaused()
 	return this.isPaused()
 
 public class Unit
