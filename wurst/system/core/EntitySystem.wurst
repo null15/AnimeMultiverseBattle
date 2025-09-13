@@ -6,9 +6,10 @@ import HashMap
 
 let unitPauseTimers = new HashMap<unit, CallbackSingle>()
 
-// This tiny class attaches a Frentity to our hero.
-// The entity is like a backpack where we can store extra data
-// and it keeps track of the unit's position for us.
+/** Entity Wrapper for our Objects. With this, we're able to accurately keep track of our object data.
+* For example, pause relative and pause absolute, we can accurately keep this information accurate, allowing two types of pauses to co-exist.
+* In the future, we might have other data attachments we want to attach to our objects and keep them accurately represented.
+*/
 public class UnitsEntity extends UnitEntity
 	boolean paused = false
 	boolean basicPaused = false
