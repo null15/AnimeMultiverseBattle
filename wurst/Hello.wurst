@@ -1,12 +1,13 @@
 package Hello
 
 import UnitIds
+import EntitySystem
+import ClosureTimers
 
 init
-	let start = vec2(1000., 1000.)
-	for i = 0 to 6
-		createUnit(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start + vec2(i * 128., 0.))
-	CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()
-
-
-	// TO-DO: Pull and Knockback ignores TimeStop, should implement that it doesn't
+	nullTimer() -> 
+		let start = vec2(1000., 1000.)
+		for i = 1 to 5
+			Unit.create(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start + vec2(i * 128., 0.), i)
+		Unit.create(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start + vec2(6 * 128., 0.), 5)
+		CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()

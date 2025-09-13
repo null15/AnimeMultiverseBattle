@@ -9,7 +9,7 @@ let unitPauseTimers = new HashMap<unit, CallbackSingle>()
 // This tiny class attaches a Frentity to our hero.
 // The entity is like a backpack where we can store extra data
 // and it keeps track of the unit's position for us.
-public class HeroEntity extends UnitEntity
+public class UnitsEntity extends UnitEntity
 	boolean paused = false
 	CallbackSingle pauseCb = null
 
@@ -42,7 +42,7 @@ public class HeroEntity extends UnitEntity
 			destroy pauseCb
 
 public function unit.pauseTimed(real duration)
-	let he = this.getEntity() castTo HeroEntity
+	let he = this.getEntity() castTo UnitsEntity
 	if he != null
 		he.pauseTimed(duration)
 	else
@@ -56,7 +56,7 @@ public function unit.pauseTimed(real duration)
 		unitPauseTimers.put(this, cb)
 
 public function unit.clearTimedPause()
-	let he = this.getEntity() castTo HeroEntity
+	let he = this.getEntity() castTo UnitsEntity
 	if he != null
 		he.resume()
 	else
@@ -68,10 +68,41 @@ public function unit.clearTimedPause()
 			this.unpause()
 
 public function unit.isPausedTimed() returns boolean
-	let he = this.getEntity() castTo HeroEntity
+	let he = this.getEntity() castTo UnitsEntity
 	if he != null
 		return he.isPaused()
 	return this.isPaused()
+
+public class Unit
+	static Unit array units
+	unit actor
+	UnitsEntity entity
+	int uniqueID
+
+	construct(unit actor, int uniqueID)
+		this.actor = actor
+		this.uniqueID = uniqueID
+		this.entity = new UnitsEntity(actor)
+		if units[uniqueID].actor != null
+			units[uniqueID] = this
+		else
+			printLog(Loglevel.ERROR, "Attempted to index over another unit. Index: (" + this.uniqueID.toString() + "). Unit: ("+this.actor.getName()+")")
+
+	static function create(player owner, int unitId, vec2 pos, int uniqueID) returns unit
+		let u = createUnit(owner, unitId, pos)
+		new Unit(u, uniqueID)
+		return u
+
+	static function get(int pid) returns unit
+		let u = units[pid]
+		return u != null ? u.actor : null
+
+	ondestroy
+		if entity != null
+			destroy entity
+		if this.actor != null
+			this.actor.remove()
+			units[uniqueID] = null
 
 public function frentityInit()
 	// Start the global entity update loop

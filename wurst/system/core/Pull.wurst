@@ -33,6 +33,8 @@ public class Pull
 		if this.actor == null or not this.actor.isAlive()
 			stop()
 			return
+		if this.actor.isPaused()
+			return
 		if this.destinationUnit != null
 			if not this.destinationUnit.isAlive()
 				stop()

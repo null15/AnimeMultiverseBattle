@@ -4,6 +4,7 @@ import Entity
 import objectIDs
 import SpellAPI
 import ClosureForGroups
+import ClosureTimers
 
 import Assets
 import Missiles
@@ -48,6 +49,8 @@ function onCast()
 				let targetPos = u.getPos()
 				if isPointInCone(casterPos, targetPos, range, coneOrientation, coneAngle)
 					caster.damageTarget(u, 50, ATTACK_TYPE_HERO)
-
+					u.pause()
+					doAfter(3) -> 
+						u.unpause()
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
