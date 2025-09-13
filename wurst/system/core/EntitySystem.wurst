@@ -125,18 +125,18 @@ public class Unit
 	UnitsEntity entity
 	int uniqueID
 
-	construct(unit actor)
+	construct(unit actor, int uniqueID)
 		this.actor = actor
-		this.uniqueID = actor.getIndex()
+		this.uniqueID = uniqueID
 		this.entity = new UnitsEntity(actor)
-		if units[uniqueID] == null
+		if units[uniqueID].actor == null
 			units[uniqueID] = this
 		else
 			printLog(Loglevel.ERROR, "Attempted to index over another unit. Index: (" + this.uniqueID.toString() + "). Unit: ("+this.actor.getName()+")")
 
-	static function create(player owner, int unitId, vec2 pos) returns unit
+	static function create(player owner, int unitId, vec2 pos, int uniqueID) returns unit
 		let u = createUnit(owner, unitId, pos)
-		new Unit(u)
+		new Unit(u, uniqueID)
 		return u
 
 	static function get(int pid) returns unit
