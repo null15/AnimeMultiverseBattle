@@ -34,7 +34,7 @@ public class Pull
 		if this.actor == null or not this.actor.isAlive()
 			stop()
 			return
-		if this.actor.isPausedTimed()
+		if this.actor.isAbsolutePausedTimed()
 			return
 		if this.destinationUnit != null
 			if not this.destinationUnit.isAlive()

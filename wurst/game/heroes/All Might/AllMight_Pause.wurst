@@ -14,11 +14,11 @@ function onCast()
 
 		forUnitsInRange(center, radius) (unit u) ->
 			if u != caster
-				u.pauseTimed(3.)
+				u.pauseTimed(3, true)
 
 		for miss in Missiles.collection
 			if miss.getPos().toVec2().distanceTo(center) <= radius
-				miss.pauseTimed(3.)
+				miss.pauseTimed(3)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

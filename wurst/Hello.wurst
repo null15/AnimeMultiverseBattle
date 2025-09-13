@@ -9,5 +9,4 @@ init
 		let start = vec2(1000., 1000.)
 		for i = 1 to 5
 			Unit.create(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start + vec2(i * 128., 0.), i)
-		Unit.create(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start + vec2(6 * 128., 0.), 5)
 		CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()

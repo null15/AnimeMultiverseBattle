@@ -11,40 +11,71 @@ let unitPauseTimers = new HashMap<unit, CallbackSingle>()
 // and it keeps track of the unit's position for us.
 public class UnitsEntity extends UnitEntity
 	boolean paused = false
+	boolean basicPaused = false
+	boolean absPaused = false
 	CallbackSingle pauseCb = null
+	CallbackSingle absPauseCb = null
 
 	construct(unit actor)
 		super(actor)
 
-	function pauseTimed(real duration)
-		if pauseCb != null
-			destroy pauseCb
+	function pauseTimed(real duration, boolean absolute)
+		if absolute
+			absPaused = true
+			if absPauseCb != null
+				destroy absPauseCb
+			absPauseCb = doAfter(duration) ->
+				absPauseCb = null
+				absPaused = false
+				this.updatePause()
+		else
+			basicPaused = true
+			if pauseCb != null
+				destroy pauseCb
+			pauseCb = doAfter(duration) ->
+				pauseCb = null
+				basicPaused = false
+				this.updatePause()
 		if not paused
 			actor.pause()
 			paused = true
-		pauseCb = doAfter(duration) ->
-			pauseCb = null
-			this.resume()
+
+	function pauseTimed(real duration)
+		pauseTimed(duration, true)
 
 	function resume()
-		if paused
-			actor.unpause()
-			paused = false
-		if pauseCb != null
-			destroy pauseCb
-			pauseCb = null
+		basicPaused = false
+		absPaused = false
+		updatePause()
+
+	function updatePause()
+		if not basicPaused and not absPaused
+			if paused
+				actor.unpause()
+				paused = false
+			if pauseCb != null
+				destroy pauseCb
+				pauseCb = null
+			if absPauseCb != null
+				destroy absPauseCb
+				absPauseCb = null
 
 	function isPaused() returns boolean
-		return paused
+		return basicPaused or absPaused
+
+	function isAbsPaused() returns boolean
+		return absPaused
 
 	ondestroy
 		if pauseCb != null
 			destroy pauseCb
+		if absPauseCb != null
+			destroy absPauseCb
 
-public function unit.pauseTimed(real duration)
+public function unit.pauseTimed(real duration, boolean absolute)
 	let he = this.getEntity() castTo UnitsEntity
 	if he != null
-		he.pauseTimed(duration)
+		he.pauseTimed(duration, absolute)
 	else
 		this.pause()
 		if unitPauseTimers.has(this)
@@ -54,6 +85,9 @@ public function unit.pauseTimed(real duration)
 			this.unpause()
 			unitPauseTimers.remove(this)
 		unitPauseTimers.put(this, cb)
+
+public function unit.pauseTimed(real duration)
+	this.pauseTimed(duration, false)
 
 public function unit.clearTimedPause()
 	let he = this.getEntity() castTo UnitsEntity
@@ -73,6 +107,12 @@ public function unit.isPausedTimed() returns boolean
 		return he.isPaused()
 	return this.isPaused()
 
+public function unit.isAbsolutePausedTimed() returns boolean
+	let he = this.getEntity() castTo UnitsEntity
+	if he != null
+		return he.isAbsPaused()
+	return this.isPaused()
+
 public class Unit
 	static Unit array units
 	unit actor
@@ -83,7 +123,7 @@ public class Unit
 		this.actor = actor
 		this.uniqueID = uniqueID
 		this.entity = new UnitsEntity(actor)
-		if units[uniqueID].actor != null
+		if units[uniqueID].actor == null
 			units[uniqueID] = this
 		else
 			printLog(Loglevel.ERROR, "Attempted to index over another unit. Index: (" + this.uniqueID.toString() + "). Unit: ("+this.actor.getName()+")")
