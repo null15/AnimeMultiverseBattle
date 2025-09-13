@@ -41,7 +41,7 @@ public class UnitsEntity extends UnitEntity
 			paused = true
 
 	function pauseTimed(real duration)
-		pauseTimed(duration, true)
+		pauseTimed(duration, false)
 
 	function resume()
 		basicPaused = false
