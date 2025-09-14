@@ -3,15 +3,18 @@ package AllMight_Push
 import objectIDs
 import RegisterEvents
 import Knockback
+import ClosureForGroups
 
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_PUSH1 // Single Target
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
 
-	if GetSpellAbilityId() == ALL_MIGHT_PUSH2 // AoE
+	else if GetSpellAbilityId() == ALL_MIGHT_PUSH2 // AoE
 		let caster = GetTriggerUnit()
-		let target = GetSpellTargetUnit()
+		
+		forUnitsInRange(EventData.getSpellTargetPos(), 500) (unit u) ->
+			if caster.isEnemyOf(u)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
