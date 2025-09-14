@@ -1,0 +1,34 @@
+package Radar
+
+import ClosureTimers
+import ClosureForGroups
+import HashMap
+
+@configurable let RADAR_PERIOD = 1.0
+@configurable let PING_DURATION = 0.5
+
+public class Radar
+	static HashMap<unit, CallbackPeriodic> active = new HashMap<unit, CallbackPeriodic>()
+
+	static function start(unit source, real radius)
+		if source == null
+			return
+		if active.has(source)
+			let old = active.get(source)
+			destroy old
+		let cb = doPeriodically(RADAR_PERIOD) (CallbackPeriodic c) ->
+			if source == null or not source.isAlive()
+				destroy c
+				active.remove(source)
+			else
+				let center = source.getPos()
+				forUnitsInRange(center, radius) (unit u) ->
+					if source.isEnemyOf(u)
+						PingMinimapEx(u.getX(), u.getY(), PING_DURATION, 255, 0, 0, false)
+		active.put(source, cb)
+
+	static function stop(unit source)
+		if active.has(source)
+			let cb = active.get(source)
+			destroy cb
+			active.remove(source)

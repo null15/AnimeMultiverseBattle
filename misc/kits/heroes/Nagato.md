@@ -4,9 +4,6 @@
 **Role/Tags:** Support / Ranged / Intelligence
 **Resource:** Your / Mom
 
-## G - Rinnegan
-- Nagato sees enemy movement on the minimap in 2000 radius around him.
-
 ## Q - Banshō Ten'in
 - Channel.
 - Pulls the target friendly or enemy hero unit towards Nagato.

@@ -1,0 +1,58 @@
+package Tether
+
+import HashMap
+import ClosureTimers
+
+public class Tether
+	static HashMap<unit, Tether> active = new HashMap<unit, Tether>()
+
+	unit target
+	unit anchor
+	real maxDistance
+	CallbackPeriodic cb
+	bool finished
+
+	construct(unit target, unit anchor, real maxDistance)
+		if active.has(target)
+			active.get(target).stop()
+		this.target = target
+		this.anchor = anchor
+		this.maxDistance = maxDistance
+		this.finished = false
+		this.cb = doPeriodically(0.03125) (CallbackPeriodic c) ->
+			this.update()
+		active.put(target, this)
+
+	function update()
+		if this.finished
+			return
+		if this.target == null or not this.target.isAlive()
+			stop()
+			return
+		if this.anchor == null or not this.anchor.isAlive()
+			stop()
+			return
+		let diff = this.target.getPos() - this.anchor.getPos()
+		let dist = diff.length()
+		if dist > this.maxDistance
+			this.target.setPos(this.anchor.getPos() + diff.norm() * this.maxDistance)
+
+	function stop()
+		if this.finished
+			return
+		this.finished = true
+		if this.cb != null
+			destroy this.cb
+			this.cb = null
+		active.remove(this.target)
+		destroy this
+
+	static function bind(unit target, unit anchor, real maxDistance) returns Tether
+		if target == null or anchor == null
+			return null
+		return new Tether(target, anchor, maxDistance)
+
+	ondestroy
+		this.target = null
+		this.anchor = null
+		this.cb = null
