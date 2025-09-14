@@ -12,66 +12,13 @@
     ├── _build/
     │   └── dependencies/
     │       ├── Frentity/
-    │       │   ├── doc/
-    │       │   ├── imports/
-    │       │   └── wurst/
-    │       │       ├── war3map.j
-    │       │       ├── buff/
-    │       │       ├── entity/
-    │       │       ├── physics/
-    │       │       ├── player/
-    │       │       ├── test/
-    │       │       └── util/
     │       ├── InventoryUtils/
-    │       │   └── wurst/
-    │       │       ├── InventoryEvent/
-    │       │       ├── ItemRecipe/
-    │       │       ├── ItemRestriction/
-    │       │       ├── SmoothItemPickup/
-    │       │       └── StackNSplit/
     │       ├── wurst-bonus-handler/
-    │       │   └── wurst/
     │       ├── wurst-table-layout/
-    │       │   ├── imports/
-    │       │   └── wurst/
     │       └── wurstStdlib2/
-    │           └── wurst/
-    │               ├── _handles/
-    │               │   └── primitives/
-    │               ├── _wurst/
-    │               │   └── assets/
-    │               ├── closures/
-    │               ├── data/
-    │               ├── dummy/
-    │               ├── event/
-    │               ├── file/
-    │               ├── math/
-    │               ├── objediting/
-    │               │   └── presets/
-    │               └── util/
     ├── imports/
-    │   └── ui/
-    │       ├── includes/
-    │       └── textures/
     ├── misc/
-    │   └── kits/
-    │       ├── heroes/
-    │       └── items/
     └── wurst/
-        ├── game/
-        │   └── heroes/
-        │       ├── All Might/
-        │       └── Nagato/
-        ├── system/
-        │   ├── core/
-        │   ├── math/
-        │   ├── objects/
-        │   │   ├── abilities/
-        │   │   └── units/
-        │   └── ui/
-        │       └── components/
-        │           └── draft/
-        └── utils/
 
 - _build folder contains the standard library files, function wrappers, and among others by the Wurstscript Programming Language developers themselves.
 - imports folder is the files in the "Map" itself, such as mp3 files or textures, assets would be another word.
@@ -129,7 +76,7 @@
 - Wurst does not have `continue`.
 
 ## Testing
-- There is no need to run any tests or builds.
+- F1 and "Run a Wurst map", select BaseMap.w3x.
 
 ## PR Guidelines
-- There is no need to create any PR.
+- There is no need to create any Pull Requests.
