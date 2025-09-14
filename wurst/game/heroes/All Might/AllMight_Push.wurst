@@ -9,12 +9,15 @@ function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_PUSH1 // Single Target
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
-
+		if target != null and caster.isEnemyOf(target)
+			Knockback.applyWithSpeed(target, caster.getPos(), 400., 800.)
 	else if GetSpellAbilityId() == ALL_MIGHT_PUSH2 // AoE
 		let caster = GetTriggerUnit()
-		
-		forUnitsInRange(EventData.getSpellTargetPos(), 500) (unit u) ->
+		// let casterPos = caster.getPos()
+		let center = EventData.getSpellTargetPos()
+		forUnitsInRange(center, 500.) (unit u) ->
 			if caster.isEnemyOf(u)
+				Knockback.apply(u, center, 400., 0.5)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

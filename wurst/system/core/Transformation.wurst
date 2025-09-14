@@ -9,14 +9,14 @@ public class Transformation
 	static HashMap<unit, Transformation> active = new HashMap<unit, Transformation>
 	unit actor
 	int originalSkin
-	IterableMap<int, int> swaps
+	LinkedList<int> swaps
 	unit bar
 	CallbackCounted cbPeriodicBar
 	// optional callback invoked when the transformation ends
 	Callback onFinish
 	bool finished
 
-	construct(unit actor, int newSkin, IterableMap<int, int> swaps, real duration, Callback onFinish)
+	construct(unit actor, int newSkin, LinkedList<int> swaps, real duration, Callback onFinish)
 		if active.has(actor)
 			active.get(actor).finish()
 		this.actor = actor
@@ -27,11 +27,10 @@ public class Transformation
 
 		// Unit Stuff
 		active.put(actor, this)
-		
 		this.actor
 		..addAnimationProperties("alternate", true)
-		..setAbilityLevel(ALL_MIGHT_SWAPPER1, 2)
-		..setAbilityLevel(ALL_MIGHT_SWAPPER2, 2)
+		swaps.forEach() (integer abil) ->
+			this.actor.setAbilityLevel(abil, 2)
 		BlzSetUnitSkin(this.actor, newSkin)
 
 		// Progress Bar
@@ -50,10 +49,10 @@ public class Transformation
 			if cb.isLast()
 				finish()
 	
-	static function start(unit actor, int newSkin, IterableMap<int, int> swaps, real duration) returns Transformation
+	static function start(unit actor, int newSkin, LinkedList<int> swaps, real duration) returns Transformation
 		return Transformation.start(actor, newSkin, swaps, duration, null)
 
-	static function start(unit actor, int newSkin, IterableMap<int, int> swaps, real duration, Callback onFinish) returns Transformation
+	static function start(unit actor, int newSkin, LinkedList<int> swaps, real duration, Callback onFinish) returns Transformation
 		if actor == null or not actor.isAlive()
 			return null
 		return new Transformation(actor, newSkin, swaps, duration, onFinish)
@@ -72,9 +71,8 @@ public class Transformation
 			this.bar.setAnimation(0)
 			this.bar.remove()
 			this.bar = null
-		this.actor
-		..setAbilityLevel(ALL_MIGHT_SWAPPER1, 1)
-		..setAbilityLevel(ALL_MIGHT_SWAPPER2, 1)
+		this.swaps.forEach() (integer abil) ->
+			this.actor.setAbilityLevel(abil, 1)
 		BlzSetUnitSkin(this.actor, this.originalSkin)
 		active.remove(this.actor)
 		if this.onFinish != null
