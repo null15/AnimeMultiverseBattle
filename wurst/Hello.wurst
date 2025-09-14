@@ -5,17 +5,17 @@ import EntitySystem
 import ClosureTimers
 
 init
-		nullTimer() ->
-				let start = vec2(1000., 1000.)
-				let first = Unit.create(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start)
-				let id = first.getId()
-				print("Footman id: " + id.toString())
-				let same = Unit.fromId(id)
-				if same != null
-						same.setPos(start + vec2(0., 128.))
-				for i = 1 to 4
-						Unit.create(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start + vec2(i * 128., 0.))
-				let footmen = Unit.getUnitsOfType(UnitIds.footman)
-				if footmen != null
-						print("Tracked footmen: " + footmen.size().toString())
-				CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()
+	nullTimer() ->
+		let start = vec2(1000., 1000.)
+		let first = Unit.create(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start)
+		let id = first.getId()
+		print("Footman id: " + id.toString())
+		let same = Unit.fromId(id)
+		if same != null
+			same.setPos(start + vec2(0., 128.))
+		for i = 1 to 4
+			Unit.create(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start + vec2(i * 128., 0.))
+		let footmen = Unit.getUnitsOfType(UnitIds.footman)
+		if footmen != null
+			print("Tracked footmen: " + footmen.size().toString())
+		CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()
