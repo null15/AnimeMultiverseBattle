@@ -136,7 +136,11 @@ public class Knockback3
 		let instVel = velocity * ANIMATION_PERIOD
 		let v = ZERO3.polarProject(instVel, groundAngle, airAngle)
 		if unitNodes.has(u)
-			unitNodes.get(u).del += v
+			let knockback = unitNodes.get(u)
+			if u.isAbsolutePausedTimed()
+				knockback.del = v
+			else
+				knockback.del += v
 		else
 			let knockback = new Knockback3()
 			unitNodes.put(u, knockback)
