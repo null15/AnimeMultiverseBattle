@@ -8,6 +8,7 @@ import ClosureForGroups
 import ClosureTimers
 import HashMap
 import TerrainUtils
+import HashSet
 
 constant HashMap<unit, ShinraTensei> active = new HashMap<unit, ShinraTensei>()
 
@@ -15,10 +16,12 @@ class ShinraTensei
 	unit caster
 	real remaining
 	CallbackPeriodic cb
+	HashSet<unit> affected
 
 	construct(unit caster)
 		this.caster = caster
 		this.remaining = 2.
+		this.affected = new HashSet<unit>
 		this.cb = doPeriodically(0.1) (CallbackPeriodic c) ->
 			this.tick()
 
@@ -34,7 +37,16 @@ class ShinraTensei
 		forUnitsInRange(center, 500.) (unit u) ->
 			if caster.isEnemyOf(u)
 				caster.damageTarget(u, 1., ATTACK_TYPE_HERO)
-				Knockback3.setVel(u, 800., center.angleTo(u.getPos()), (30.).fromDeg())
+				let angle = center.angleTo(u.getPos())
+				if affected.has(u)
+					let v = Knockback3.getVel(u)
+					let vz = v.z / ANIMATION_PERIOD
+					let speed = SquareRoot(800. * 800. + vz * vz)
+					let air = 800..atan2(vz).fromRad()
+					Knockback3.setVel(u, speed, angle, air)
+				else
+					Knockback3.setVel(u, 800., angle, (30.).fromDeg())
+					affected.add(u)
 				this.checkCollision(u)
 		for m in Missiles.collection
 			if m.owner != caster.getOwner()
@@ -64,6 +76,9 @@ class ShinraTensei
 			destroy cb
 			cb = null
 		active.remove(caster)
+		if affected != null
+			destroy affected
+			affected = null
 		destroy this
 
 function onCast()
