@@ -1,5 +1,4 @@
 ## Project Structure
-- The misc folder contains kits of future heroes, with reusable APIs in the system folder.
 - Objects are created in compiletime rather than the World Editor; object creation and IDs are stored in the objects folder.
 - UI-related tasks belong in the ui folder, such as the draft menu.
 - Wrap objects in Entity when creating units (EntitySystem.wurst); unique IDs are documented in utils/Dictionary.md.
@@ -8,7 +7,6 @@
 └── null15-animemultiversebattle/
     ├── README.md
     ├── AGENTS.md
-    ├── Engineering Upgrade Test Map.w3x
     ├── wurst.build
     ├── wurst_run.args
     ├── _build/
@@ -74,6 +72,13 @@
         │       └── components/
         │           └── draft/
         └── utils/
+
+- _build folder contains the standard library files, function wrappers, and among others by the Wurstscript Programming Language developers themselves.
+- imports folder is the files in the "Map" itself, such as mp3 files or textures, assets would be another word.
+- misc folder contains kits of heroes to be implemented.
+- wurst_run.args is the file which determines how the compiler should compile our project.
+- wurst.build is the file which determines how many players there can be, which team they are in, map name, developer name, filename, dependencies and so on.
+- BaseMap.w3x is the source map in which we compile our Scrips (.wurst) into. Result map appears in _build folder, with the filename instructed in wurst.build file.
 
 ## Coding Conventions
 - Code should use indent Tab Size: 4; never use spaces.
