@@ -28,7 +28,7 @@
 - BaseMap.w3x is the source map in which we compile our Scrips (.wurst) into. Result map appears in _build folder, with the filename instructed in wurst.build file.
 
 ## Coding Conventions
-- Code should use indent Tab Size: 4; never use spaces.
+- Code should use indent Tab Size: 4; never use spaces. If impossible, default to 4 spaces, not 8, never 8.
 - For naming conventions, avoid reserved names such as step, in, base, or destroy.
 - To destroy something, usually use `destroy x` rather than `x.destroy()` unless a destroy helper function exists.
 - Vararg functions can only have one parameter.
