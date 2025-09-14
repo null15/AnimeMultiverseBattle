@@ -1,64 +1,130 @@
-**Code should use indent Tab Size: 4.**
-Under no circumstances should indents be made with "spaces". If you discover code where it uses spaces, feel free to make them use indent Tab Size: 4 instead.
+## Project Structure
+- The misc folder contains kits of future heroes, with reusable APIs in the system folder.
+- Objects are created in compiletime rather than the World Editor; object creation and IDs are stored in the objects folder.
+- UI-related tasks belong in the ui folder, such as the draft menu.
+- Wrap objects in Entity when creating units (EntitySystem.wurst); unique IDs are documented in utils/Dictionary.md.
 
-misc folder contains kits of our future heroes we are to implement with our system. To alleviate this process, we have several APIs to re-use, found in **system** folder.
+## Directory structure:
+└── null15-animemultiversebattle/
+    ├── README.md
+    ├── AGENTS.md
+    ├── Engineering Upgrade Test Map.w3x
+    ├── wurst.build
+    ├── wurst_run.args
+    ├── _build/
+    │   └── dependencies/
+    │       ├── Frentity/
+    │       │   ├── doc/
+    │       │   ├── imports/
+    │       │   └── wurst/
+    │       │       ├── war3map.j
+    │       │       ├── buff/
+    │       │       ├── entity/
+    │       │       ├── physics/
+    │       │       ├── player/
+    │       │       ├── test/
+    │       │       └── util/
+    │       ├── InventoryUtils/
+    │       │   └── wurst/
+    │       │       ├── InventoryEvent/
+    │       │       ├── ItemRecipe/
+    │       │       ├── ItemRestriction/
+    │       │       ├── SmoothItemPickup/
+    │       │       └── StackNSplit/
+    │       ├── wurst-bonus-handler/
+    │       │   └── wurst/
+    │       ├── wurst-table-layout/
+    │       │   ├── imports/
+    │       │   └── wurst/
+    │       └── wurstStdlib2/
+    │           └── wurst/
+    │               ├── _handles/
+    │               │   └── primitives/
+    │               ├── _wurst/
+    │               │   └── assets/
+    │               ├── closures/
+    │               ├── data/
+    │               ├── dummy/
+    │               ├── event/
+    │               ├── file/
+    │               ├── math/
+    │               ├── objediting/
+    │               │   └── presets/
+    │               └── util/
+    ├── imports/
+    │   └── ui/
+    │       ├── includes/
+    │       └── textures/
+    ├── misc/
+    │   └── kits/
+    │       ├── heroes/
+    │       └── items/
+    └── wurst/
+        ├── game/
+        │   └── heroes/
+        │       ├── All Might/
+        │       └── Nagato/
+        ├── system/
+        │   ├── core/
+        │   ├── math/
+        │   ├── objects/
+        │   │   ├── abilities/
+        │   │   └── units/
+        │   └── ui/
+        │       └── components/
+        │           └── draft/
+        └── utils/
 
-We create objects in **compiletime**, not in World Editor. We do this because of **Wurst's compiletime**. This object creation happens in **objects** folder, along with storing all object IDs.
+## Coding Conventions
+- Code should use indent Tab Size: 4; never use spaces.
+- For naming conventions, avoid reserved names such as step, in, base, or destroy.
+- To destroy something, usually use `destroy x` rather than `x.destroy()` unless a destroy helper function exists.
+- Vararg functions can only have one parameter.
+- Do not confuse Wurst with Lua, so no `;` symbols.
+- Wurst has reserved names on variables, e.g., destroy, step, to, in, for.
+- Arrays cannot be used in function parameters.
+- Use correct lambda syntax when using lambdas.
+- Avoid semicolons; they are not a thing in Wurst.
+- Do not declare functions `public` inside a `public` class; they are reachable by default.
+- Functions annotated `@compiletime` may not take parameters; the annotation runs the function at compiletime.
+- Maintain consistent indentation; avoid mixing tabs and spaces.
+- Use `BlzGetAbilityIcon(unitID)` to get a unit icon path.
+- Do not make invalid comparisons like `int == null`.
+- Use `let` for type inference when the type is clear from context.
+- Tuples and tuple types are supported and commonly used.
+- Interface implementations require proper inheritance syntax.
+- Objects created with `new` need proper cleanup; use `destroy object` for manual memory management, not `obj.destroy`. `ondestroy` is the destructor.
+- Be aware of reference counting and circular references.
+- Declare imports at the top with proper syntax.
+- Package structure and dependencies matter.
+- Use `@config` annotations for configuration.
+- Event callbacks have specific syntax patterns.
+- Use proper closure syntax for event handlers.
+- Timer callbacks follow specific lambda patterns.
+- String interpolation uses specific syntax.
+- String comparison methods differ from other languages.
+- Class constructors use `construct()` syntax.
+- Use the `this` keyword properly in class methods.
+- Distinguish between static and instance method declarations.
+- Use proper null-safety patterns.
+- Employ efficient coding patterns specific to the WC3 engine.
+- Avoid creating objects in frequently called functions.
+- Use object pooling when appropriate.
+- Handle player indexing (0-based vs 1-based contexts) correctly.
+- Manage unit and item handles carefully.
+- Clean up temporary objects properly.
+- Variables defined as `let` are constants and cannot be changed.
+- Variables defined as `var` are changeable.
+- The `@config` annotation can only be used in config packages whose names end with `_config`.
+- Function parameter variables are constants and cannot be changed.
+- When converting vJass to Wurst, use classes when possible.
+- There is no such thing as `BlzFrameGetAbsX` or `BlzFrameGetAbsY`.
+- You cannot `destroy` framehandles.
+- Type parameters can only be bound to ints and class types.
+- Wurst does not have `continue`.
 
-Any related UI system/task happens in the **ui** folder, such as our draft menu.
+## Testing
+- There is no need to run any tests or builds.
 
-We wrap objects in Entity, or at least, attempt to do so everytime we want to create a unit (**EntitySystem.wurst**). The Unique IDs can be found in **Dictionary.md** in utils folder.
-
-For naming conventions, avoid using **reserved names** such as step, in, base or even destroy.
-
-If you want to destroy something, usually it is **destroy x**, not **x.destroy()** unless the object has a destroy helper function.
-
-There is no need to run any **tests** or **build**, as this is in the scope of Warcraft III, not a programming language such as c++ to build/run code.
-
-There is no need to create any **PR**.
-
-**The project adheres to following coding conventions and rules:**
-
-You must remember that vararg functions can only have one parameter
-You must not confuse Wurst with Lua, so no ";" symbols and such
-You must remember that Wurst has reserved names on variables, eg. destroy, step, to, in, for
-You can not use arrays in function parameters
-You must use correct lambda syntax, if you plan to use them
-You must avoid semicolons, as they are not a thing in Wurst
-You must not use "public" etc on functions, when they are already in a "public" class, they are reachable by default
-You can not do this: functions annotated '@compiletime' may not take parameters. Note: The annotation marks functions to be executed by wurst at compiletime.
-You must give code that has same indentation as my code to avoid warning: Mixing tabs and spaces for indentation.
-You can get a unit icon path using BlzGetAbilityIcon(unitID).
-You may not do invalid comparisons, like int == null
-You must use let for type inference when the type is clear from context
-You must remember that tuples and tuple types are supported and commonly used
-You must remember that interface implementations require proper inheritance syntax
-You must remember objects created with new need proper cleanup/destruction, use destroy object for manual memory management when needed, not obj.destroy. ondestroy is the destructor.
-You must be aware of reference counting and circular references
-You must remember imports must be declared at the top with proper syntax
-You must remember that package structure and dependencies matter
-You must use @config annotations for configuration
-You must remember event callbacks have specific syntax patterns
-You must use proper closure syntax for event handlers
-You must remember timer callbacks follow specific lambda patterns
-You must remember string interpolation uses specific syntax
-You must remember string comparison methods differ from other languages
-You must remember class constructors use construct() syntax
-You must use "this" keyword properly in class methods
-You must remember static vs instance method declarations
-You muse use proper null-safety patterns
-You must remember efficient coding patterns specific to WC3 engine
-You must avoid creating objects in frequently called functions
-You must use object pooling when appropriate
-You must handle player indexing (0-based vs 1-based contexts)
-You must remember unit/item handle management
-You must remember proper cleanup of temporary objects
-You must remember that variables defined as let are constants, thus can not be changed
-You must remember that variables can be defined as "var", these are changeable
-You must remember that Annotation @config can only be used in config packages (package name has to end with '_config'
-You must remember that function parameter variables are constants, thus can not be changed
-You must remember that when converting vJass to Wurst, when possible, use Classes.
-You must remember there is no such thing as BlzFrameGetAbsX or BlzFrameGetAbsY
-You must remember that you can not "destroy" framehandles
-You must remember Type parameters can only be bound to ints and class types
-You must remember that Wurst does not have anything called "continue"
+## PR Guidelines
+- There is no need to create any PR.
