@@ -3,12 +3,13 @@ package Nagato_Bind
 import objectIDs
 import Tether
 import RegisterEvents
+import EntitySystem
 
 function onCast()
 	if GetSpellAbilityId() == NAGATO_UZUMAKI_BINDABILITY
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
-		let rod = createUnit(caster.getOwner(), NAGATO_UZUMAKI_BINDDUMMY, target.getPos())
+		let rod = Unit.create(caster.getOwner(), NAGATO_UZUMAKI_BINDDUMMY, target.getPos(), 10)
 		Tether.bind(target, rod, 300)			
 
 init
