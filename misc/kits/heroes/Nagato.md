@@ -30,29 +30,13 @@
 ## R - Summon: Animal Path
 - Summons an animal path at the targeted location you have vision over.
 - After 3 seconds of casting, teleports Nagato and any nearby ally heroes to the location of animal path.
-- Adam delivers a lightning-fast punch to a target.
 
 ## T - Chibaku Tensei
 - Summons a BIG ROCK at the targeted location that keeps damaging and pulling all enemies to its center for its duration.
 - Enemies being pulled take increasing damage the closer they are to the center.
 - Pull speed increases over time.
 - Lasts 7 seconds.
-- After this ability ends, the BIG ROCK explodes, unleashing an instant, fully channeled **Shinra Tensei** at its location.
-
-## T - Hogyoku Upgrade
-- **Chibaku Tensei** is replaced by **The World Shall Know Pain**
-- Nagato teleports to the targeted location, and starts channeling an empowered version of **Shinra Tensei** that has the values of all its effects doubled
-  (slow value, slow duration, push distance, push speed, damage per second, channel time).  
-- This channel has a 4 second duration and cannot be cancelled.
-- While channeling, Nagato keeps continously pulling all nearby enemies and projectiles towards himself.
-- While channeling, Nagato is invulnerable, immovable by any means and cannot attack or use any other abilities or items.
-
-## Empowered Shinra Tensei
-- Does not continously push enemies and projectiles away. 
-- Any damage per second this ability is supposed to deal is instead recorded on each unit separately.
-- When This ability ends, all recorded damage is doubled and then dealt to enemies instantly when this ability ends.
-- When this ability ends, it pushes all nearby enemies away and reflects any nearby enemy projectiles.
-- Enemies that manage to leave this ability's area of effect before it ends are dealt no damage, nor are they pushed back.
+- After this ability ends, the BIG ROCK explodes, slamming enemies near its center to the ground, dealing damage to thmem and slowing them by 80% for 1 second.
 
 ---
 
