@@ -35,7 +35,7 @@ public class Tether
 		let diff = this.target.getPos() - this.anchor.getPos()
 		let dist = diff.length()
 		if dist > this.maxDistance
-			this.target.setPos(this.anchor.getPos() + diff.norm() * this.maxDistance)
+			this.target.setPos(this.anchor.getPos() + diff.norm() * (this.maxDistance - 10))
 
 	function stop()
 		if this.finished

@@ -4,7 +4,7 @@ import objectIDs
 
 /** You can insert heroes in any order, the system automatically alphabetic sort them */
 public function defineHeroes()
-	registerHero(AZAKANA_YONE,"Yone","Azakana","League of Legends")..addCategory(CategoryType.AGILITY)
+	registerHero(NAGATO_UZUMAKI,"Nagato","Uzumaki","League of Legends")..addCategory(CategoryType.AGILITY)
 	registerHero(EDWARD_ELRIC,"Edward","Elric","Fullmetal Alchemist")..addCategory(CategoryType.INTELLIGENCE,CategoryType.MELEE,CategoryType.CARRY)
 	registerHero(JOTARO_KUJO,"Jotaro","Kujo","JoJo's Bizarre Adventure")..addCategory(CategoryType.STRENGTH,CategoryType.BRUISER,CategoryType.MELEE)
 	registerHero(MIKASA_ACKERMAN,"Mikasa","Ackerman","Attack on Titan")..addCategory(CategoryType.AGILITY,CategoryType.MELEE)

@@ -4,7 +4,7 @@ import ChannelAbilityPreset
 
 /* ---------------------- Hero IDs ---------------------- */
 public constant 		WENDY_MARVELL			= compiletime(HERO_ID_GEN.next())
-public constant 		AZAKANA_YONE			= compiletime(HERO_ID_GEN.next())
+public constant 		NAGATO_UZUMAKI      	= compiletime(HERO_ID_GEN.next())
 public constant 		SAITAMA					= compiletime(HERO_ID_GEN.next())
 public constant 		EDWARD_ELRIC			= compiletime(HERO_ID_GEN.next())
 public constant 		MIKASA_ACKERMAN			= compiletime(HERO_ID_GEN.next())
@@ -77,24 +77,31 @@ public constant 		TRUNKS                	= compiletime(HERO_ID_GEN.next())
 public constant 		FRIEZA					= compiletime(HERO_ID_GEN.next())
 
 /* ------------------------ Ability IDs ------------------------ */
-public constant			ALL_MIGHT_SWAPPER1		= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_SWAPPER2		= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_MISSILE_BASE	= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_MISSILE1		= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_MISSILE2		= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_PAUSE_BASE			= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_PAUSE1			= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_PAUSE2			= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_PULL_BASE		= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_PULL1			= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_PULL2			= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_PUSH_BASE			= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_PUSH1			= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_PUSH2			= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_TRANSFORM_BASE		= compiletime(ABIL_ID_GEN.next())
+
+/* ------------------------ All Might ------------------------ */
+public constant			ALL_MIGHT_SWAPPER1  		= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_SWAPPER2  		= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_MISSILE_BASE  	= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_MISSILE1  		= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_MISSILE2  		= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_PAUSE_BASE    	= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_PAUSE1    		= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_PAUSE2    		= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_PULL_BASE 		= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_PULL1 			= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_PULL2 			= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_PUSH_BASE 		= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_PUSH1 			= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_PUSH2 			= compiletime(ABIL_ID_GEN.next())
+public constant			ALL_MIGHT_TRANSFORM_BASE    = compiletime(ABIL_ID_GEN.next())
 public constant			ALL_MIGHT_TRANSFORM1		= compiletime(ABIL_ID_GEN.next())
 public constant			ALL_MIGHT_TRANSFORM2		= compiletime(ABIL_ID_GEN.next())
-public constant         ALL_MIGHT_BEARFORM      = compiletime(ABIL_ID_GEN.next())
+public constant         ALL_MIGHT_BEARFORM          = compiletime(ABIL_ID_GEN.next())
+
+/* ------------------------ Nagato Uzumaki ------------------------ */
+public constant			NAGATO_UZUMAKI_BINDABILITY  = compiletime(ABIL_ID_GEN.next())
+
+public constant			NAGATO_UZUMAKI_BINDDUMMY    = compiletime(UNIT_ID_GEN.next())
 
 /* ---------------------------- MISC ---------------------------- */
 public constant 		ALL_MIGHT_POWER_SKIN 		= compiletime(HERO_ID_GEN.next())
