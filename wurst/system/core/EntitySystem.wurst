@@ -121,35 +121,67 @@ public function unit.isAbsolutePausedTimed() returns boolean
 
 public class Unit
 	static Unit array units
+	static HashMap<int, LinkedList<unit>> unitsByType = new HashMap<int, LinkedList<unit>>()
+	static unit array heroes
+
 	unit actor
 	UnitsEntity entity
-	int uniqueID
 
-	construct(unit actor, int uniqueID)
+	construct(unit actor)
 		this.actor = actor
-		this.uniqueID = uniqueID
 		this.entity = new UnitsEntity(actor)
-		if units[uniqueID].actor == null
-			units[uniqueID] = this
-		else
-			printLog(Loglevel.ERROR, "Attempted to index over another unit.\nYou tried to index |cffff0000Unit|r (|cffffd900" +
-			this.actor.getName() + ", " + uniqueID.toString() + "|r) over |cffff0000Unit|r (|cffffd700" + units[uniqueID].actor.getName() + ", " + uniqueID.toString() + "|r)")
+		let idx = actor.getIndex()
+		units[idx] = this
+		let tid = actor.getTypeId()
+		var list = unitsByType.get(tid)
+		if list == null
+			list = new LinkedList<unit>()
+			unitsByType.put(tid, list)
+		list.add(actor)
+		if actor.isType(UNIT_TYPE_HERO)
+			heroes[actor.getOwner().getId()] = actor
 
-	static function create(player owner, int unitId, vec2 pos, int uniqueID) returns unit
+	static function create(player owner, int unitId, vec2 pos) returns unit
 		let u = createUnit(owner, unitId, pos)
-		new Unit(u, uniqueID)
 		return u
 
-	static function get(int pid) returns unit
-		let u = units[pid]
+	static function getHero(int pid) returns unit
+		return heroes[pid]
+
+	static function getUnitsOfType(int typeId) returns LinkedList<unit>
+		return unitsByType.get(typeId)
+
+	static function fromId(int id) returns unit
+		let u = units[id]
 		return u != null ? u.actor : null
 
 	ondestroy
 		if entity != null
 			destroy entity
 		if this.actor != null
-			this.actor.remove()
-			units[uniqueID] = null
+			let tid = this.actor.getTypeId()
+			let list = unitsByType.get(tid)
+			if list != null
+				list.remove(this.actor)
+				if list.isEmpty()
+					unitsByType.remove(tid)
+			units[this.actor.getIndex()] = null
+			if this.actor.isType(UNIT_TYPE_HERO)
+				let pid = this.actor.getOwner().getId()
+				if heroes[pid] == this.actor
+					heroes[pid] = null
+			this.actor = null
+		entity = null
+
+public function unit.getId() returns int
+	return this.getIndex()
+
+init
+	onUnitIndex(() -> new Unit(getIndexingUnit()))
+	onUnitDeindex() ->
+		let u = Unit.units[getIndexingUnit().getIndex()]
+		if u != null
+			destroy u
 
 public function frentityInit()
 	startEntityLoop()

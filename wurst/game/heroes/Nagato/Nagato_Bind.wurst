@@ -9,7 +9,7 @@ function onCast()
 	if GetSpellAbilityId() == NAGATO_UZUMAKI_BINDABILITY
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
-		let rod = Unit.create(caster.getOwner(), NAGATO_UZUMAKI_BINDDUMMY, target.getPos(), 10)
+		let rod = Unit.create(caster.getOwner(), NAGATO_UZUMAKI_BINDDUMMY, target.getPos())
 		let level = caster.getAbilityLevel(NAGATO_UZUMAKI_BINDABILITY)
 		let duration = 0.7 * level.toReal()
 		Tether.bindTimed(target, rod, 300, duration)
