@@ -10,7 +10,9 @@ function onCast()
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
 		let rod = Unit.create(caster.getOwner(), NAGATO_UZUMAKI_BINDDUMMY, target.getPos(), 10)
-		Tether.bind(target, rod, 300)			
+		let level = caster.getAbilityLevel(NAGATO_UZUMAKI_BINDABILITY)
+		let duration = 0.7 * level.toReal()
+		Tether.bindTimed(target, rod, 300, duration)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

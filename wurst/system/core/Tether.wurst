@@ -10,9 +10,10 @@ public class Tether
 	unit anchor
 	real maxDistance
 	CallbackPeriodic cb
+	CallbackSingle timeout
 	bool finished
 
-	construct(unit target, unit anchor, real maxDistance)
+	construct(unit target, unit anchor, real maxDistance, real duration)
 		if active.has(target)
 			active.get(target).stop()
 		this.target = target
@@ -22,6 +23,11 @@ public class Tether
 		this.cb = doPeriodically(0.03125) (CallbackPeriodic c) ->
 			this.update()
 		active.put(target, this)
+		if duration > 0
+			let cbTimeout = doAfter(duration) ->
+				this.timeout = null
+				this.stop()
+			this.timeout = cbTimeout
 
 	function update()
 		if this.finished
@@ -44,15 +50,25 @@ public class Tether
 		if this.cb != null
 			destroy this.cb
 			this.cb = null
+		if this.timeout != null
+			destroy this.timeout
+			this.timeout = null
+		this.anchor.remove()
 		active.remove(this.target)
 		destroy this
 
 	static function bind(unit target, unit anchor, real maxDistance) returns Tether
 		if target == null or anchor == null
 			return null
-		return new Tether(target, anchor, maxDistance)
+		return new Tether(target, anchor, maxDistance, -1)
+
+	static function bindTimed(unit target, unit anchor, real maxDistance, real duration) returns Tether
+		if target == null or anchor == null
+			return null
+		return new Tether(target, anchor, maxDistance, duration)
 
 	ondestroy
 		this.target = null
 		this.anchor = null
 		this.cb = null
+		this.timeout = null
