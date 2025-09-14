@@ -33,8 +33,8 @@ class ShinraTensei
 		let center = caster.getPos()
 		forUnitsInRange(center, 500.) (unit u) ->
 			if caster.isEnemyOf(u)
-				caster.damageTarget(u, 10., ATTACK_TYPE_HERO)
-				Knockback.apply(u, center, 200., 0.25)
+				caster.damageTarget(u, 1., ATTACK_TYPE_HERO)
+				Knockback3.setVel(u, 800., center.angleTo(u.getPos()), (30.).fromDeg())
 				this.checkCollision(u)
 		for m in Missiles.collection
 			if m.owner != caster.getOwner()
@@ -44,20 +44,20 @@ class ShinraTensei
 					m.deflect(target)
 
 	function checkCollision(unit u)
-		var collided = false
 		if not u.getPos().isTerrainWalkable()
-			collided = true
-		else
-			forUnitsInRange(u.getPos(), 128.) (unit rod) ->
-				if rod.getTypeId() == NAGATO_UZUMAKI_BINDDUMMY
-					collided = true
-		if collided
-			caster.damageTarget(u, 20., ATTACK_TYPE_HERO)
-			let baseSpeed = u.getMoveSpeed()
-			u.setMoveSpeed(baseSpeed * 0.6)
-			doAfter(2.) ->
-				if u != null
-					u.setMoveSpeed(baseSpeed)
+			this.applyCollision(u)
+			return
+		forUnitsInRange(u.getPos(), 128.) (unit rod) ->
+			if rod.getTypeId() == NAGATO_UZUMAKI_BINDDUMMY
+				this.applyCollision(u)
+
+	function applyCollision(unit u)
+		caster.damageTarget(u, 20., ATTACK_TYPE_HERO)
+		let baseSpeed = u.getMoveSpeed()
+		u.setMoveSpeed(baseSpeed * 0.6)
+		doAfter(2.) ->
+			if u != null
+				u.setMoveSpeed(baseSpeed)
 
 	function stop()
 		if cb != null
