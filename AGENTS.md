@@ -13,6 +13,6 @@ For naming conventions, avoid using reserved names such as step, in, base or eve
 
 If you want to destroy something, usually it is "destroy x", not "x.destroy()" unless the object has a destroy helper function.
 
-There is no need to run any tests.
+There is no need to run any tests or "build", as this is in the scope of Warcraft III, not a programming language such as c++ to build/run code.
 
 There is no need to create any PR.
