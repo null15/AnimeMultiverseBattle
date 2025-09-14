@@ -1,0 +1,84 @@
+package Nagato_ShinraTensei
+
+import objectIDs
+import Knockback
+import RegisterEvents
+import Missiles
+import ClosureForGroups
+import ClosureTimers
+import HashMap
+import TerrainUtils
+
+constant HashMap<unit, ShinraTensei> active = new HashMap<unit, ShinraTensei>()
+
+class ShinraTensei
+	unit caster
+	real remaining
+	CallbackPeriodic cb
+
+	construct(unit caster)
+		this.caster = caster
+		this.remaining = 2.
+		this.cb = doPeriodically(0.1) (CallbackPeriodic c) ->
+			this.tick()
+
+	function tick()
+		if caster == null or not caster.isAlive()
+			stop()
+			return
+		this.remaining -= 0.1
+		if this.remaining <= 0
+			stop()
+			return
+		let center = caster.getPos()
+		forUnitsInRange(center, 500.) (unit u) ->
+			if caster.isEnemyOf(u)
+				caster.damageTarget(u, 10., ATTACK_TYPE_HERO)
+				Knockback.apply(u, center, 200., 0.25)
+				this.checkCollision(u)
+		for m in Missiles.collection
+			if m.owner != caster.getOwner()
+				let mPos = m.getPos().toVec2()
+				if mPos.distanceTo(center) <= 500.
+					let target = mPos + (mPos - center)
+					m.deflect(target)
+
+	function checkCollision(unit u)
+		var collided = false
+		if not u.getPos().isTerrainWalkable()
+			collided = true
+		else
+			forUnitsInRange(u.getPos(), 128.) (unit rod) ->
+				if rod.getTypeId() == NAGATO_UZUMAKI_BINDDUMMY
+					collided = true
+		if collided
+			caster.damageTarget(u, 20., ATTACK_TYPE_HERO)
+			let baseSpeed = u.getMoveSpeed()
+			u.setMoveSpeed(baseSpeed * 0.6)
+			doAfter(2.) ->
+				if u != null
+					u.setMoveSpeed(baseSpeed)
+
+	function stop()
+		if cb != null
+			destroy cb
+			cb = null
+		active.remove(caster)
+		destroy this
+
+function onCast()
+	if GetSpellAbilityId() == NAGATO_SHINRA_TENSEI
+		let caster = GetTriggerUnit()
+		let inst = new ShinraTensei(caster)
+		active.put(caster, inst)
+
+function onStop()
+	if GetSpellAbilityId() == NAGATO_SHINRA_TENSEI
+		let caster = GetTriggerUnit()
+		if active.has(caster)
+			active.get(caster).stop()
+
+init
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, () -> onStop())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, () -> onStop())

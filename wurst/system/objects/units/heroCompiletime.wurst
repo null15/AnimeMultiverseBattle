@@ -129,7 +129,7 @@ function makeHero(
 		300, 300, 5,
 		1, 1,
 		commaList(AbilityIds.inventory),
-		commaList(NAGATO_UZUMAKI_BINDABILITY),
+				commaList(NAGATO_SHINRA_TENSEI, NAGATO_UZUMAKI_BINDABILITY),
 		24, 150, "", 0,
 		12, 500, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
 
