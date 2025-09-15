@@ -1,0 +1,13 @@
+package SoundSystem
+
+import SoundUtils
+import EntitySystem
+
+public function playSound(SoundDefinition snd, vec3 pos, real range)
+	let center = pos.toVec2()
+	for i = 0 to bj_MAX_PLAYERS - 1
+		let hero = Unit.getHero(i)
+		if hero != null and hero.isAlive()
+			if hero.getPos().distanceTo(center) <= range
+				let inst = snd.playForPlayer(players[i])
+				inst.pos = pos

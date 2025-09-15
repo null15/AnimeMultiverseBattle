@@ -22,6 +22,8 @@ init
 
 		Unit.create(players[0], NAGATO_UZUMAKI, vec2(0, 0))..setLevel(10, false)
 		Unit.create(players[1], ALL_MIGHT, vec2(0, 0))..setLevel(10, false)
+		Unit.create(players[2], NAGATO_UZUMAKI, vec2(0, 0))..setLevel(10, false)
 		players[1].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
+		players[2].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
 
 		CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()

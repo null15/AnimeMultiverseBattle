@@ -148,8 +148,8 @@ public class Unit
 	static function getHero(int pid) returns unit
 		return heroes[pid]
 
-	static function getUnitsOfType(int typeId) returns LinkedList<unit>
-		return unitsByType.get(typeId)
+	static function getUnitsOfType(int typeID) returns LinkedList<unit>
+		return unitsByType.get(typeID)
 
 	static function fromId(int id) returns unit
 		let u = units[id]
