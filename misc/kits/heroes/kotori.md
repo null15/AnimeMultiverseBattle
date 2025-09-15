@@ -11,7 +11,6 @@
 
 ## Q - Crimson Lotus Flame
 - Kotori conjures efreet fire in a line aoe.
-- Creeps take bonus damage.
 - If cast in **Efreet Mode**, the flame leaves a short burning trail on the ground that damages enemies over time.
 
 ## W - Flame Tongue
@@ -28,16 +27,15 @@
 
 ## R - Efreet Manifestation
 - Kotori manifests her **Efreet Spirit Mode** for a duration.
-- Grants 16% bonus damage (value can change).
+- Grants 10% bonus damage (value can change).
 - Fire-based basic attacks (splash damage).
-- Reduced cooldowns on W and E.
 - **G** becomes disabled in this state.
 
 ## T - Camael, Halberd of Flames
-- Kotori calls forth her astral dress weapon, Camael.
+- Kotori calls forth her astral dress weapon, camael.
 - Huge conical slash of fire in front of her.
 - Deals massive magic damage, and applies a powerful burn.
-- In **Efreet Mode**, the cone is larger and enemies take bonus damage based on their current hp (more damage the higher the hp).
+- In **Efreet Mode**, the cone is larger.
 
 ---
 

@@ -1,7 +1,7 @@
 # Hero Kit – Mukuro Rokudo
 
 **Franchise:** Katekyo Hitman Reborn
-**Role/Tags:** Support / Melee / Intelligence 
+**Role/Tags:** Support / Carry / Melee / Intelligence 
 **Resource:** HP / Mana
 
 ## G - Illusion Veil

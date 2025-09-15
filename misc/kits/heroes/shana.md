@@ -15,7 +15,6 @@
 ## W - Blazing Rush
 - Shana dashes to a target enemy, slashing them with a flaming strike.
 - The next 3 auto-attacks within a short window deal bonus damage scaling with enemy **current HP**.
-- If the target is already burning, the dash cooldown is partially refunded.
 
 ## E - Flame Shackles
 - Shana summons chains of flame from nietono no shana that root enemies in a area.
@@ -26,14 +25,11 @@
 - Shana activates her inner flame for a duration.
 - Bonus attack speed and movement speed.
 - Auto-attacks apply splash damage around the target.
-- When the trance ends, Shana heals for a % of damage dealt to heroes during the duration.
 
 ## T - Tenpa Jyousai
 - Shana calls forth her true crimson lord form and detonates the battlefield in an inferno.
 - Shana loses 40% of her **current HP** (cannot go below 1).
 - Deals massive aoe flame damage in a wide radius, scaling with her **missing HP**.
-- Leaves a burning field behind that slows enemies and damages them over time.
-- Can damage allies for half the damage (can be changed).
 
 ---
 

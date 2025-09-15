@@ -19,8 +19,7 @@
 
 ## W - Sage Art: Storm Release Light Fang
 - Madara fires a thin stream of purple light from his mouth.
-- Pierces shields and other kinds of damage absorption except invulnerability.
-- Stuns enemies hit.
+- Pierces shields and other kinds of damage absorption.
 
 ## E - Truth-Seeking Shield
 - Madara manipulates the form of his black truth-seeking balls into a protective shield.

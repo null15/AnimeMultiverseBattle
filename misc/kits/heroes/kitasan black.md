@@ -16,7 +16,6 @@
 - Kitasan dashes in a line, damaging enemies she passes through.
 - **On Ally Contact:** Increase movement speed by 10% and attack speed by 25% for a few seconds.
 - Can be recast within 3 seconds to dash back to her original position.
-- Bonus damage to creeps.
 
 ## W - Lane Interference
 - Kitasan charges briefly, then dashes sideways (like cutting across a racetrack lane).
@@ -31,12 +30,11 @@
 ## R - Momentum Overdrive
 - **Passive:** Kitasan gains stacking move speed whenever she travels a certain distance without stopping.
 - **Active:** Converts her stacks into a teamwide aura for a few seconds, granting allies bonus move speed and reduced CC duration.
-- During the active, **Q** and **W** do damage scaling with kitasan's movement speed.
 
 ## T - Grand Circuit Finale
 - Kitasan sprints in a wide circular path around a large area, creating a “track zone.”
 - Allies inside the track gain maximum movement speed for a very short time and HP regen for 10 seconds.
-- Enemies that try to cross the track are knocked back slightly and slowed.
+- Enemies that try to cross the track are knocked back slightly.
 - Enemies that were already inside are stunned.
 - Lasts around 15 seconds (value can change).
 

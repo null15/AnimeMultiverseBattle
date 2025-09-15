@@ -14,7 +14,7 @@
 
 ## Q - Aqua Slash
 - Sally conjures a blade of water that slices in a line.
-- If it kills a creep, the slash bounces once to another nearby target (apart from og damage instance).
+- If it kills a unit, the slash bounces once to another nearby target.
 
 ## W - Flame Burst
 - Sally hurls a fireball at an enemy.
@@ -31,7 +31,6 @@
 ## T - Elemental Storm
 - Sally unleashes her mastery over the elements, casting a storm of fire, ice, water and wind bolts in a large radius.
 - Each enemy hit takes repeated damage over several waves.
-- Enemies struck are given a debuff that increases damage taken (value to be discussed).
 
 ---
 

@@ -10,25 +10,24 @@
 
 ## Q - Sword Wind Slash
 - A quick sword strike in a cone in front of him.
-- Enemies struck take bonus true damage from ikki’s next attack.
+- If used inside **Perfect Vision** it does aoe around him instead, and slightly more damage.
 
 ## W - Blade Runner
 - Ikki dashes to a target enemy, slashing through them.
-- If the enemy is marked by **Q**, the dash instead teleports behind them and applies a stun.
+- If used inside **Perfect Vision** the target is stunned.     
 
 ## E - Perfect Vision
-- Activates ikki’s supreme focus. For the next X seconds, the first spell damage against him is halved.
-- If the previous effect succeeds, his next two auto-attacks are empowered with bonus attack speed and crit chance (100%).
+- Activates ikki’s supreme focus creating a visual bubble around him.
+- During this time ikki can click anywhere inside it to move instantly.
+- Ikki's next two auto-attacks are empowered with bonus attack speed.
 
 ## R - Ittou Shura
-- Ikki overclocks his body, massively boosting his attack speed and move speed for a short duration (ms maxed).
-- While active, his health rapidly drains (loses % max HP per second).
-- If ikki gets a kill or assist while active, the duration slightly refreshes.
+- Ikki overclocks his body, massively boosting his attack speed and move speed for a short duration.
+- If ikki gets a kill or assist while active, the duration is slightly extended.
 
 ## T - Oikage
 - Ikki blinks to a target hero and performs a devastating sword strike.
-- Deals massive damage scaling with **missing HP** of the target.
-- If the target dies, cooldown is reduced.
+- Deals massive damage scaling with ikki's **Attack Speed**.
 
 ---
 

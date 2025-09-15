@@ -30,16 +30,13 @@
 - (does reduced damage but the same effect, need further insight on this if possible, if not just reflect projectiles).
 
 ## R - Dawn Gatling
-- Rapid stretching punches that hits  enemies within range for 4 seconds (or other value). 
+- Rapid stretching punches that hits enemies within range for 4 seconds (value can change). 
 - Each punch can bounce to nearby targets.
 
 ## T - Sun God Nika 
 - All abilities gain massive aoe.
 - Liberation aura: Nearby allies gain movement speed and brief crowd control immunity.
 - Heartbeat of liberation: Each time an enemy is hit by  luffy's abilities restores hp and extends duration by 0.5s.
-
-## T upgrade idea
-- Can grab and throw certain structures. (Terrain interaction).
 
 ---
 

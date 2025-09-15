@@ -26,7 +26,6 @@
 ## R - Nobunaga’s Inferno
 - Nobunaga fires her dragon cannon barrage over a large area (very short duration).
 - Periodic damage, leaves a burning field behind.
-- Heroes hit multiple times are briefly silenced (value to be discussed).
 
 ## T - Dragon’s Throne: Invincible Artillery
 - Nobunaga calls forth her full dragon artillery, targeting a massive area.

@@ -6,7 +6,7 @@
 
 ## G - Mysterious Power
 - MHX dark energy grows stronger as she takes damage. Taking damage builds dark energy (max 100).
-- Higher dark energy = bonus armor and magic resistance. 
+- Higher dark energy = bonus armor and magic resistance (spell damage reduction). 
 - **Active**: Consumes all dark energy to create a damage absorbing shield that scales with energy consumed dark energy. 
 - Dark energy slowly decays out of combat.
 
@@ -18,13 +18,12 @@
 
 ## W - Mysterious Dash
 - Gap close that deals damage and applies slow to target enemy.
-- **Enhanced**: Dash has longer range and stuns instead of slowing.
+- **Enhanced**: Dash has longer range.
 
 ## E - Dark Territory
 - Creates an aura around mhx for xxx seconds. 
 - Pushes back enemies who get too close (400 range???, knockback).
 - **Enhanced**: Grants magic immunity.
-- (Very similar to current E, but improved).
 
 ## R - Gravity Well
 - Creates a zone that pulls enemies towards the center and slows them.
