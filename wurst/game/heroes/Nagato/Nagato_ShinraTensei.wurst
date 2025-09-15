@@ -12,7 +12,7 @@ import SoundUtils
 
 constant HashMap<unit, ShinraTensei> active = new HashMap<unit, ShinraTensei>()
 constant real MAX_Z_VEL = 600.
-constant SoundDefinition snd_ShinraTensei = new SoundDefinition("Nagato\\Shinra Tensei\\ShinraTensei.mp3")
+constant SoundDefinition snd_ShinraTensei = new SoundDefinition("Nagato\\Shinra Tensei\\ShinraTensei.mp3", false, true)
 
 class ShinraTensei
 	unit caster
@@ -51,6 +51,7 @@ class ShinraTensei
 				caster.damageTarget(u, 1., ATTACK_TYPE_HERO)
 				let angle = center.angleTo(u.getPos())
 				if affected.has(u)
+					// AI did the math
 					let v = Knockback3.getVel(u)
 					let vz = (v.z / ANIMATION_PERIOD).clamp(-MAX_Z_VEL, MAX_Z_VEL)
 					let speed = SquareRoot(800. * 800. + vz * vz)
@@ -65,6 +66,7 @@ class ShinraTensei
 				let mPos = m.getPos().toVec2()
 				if mPos.distanceTo(center) <= 400.
 					let target = mPos + (mPos - center)
+					m.owner = this.caster.getOwner()
 					m.deflect(target)
 
 	function checkCollision(unit u)
