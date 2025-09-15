@@ -21,14 +21,13 @@
 ## W - Shadow Flare
 - Sephiroth marks an area, after 1.5s it erupts in dark flames.
 - Deals aoe damage.
-- Enemies are stunned.
-- If it hits at least 3 enemies, also reduces their attack damage for a short duration.
+- If it hits at least 3 enemies, enemies are stunned.
 - Sephiroth can recast within 3 seconds to teleport to the area.
 
 ## E - Pale Horse
 - Sephiroth raises his hand, releasing a pulse of dark energy around him.
 - Enemies in the aoe are severely slowed and take damage over time.
-- For each hero hit, sephiroth gains bonus movement speed and lifesteal for a few seconds.
+- For each hero hit, sephiroth gains a small attack damage buff for a few seconds.
 
 ## R - Octaslash
 - Sephiroth dashes to a target enemy hero and performs 8 lightning-fast strikes.
@@ -39,7 +38,6 @@
 - Sephiroth summons a cataclysmic explosion over a massive area.
 - Deals very high damage to all enemies hit.
 - For every enemy unit hit, Sephiroth gains a stacking buff **“Cosmic Ascendance”**, that increases attack damage and spell damage for a duration.
-- Enemy heroes hit also suffer a brief silence.
 
 ---
 

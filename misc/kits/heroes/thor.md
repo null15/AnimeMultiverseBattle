@@ -17,7 +17,6 @@
 ## W - Storm Step
 - Thor dashes a short distance with lightning speed.
 - Next attack within 3s deals true damage scaling with thor's **Strenght**.
-- Stuns enemy hit.
 - If he strikes an enemy hero, cooldown is reduced.
 
 ## E - Thunderclap Guard
@@ -33,7 +32,7 @@
 
 ## T - Ragnarok’s End
 - Thor raises mjolnir high, calling down a massive thunderstorm.
-- After a short delay, a giant circular aoe smashes down, dealing huge damage and stunning enemies in the center.
+- After a short delay, a giant circular aoe smashes down, dealing huge damage.
 - Damage increases with the number of enemy heroes hit.
 - If used while **R** is active, the thunderstorm leaves behind a lingering storm zone that continues to damage enemies over time.
 ---

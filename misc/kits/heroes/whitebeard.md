@@ -11,13 +11,13 @@
 
 ## Q - Tremor Fist
 - Whitebeard punches forward with a quake-imbued fist.
-- Deals damage in a line.
-- If this ability collides with **Island Splitter (R)** fissure, enemies nearby are also dealt damage scaling with **missing HP**. 
+- Deals damage in a line knocking-back enemies.
+- If this ability collides with **Island Splitter (R)** fissure, enemies nearby are also dealt damage scaling with their **missing HP**. 
 
 ## W - Quake Slam
 - Whitebeard slams his weapon into the ground, creating a localized earthquake around him.
-- Enemies in the area take damage and are stunned.
-- If this ability destroys a terrain obstacle (like an ice wall), enemies near the shattered terrain take bonus damage.
+- Enemies in the area take damage.
+- If this ability destroys a terrain obstacle (like an ice wall), enemies near the shattered terrain are stunned.
 
 ## E - Seaquake
 - Whitebeard cracks the air, sending shockwaves across the battlefield.
@@ -29,7 +29,6 @@
 ## R - Island Splitter
 - Whitebeard thrusts his quake power downward, splitting the ground in a long fissure line.
 - Deals aoe damage along the path and creates a cracked terrain zone.
-- Enemies inside are slowed and take damage over time.
 
 ## T - World Shaker
 - Whitebeard channels the full might of the gura gura no mi, unleashing a massive earthquake that covers a huge radius.

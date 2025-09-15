@@ -20,13 +20,13 @@
 - **Kokuo:** Reduces enemy damage dealt briefly.
 
 ## E - Truth-Seeking Orbs
-- **Passive:** Bonus armor and magic resist.
+- **Passive:** Bonus armor and magic resist (spell damage taken).
 - **Active:** Naruto uses the truth-seeking orbs defensively blocking the next spell taken.
 - If blocked, counterattacks with small aoe damage.
 
 ## R - Baryon Mode
 - Naruto fuses with kurama’s life force.
-- Naruto gains massive stat boosts (attack speed, move speed, bonus damage).
+- Naruto gains a stats boost (allstats).
 - Naruto basic attacks burn enemy **HP** (percent max HP).
 - Each hit also drains naruto’s own **HP**.
 - When it ends, naruto loses a small portion of his max **HP** permanently.

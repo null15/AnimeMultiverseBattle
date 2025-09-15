@@ -10,13 +10,13 @@
 
 ## Q - Reindeer Charge
 - Summons a spectral reindeer that charges forward, knocking back enemies and slowing them.
-- Allies touched by reindeer gain movement speed boost. (similar to current Q but improved).
+- Allies touched by reindeer gain movement speed boost.
 
 ## W - Holy Bell
-- Rings the christmas bell, healing target ally and granting them magic resistance for 6 seconds.
+- Rings the christmas bell, healing target ally and granting them spell damage reduction for 6 seconds.
 
 ## E - Christmas Miracle
-- Cleanses all debuffs from target ally and makes them immune to crowd control for 4 seconds. (or other value).
+- Cleanses all debuffs from target ally and makes them immune to crowd control for 4 seconds (value can change).
 
 ## R - Snowball Barrage
 - Throws multiple snowballs in an area that root enemies caught in the blizzard. 

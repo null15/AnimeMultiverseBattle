@@ -19,17 +19,15 @@
 - Familiar auto-attacks nearby enemies for a few seconds.
 - Each hit restores a small portion of furina’s max **Mana**.
 - If cast while standing in a **Water Pool**, the familiar gains bonus attack speed.
+- If **hydro familiar** is inside a **Water Pool**, heals nearby allies with each attack.
 
 ## E - Font of Balance
-- Places a medium **Water Pool**.
-- Furina can recast once to go anywhere inside the pool (where the mouse cursor is).
-- **hydro familiar** inside heals nearby enemies with each attack.
+- Furina can once to go anywhere inside the pool (where the mouse cursor is).
 
 ## R - Aria of Contest
-- Marks an area with a large **Water Pool** stage for 5s.
-- Every second, enemies inside take damage.
+- Every second, enemies inside **Water Pools** take damage.
 - Allies inside are healed periodically.
-- Pools from **Aquatic Stage (Q)** or **Font of Balance (E)** inside the stage have doubled duration.
+- Pools from **Aquatic Stage (Q)** have doubled duration.
 
 ## T - Opera of Life
 - Furina channels her grand performance.

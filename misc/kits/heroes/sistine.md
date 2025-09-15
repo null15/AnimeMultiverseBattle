@@ -11,7 +11,6 @@
 
 ## Q - Shock Bolt
 - Sistine fires a precise lightning bolt.
-- Deals bonus damage to creeps.
 - Slows enemies hit by 20%.
 - **Enhanced**: Stuns instead of just slowing.
 
@@ -19,6 +18,7 @@
 - Sistine summons a gust of wind around the target area.
 - Enemies caught are slowed heavily and dragged slightly toward the center.
 - Long duration, 2 seconds (can be changed).
+- **Enhanced**: Wider aoe.
 
 ## E - Aqua Stream
 - Sistine launches a pressurized stream of water at a target.
@@ -37,7 +37,7 @@
 - Sistine unleashes a devastating storm in a large area.
 - Deals damage over time and greatly slows enemies inside.
 - If enemies are inside for xxx seconds, they become rooted for 1 second (value can change).
-- Blizzard freezes enemies briefly on the first tick.
+- Blizzard freezes enemies briefly on the first tick (not a cc, orderId "stop").
 
 ---
 

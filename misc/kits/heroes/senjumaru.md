@@ -27,15 +27,15 @@
 
 ## R - Thousand-Armed Loom
 - Senjumaru summons her threaded doll arms to spin around her.
-- **Passively:** Grants bonus armor and resistance.
+- **Passively:** Grants bonus armor.
 - **Active:** Creates a protective zone around her for a few seconds, allies gain evasion and enemies that cast spells inside take damage (scales with senjumaru **Intelligence**).
 
 ## T - Bankai: Shatatsu Karagara Shigarami no Tsuji
 - Senjumaru unravels reality into a woven stage of fate.
 - Large aoe effect.
 - Enemies inside are bound by golden threads, reducing mobility.
-- After a short delay, each enemy receives a random debuff (stun, silence, damage amp, or forced disarm).
-- Allies inside the bankai gain bonus **HP regen** and small damage reduction.
+- After a short delay, each enemy receives a random debuff (stun, silence, damage taken, or forced disarm).
+- Allies inside the bankai gain bonus **HP regen** buff.
 
 ---
 

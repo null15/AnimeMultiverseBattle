@@ -32,12 +32,12 @@
 ## R - Phosphor
 - Todoroki unleashes his dual-element fusion technique.
 - Todoroki fires a straight-line beam of fire and ice that pierces all enemies.
-- Deals high damage and increases enemies damage taken for a short time (values to be discussed).
+- Deals high damage and increases enemies.
 - If this ability collides with **Ice Wall**, it melts and **Water** is spread around the area.
 
 ## T - Flashfire Cold Heatwave
 - Todoroki channels his full power, creating a huge aoe blast of fire and ice centered on himself.
-- Enemies inside are first frozen briefly (stunned), then immediately ignited in a massive explosion.
+- Enemies inside are first frozen briefly, then immediately ignited in a massive explosion.
 - Allies inside the zone gain a small shield. 
 - Allies inside the zone gain bonus attack speed.
 - If this ability collides with **Ice Wall**, it deals damage scaling with target's missing **HP**.

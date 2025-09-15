@@ -1,7 +1,7 @@
 # Hero Kit – Zoro
 
 **Franchise:** One Piece
-**Role/Tags:** Bruiser / Carry / Melee / Strenght
+**Role/Tags:** Carry / Melee / Strenght
 **Resource:** HP / Mana
 
 ## G - Swordmaster’s Rhythm
@@ -17,8 +17,8 @@
 - If zoro hits a hero, **Oni Giri** can be recast within 3 seconds for a second, stronger slash.
 
 ## W - Asura: Ghostly Aura
-- **Passive:** Each time zoro lands 3 consecutive basic attacks, his **“Asura”** aura manifests, he gets attack damage and lifesteal for a few seconds.
-- **Active:** Zoro projects an illusionary 9-sword slash, dealing damage on his next attack (scaling with target's **current HP**).
+- **Passive:** Each time zoro lands 3 consecutive basic attacks, his **“Asura”** aura manifests, he gets attack damage for a few seconds.
+- **Active:** Zoro projects an illusionary 9-sword slash, dealing bonus damage on his next attack.
 
 ## E - Tatsumaki (Dragon Twister)
 - Zoro spins, creating a massive tornado around him.
@@ -27,7 +27,7 @@
 
 ## R - King of Hell’s Resolve
 - Zoro taps into his post-enma mastery.
-- Gains bonus attack speed and ignores a percentage of enemy armor for a duration.
+- Zoro ignores a percentage of enemy armor for a duration.
 - While active, basic attacks apply a bleed dot.
 
 ## T - Santoryu Ogi: Dead Man’s Game
