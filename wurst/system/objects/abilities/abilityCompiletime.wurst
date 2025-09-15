@@ -306,7 +306,7 @@ import objectIDs
 	..presetButtonPosNormal(1, 2)
 	registerElementalSpell(Element.LIGHTNING, NAGATO_SHINRA_TENSEI)
 
-	new ChannelAbilityPreset(NAGATO_UZUMAKI_BINDABILITY, 5, true)
+	new ChannelAbilityPreset(NAGATO_UZUMAKI_BIND, 5, true)
 	..setName("NAGATO UZUAMKI BIND")
 	..setTooltipNormal(1, "NAGATO UZUAMKI BIND")
 	..setTooltipNormalExtended(1, "NAGATO UZUAMKI BINDS TARGET")
@@ -319,4 +319,4 @@ import objectIDs
 	..setHotkeyTurnOff("E")
 	..presetCooldown(lvl -> 1)
 	..presetButtonPosNormal(0, 2)
-	registerElementalSpell(Element.LIGHTNING, NAGATO_UZUMAKI_BINDABILITY)
+	registerElementalSpell(Element.LIGHTNING, NAGATO_UZUMAKI_BIND)

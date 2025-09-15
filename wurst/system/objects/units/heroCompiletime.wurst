@@ -116,12 +116,11 @@ function makeHero(
 		h..setPrimaryAttribute("Intelligence")
 
 @compiletime function generateHeroObject()
-	// 1) Provided example kept, with minor sane defaults
 	makeHero(
 		NAGATO_UZUMAKI, UnitIds.paladin,
 		Icons.bTNAcorn, "Nagato", "The Painspreader",
 		"A man who suffered much pain, now he wnats to spread it like Covid to others",
-		Units.theCaptain1, 1.2,
+		"Nagato\\Nagato\\NagatoUzumaki.mdx", 0.8,
 		9, 1,
 		24, 4,
 		14, 2,
@@ -129,11 +128,10 @@ function makeHero(
 		300, 300, 5,
 		1, 1,
 		commaList(AbilityIds.inventory),
-				commaList(NAGATO_SHINRA_TENSEI, NAGATO_UZUMAKI_BINDABILITY),
+				commaList(NAGATO_SHINRA_TENSEI, NAGATO_UZUMAKI_BIND),
 		24, 150, "", 0,
 		12, 500, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
 
-	// 2) 29 more heroes (generic prototypes you can tweak later)
 	makeHero(
 		EDWARD_ELRIC, UnitIds.paladin,
 		Icons.bTNFootman, "Edward Elric", "Fullmetal Alchemist",

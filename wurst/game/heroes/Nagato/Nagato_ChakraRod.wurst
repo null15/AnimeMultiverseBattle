@@ -6,13 +6,13 @@ import RegisterEvents
 import EntitySystem
 
 function onCast()
-	if GetSpellAbilityId() == NAGATO_UZUMAKI_BINDABILITY
+	if GetSpellAbilityId() == NAGATO_UZUMAKI_BIND
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
 		let rod = Unit.create(caster.getOwner(), NAGATO_UZUMAKI_BINDDUMMY, target.getPos())
-		let level = caster.getAbilityLevel(NAGATO_UZUMAKI_BINDABILITY)
+		let level = caster.getAbilityLevel(NAGATO_UZUMAKI_BIND)
 		let duration = 0.7 * level.toReal()
-		Tether.bindTimed(target, rod, 300, duration)
+		Tether.bindTimed(target, rod, 150, duration)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

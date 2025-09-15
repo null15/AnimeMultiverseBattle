@@ -99,8 +99,8 @@ public constant			ALL_MIGHT_TRANSFORM2		= compiletime(ABIL_ID_GEN.next())
 public constant         ALL_MIGHT_BEARFORM          = compiletime(ABIL_ID_GEN.next())
 
 /* ------------------------ Nagato Uzumaki ------------------------ */
-public constant		NAGATO_SHINRA_TENSEI		= compiletime(ABIL_ID_GEN.next())
-public constant			NAGATO_UZUMAKI_BINDABILITY  = compiletime(ABIL_ID_GEN.next())
+public constant		    NAGATO_SHINRA_TENSEI        = compiletime(ABIL_ID_GEN.next())
+public constant			NAGATO_UZUMAKI_BIND         = compiletime(ABIL_ID_GEN.next())
 
 public constant			NAGATO_UZUMAKI_BINDDUMMY    = compiletime(UNIT_ID_GEN.next())
 
