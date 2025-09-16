@@ -15,7 +15,7 @@ function cleanupRodVisual(unit rod)
 	if chakraRodVisuals.has(rod)
 		let fx = chakraRodVisuals.get(rod)
 		if fx != null
-			fx..setPos(vec2(-9999, -9999))..destr()
+			fx..setPos(vec2(-99999, -99999))..destr()
 		chakraRodVisuals.remove(rod)
 
 function createRodVisual(unit caster, unit rod, unit target)

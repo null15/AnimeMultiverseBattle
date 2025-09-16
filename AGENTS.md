@@ -74,6 +74,7 @@
 - You cannot `destroy` framehandles.
 - Type parameters can only be bound to ints and class types.
 - Wurst does not have `continue`.
+- `return` statements can only be made at the end.
 
 ## Testing
 - F1 and "Run a Wurst map", select BaseMap.w3x.

@@ -23,6 +23,7 @@ class ShinraTensei
 	effect shinraTensei
 	effect shinraTenseiDirt
 	effect dustWave
+	effect shinraTenseiBlast
 
 	construct(unit caster)
 		this.caster = caster
@@ -31,6 +32,7 @@ class ShinraTensei
 		this.shinraTensei = addEffect("Nagato\\Shinra Tensei\\ShinraTensei.mdx", this.caster.getEntity().getPos().add(0, 0, -300))..setScale(1.5)
 		this.shinraTenseiDirt = addEffect("Nagato\\Shinra Tensei\\ShinraTenseiDirt.mdx", this.caster.getEntity().getPos().add(0, 0, 0))..setScale(0.1)..setTimeScale(0.5)..playAnimation(ANIM_TYPE_BIRTH)
 		this.dustWave = addEffect("Nagato\\Shinra Tensei\\DustWaveVersion2.mdx", this.caster.getEntity().getPos())..playAnimation(ANIM_TYPE_BIRTH)..setScale(4)
+		this.shinraTenseiBlast = addEffect("Nagato\\Shinra Tensei\\ShinraTenseiBlast.mdx", this.caster.getEntity().getPos())..playAnimation(ANIM_TYPE_STAND)..setScale(2)
 		playSound(snd_ShinraTensei, this.caster.getEntity().getPos(), 700)
 		this.cb = doPeriodically(0.1) (CallbackPeriodic c) ->
 			this.tick()
@@ -47,6 +49,7 @@ class ShinraTensei
 		this.shinraTensei.setPos(this.caster.getEntity().getPos().add(0, 0, -300))
 		this.shinraTenseiDirt.setPos(this.caster.getEntity().getPos().add(0, 0, 0))
 		this.dustWave.setPos(this.caster.getEntity().getPos())
+		this.shinraTenseiBlast.setPos(this.caster.getEntity().getPos())
 		forUnitsInRange(center, 400.) (unit u) ->
 			if caster.isEnemyOf(u)
 				caster.damageTarget(u, 1., ATTACK_TYPE_HERO)
@@ -95,11 +98,13 @@ class ShinraTensei
 			destroy affected
 			affected = null
 		if this.shinraTensei != null
-			this.shinraTensei..setPos(vec2(-9999, -9999))..destr()
+			this.shinraTensei..setPos(vec2(-99999, -99999))..destr()
 		if this.shinraTenseiDirt != null
-			this.shinraTenseiDirt..setPos(vec2(-9999, -9999))..destr()
+			this.shinraTenseiDirt..setPos(vec2(-99999, -99999))..destr()
 		if this.dustWave != null
-			this.dustWave..setPos(vec2(-9999, -9999))..destr()
+			this.dustWave..setPos(vec2(-99999, -99999))..destr()
+		if this.shinraTenseiBlast != null
+			this.shinraTenseiBlast..setPos(vec2(-99999, -99999))..destr()
 		destroy this
 
 function onCast()
