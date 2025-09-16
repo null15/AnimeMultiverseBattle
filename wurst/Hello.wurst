@@ -23,6 +23,7 @@ init
 		Unit.create(players[0], NAGATO_UZUMAKI, vec2(0, 0))..setLevel(10, false)
 		Unit.create(players[1], ALL_MIGHT, vec2(0, 0))..setLevel(10, false)
 		Unit.create(players[2], NAGATO_UZUMAKI, vec2(0, 0))..setLevel(10, false)
+		Unit.create(players[5], NAGATO_UZUMAKI, vec2(500, 500))..setLevel(10, false).setMoveSpeed(0)
 		players[1].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
 		players[2].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
 

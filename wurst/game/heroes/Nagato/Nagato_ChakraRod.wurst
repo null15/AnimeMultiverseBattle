@@ -5,11 +5,128 @@ import Tether
 import EntitySystem
 import EntityManagement
 import HashMap
+import Missiles
 
 constant HashMap<unit, effect> chakraRodVisuals = new HashMap<unit, effect>()
 constant angle CHAKRA_ROD_PITCH = (80).fromDeg()
 constant angle CHAKRA_ROD_ROLL = (0).fromDeg()
 constant real CHAKRA_ROD_HEIGHT_OFFSET = 75.
+constant real CHAKRA_ROD_THROW_OFFSET = 75.
+constant real CHAKRA_ROD_BIND_DISTANCE = 150.
+constant real CHAKRA_ROD_MISSILE_SPEED = 1400.
+constant real CHAKRA_ROD_COLLISION = 96.
+constant string CHAKRA_ROD_MODEL_PATH = "Nagato\\Rod\\ChakraRod.mdx"
+constant string CHAKRA_ROD_BLOOD_FX = "Objects\\Spawnmodels\\Human\\HumanBlood\\HeroBloodElfBlood.mdx"
+
+class ChakraRodMissile
+	Missiles missile
+	unit ownerUnit
+	unit initialCaster
+	player ownerPlayer
+	real bindDuration
+	boolean completed = false
+	angle travelYaw = angle(0.)
+
+	construct(unit caster, unit target)
+		this.initialCaster = caster
+		this.ownerUnit = caster
+		this.ownerPlayer = caster.getOwner()
+		let level = caster.getAbilityLevel(NAGATO_UZUMAKI_BIND)
+		this.bindDuration = level > 0 ? 0.7 * level.toReal() : 0.
+		let casterEntity = caster.getEntity()
+		let originBase = casterEntity != null ? casterEntity.getPos() : caster.getPos3Real()
+		let launchBase = originBase.add(0, 0, CHAKRA_ROD_HEIGHT_OFFSET)
+		let facing = caster.getFacingAngle()
+		let launchPos = launchBase + facing.toVec(CHAKRA_ROD_THROW_OFFSET)
+		let targetPos2d = target != null ? target.getPos() : launchPos.toVec2() + facing.toVec(1.)
+		this.travelYaw = launchPos.toVec2().angleTo(targetPos2d)
+		let impactPos = target != null ? target.getPos().withZ(launchPos.z) : launchPos + facing.toVec(600.)
+		this.missile = new Missiles(launchPos, impactPos)
+		this.missile.owner = this.ownerPlayer
+		this.missile.source = caster
+		this.missile.target = target
+		this.missile.collision = CHAKRA_ROD_COLLISION
+		this.missile.collideZ = true
+		this.missile.setModel(CHAKRA_ROD_MODEL_PATH)
+		this.missile.setScale(2.)
+		this.missile.setSpeed(CHAKRA_ROD_MISSILE_SPEED)
+		this.missile.onHit(u -> this.onHit(u))
+		this.missile.onFinish(() -> this.onFinish())
+		this.missile.onRemove(() -> this.onRemove())
+		this.missile.onPeriod(() -> this.onPeriod())
+		this.missile.launch()
+
+	function getCurrentOwnerPlayer() returns player
+		if this.ownerPlayer != null
+			return this.ownerPlayer
+		if this.initialCaster != null
+			return this.initialCaster.getOwner()
+		return null
+
+	function getRodYaw(unit victim) returns angle
+		if this.ownerUnit != null and victim != null
+			return this.ownerUnit.getPos().angleTo(victim.getPos())
+		if this.missile != null and victim != null
+			return this.missile.getPos().toVec2().angleTo(victim.getPos())
+		return this.travelYaw
+
+	function onPeriod() returns boolean
+		if this.missile == null
+			return false
+		if this.missile.owner != this.ownerPlayer
+			this.ownerPlayer = this.missile.owner
+			if this.missile.source != null and this.missile.source.getOwner() == this.ownerPlayer
+				this.ownerUnit = this.missile.source
+			else
+				this.ownerUnit = null
+		else if this.missile.source != null and this.missile.source != this.ownerUnit and this.missile.source.getOwner() == this.ownerPlayer
+			this.ownerUnit = this.missile.source
+		if this.missile.target != null
+			this.travelYaw = this.missile.getPos().toVec2().angleTo(this.missile.target.getPos())
+		return false
+
+	function onHit(unit u) returns boolean
+		if this.completed
+			return false
+		if u == null or not u.isAlive()
+			return false
+		if not u.isType(UNIT_TYPE_HERO)
+			return false
+		let owner = this.getCurrentOwnerPlayer()
+		if owner == null or not u.isEnemyOf(owner)
+			return false
+		if this.ownerUnit != null and u == this.ownerUnit
+			return false
+		this.completed = true
+		return this.applyBind(u)
+
+	function applyBind(unit victim) returns boolean
+		var rodOwner = this.getCurrentOwnerPlayer()
+		if rodOwner == null
+			rodOwner = Player(PLAYER_NEUTRAL_PASSIVE)
+		let rod = Unit.create(rodOwner, NAGATO_UZUMAKI_ROD, victim.getPos())
+		let yaw = this.getRodYaw(victim)
+		rod.setFacing(yaw)
+		rod.setVertexColor(255, 255, 255, 0)
+		createRodVisual(this.ownerUnit, rod, victim, yaw)
+		Tether.bindTimed(victim, rod, CHAKRA_ROD_BIND_DISTANCE, this.bindDuration)
+		let blood = addEffect(CHAKRA_ROD_BLOOD_FX, victim.getPos3Real())
+		if blood != null
+			blood..destr()
+		return true
+
+	function onFinish() returns boolean
+		this.completed = true
+		return false
+
+	function onRemove()
+		this.missile = null
+		destroy this
+
+	ondestroy
+		this.ownerUnit = null
+		this.initialCaster = null
+		this.ownerPlayer = null
 
 function cleanupRodVisual(unit rod)
 	if chakraRodVisuals.has(rod)
@@ -18,15 +135,17 @@ function cleanupRodVisual(unit rod)
 			fx..setPos(vec2(-99999, -99999))..destr()
 		chakraRodVisuals.remove(rod)
 
-function createRodVisual(unit caster, unit rod, unit target)
+function createRodVisual(unit owner, unit rod, unit target, angle fallback)
 	cleanupRodVisual(rod)
 	let rodPos = rod.getPos3Real().add(0, 0, CHAKRA_ROD_HEIGHT_OFFSET)
-	angle yaw
-	if caster != null and target != null
-		yaw = caster.getPos().angleTo(target.getPos())
-	else
+	var yaw = fallback
+	if owner != null and target != null
+		yaw = owner.getPos().angleTo(target.getPos())
+	else if target != null
+		yaw = rodPos.toVec2().angleTo(target.getPos())
+	else if rod != null
 		yaw = rod.getFacingAngle()
-	let fx = addEffect("Nagato\\Rod\\ChakraRod.mdx", rodPos)
+	let fx = addEffect(CHAKRA_ROD_MODEL_PATH, rodPos)
 	fx..setScale(2.)..setOrientation(yaw, CHAKRA_ROD_PITCH, CHAKRA_ROD_ROLL)
 	chakraRodVisuals.put(rod, fx)
 
@@ -39,14 +158,10 @@ function onCast()
 	if GetSpellAbilityId() == NAGATO_UZUMAKI_BIND
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
-		if caster == null or target == null
+		if caster == null
 			return
-		let rod = Unit.create(caster.getOwner(), NAGATO_UZUMAKI_ROD, target.getPos())
-		rod.setVertexColor(255, 255, 255, 0)
-		createRodVisual(caster, rod, target)
-		let level = caster.getAbilityLevel(NAGATO_UZUMAKI_BIND)
-		let duration = 0.7 * level.toReal()
-		Tether.bindTimed(target, rod, 150, duration)
+		caster.setAnimation(3)
+		new ChakraRodMissile(caster, target)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
