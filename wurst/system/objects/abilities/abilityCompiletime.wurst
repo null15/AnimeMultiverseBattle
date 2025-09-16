@@ -313,7 +313,7 @@ import objectIDs
 	..setTooltipNormalExtended(1, "NAGATO UZUAMKI BINDS TARGET")
 	..presetIcon(Icons.bTNAvatar)
 	..setHeroAbility(true)
-	..presetTargetTypes(Targettype.UNIT)
+	..presetTargetTypes(Targettype.POINTUNIT)
 	..presetManaCost(lvl -> 1)
 	..setHotkeyLearn("E")
 	..setHotkeyNormal("E")
