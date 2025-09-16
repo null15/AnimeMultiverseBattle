@@ -54,6 +54,7 @@ class ChakraRodMissile
 		this.missile.collideZ = true
 		this.missile.setModel(CHAKRA_ROD_MODEL_PATH)
 		this.missile.setScale(2.)
+		this.missile.setHideFxOnRemove(true)
 		this.missile.setSpeed(CHAKRA_ROD_MISSILE_SPEED)
 		this.missile.onHit(u -> this.onHit(u))
 		this.missile.onFinish(() -> this.onFinish())

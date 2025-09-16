@@ -123,6 +123,7 @@ public class Missiles
 	private vec3 prevPos
 	private vec3 nextPos
 	private Fx fx = null
+	private boolean hideFxOnRemove = false
 	private real veloc = 0.
 	private real travel = 0.
 	private boolean paused = false
@@ -186,6 +187,9 @@ public class Missiles
 	function getScale() returns real
 		return size
 
+	/* --------------------------- Effect removal mode -------------------------- */
+	function setHideFxOnRemove(boolean flag)
+		hideFxOnRemove = flag
 	/* ------------------------------ Missile Speed ----------------------------- */
 	function setSpeed(real newspeed)
 		let d = origin.distance
@@ -310,7 +314,11 @@ public class Missiles
 		if pauseCb != null
 			destroy pauseCb
 
-		destroy fx
+		if fx != null
+			if hideFxOnRemove
+				fx.hiddenDestroy()
+			else
+				destroy fx
 		destroy origin
 		destroy impact
 		destroy widgetMap
@@ -581,25 +589,25 @@ public class Missiles
 		if this.finishEvent != null
 			destroy this.finishEvent
 		this.finishEvent = finishEvent
-	
+
 	/** Will run whenever the missile tries to go out of the map boundaries */
 	function onBoundaries(VoidClosure boundEvent)
 		if this.boundEvent != null
 			destroy this.boundEvent
 		this.boundEvent = boundEvent
-	
+
 	/** Will run when the missile is paused */
 	function onPause(VoidClosure pauseEvent)
 		if this.pauseEvent != null
 			destroy this.pauseEvent
 		this.pauseEvent = pauseEvent
-	
+
 	/** Will run when the missile is unpaused */
 	function onResume(VoidClosure resumeEvent)
 		if this.resumeEvent != null
 			destroy this.resumeEvent
 		this.resumeEvent = resumeEvent
-	
+
 	/** Will run when the missile is removed */
 	function onRemove(VoidClosureNotBool removeEvent)
 		if this.removeEvent != null
