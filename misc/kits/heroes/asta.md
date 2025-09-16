@@ -11,12 +11,11 @@
 
 ## Q - Demon-Slayer Sweep
 - Asta swings the massive demon-slayer sword in a wide arc.
-- Enemy heroes hit lose a portion of buffs/shields.
+- Enemy heroes hit lose a portion of shields.
 
 ## W - Demon-Destroyer Seal
 - Asta strikes a target with the demon-destroyer sword, creating a sealing slash.
 - Enemy hit is purged of buffs and dealt damage.
-- If cast on an ally, removes negative debuffs instead.
 
 ## E - Demon-Dweller Reflect
 - **First cast:** Asta raises the demon-dweller sword. For 2 seconds, the next targeted spell that hits him is absorbed.
