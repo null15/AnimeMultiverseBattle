@@ -14,8 +14,8 @@ public class UnitsEntity extends UnitEntity
 	boolean paused = false
 	int basicPauseCount = 0
 	int absPauseCount = 0
-	LinkedList<CallbackSingle> pauseCbs = new LinkedList<CallbackSingle>()
-	LinkedList<CallbackSingle> absPauseCbs = new LinkedList<CallbackSingle>()
+	LinkedList<PauseTimer> pauseCbs = new LinkedList<PauseTimer>()
+	LinkedList<PauseTimer> absPauseCbs = new LinkedList<PauseTimer>()
 
 	construct(unit actor)
 		super(actor)
@@ -23,20 +23,28 @@ public class UnitsEntity extends UnitEntity
 	function pauseTimed(real duration, boolean absolute)
 		if absolute
 			absPauseCount += 1
-			CallbackSingle cb = null
+			let hndl = new PauseTimer()
+			CallbackSingle cb
 			cb = doAfter(duration) ->
-				absPauseCbs.remove(cb)
+				absPauseCbs.remove(hndl)
 				absPauseCount -= 1
+				hndl.finish()
+				destroy hndl
 				this.updatePause()
-			absPauseCbs.add(cb)
+			hndl.setCallback(cb)
+			absPauseCbs.add(hndl)
 		else
 			basicPauseCount += 1
-			CallbackSingle cb = null
+			let hndl = new PauseTimer()
+			CallbackSingle cb
 			cb = doAfter(duration) ->
-				pauseCbs.remove(cb)
+				pauseCbs.remove(hndl)
 				basicPauseCount -= 1
+				hndl.finish()
+				destroy hndl
 				this.updatePause()
-			pauseCbs.add(cb)
+			hndl.setCallback(cb)
+			pauseCbs.add(hndl)
 		if not paused
 			actor.pause()
 			paused = true
@@ -45,12 +53,16 @@ public class UnitsEntity extends UnitEntity
 		pauseTimed(duration, false)
 
 	function resume()
-		for cb in pauseCbs
-			destroy cb
-		pauseCbs.clear()
-		for cb in absPauseCbs
-			destroy cb
-		absPauseCbs.clear()
+		while not pauseCbs.isEmpty()
+			let hndl = pauseCbs.dequeue()
+			if hndl != null
+				hndl.cancel()
+				destroy hndl
+		while not absPauseCbs.isEmpty()
+			let hndl = absPauseCbs.dequeue()
+			if hndl != null
+				hndl.cancel()
+				destroy hndl
 		basicPauseCount = 0
 		absPauseCount = 0
 		updatePause()
@@ -68,10 +80,16 @@ public class UnitsEntity extends UnitEntity
 		return absPauseCount > 0
 
 	ondestroy
-		for cb in pauseCbs
-			destroy cb
-		for cb in absPauseCbs
-			destroy cb
+		while not pauseCbs.isEmpty()
+			let hndl = pauseCbs.dequeue()
+			if hndl != null
+				hndl.cancel()
+				destroy hndl
+		while not absPauseCbs.isEmpty()
+			let hndl = absPauseCbs.dequeue()
+			if hndl != null
+				hndl.cancel()
+				destroy hndl
 
 public function unit.pauseTimed(real duration, boolean absolute)
 	let u = this.getEntity() castTo UnitsEntity
@@ -176,12 +194,25 @@ public class Unit
 public function unit.getId() returns int
 	return this.getIndex()
 
+class PauseTimer
+	CallbackSingle cb = null
+	function setCallback(CallbackSingle cb)
+		this.cb = cb
+	function finish()
+		cb = null
+	function cancel()
+		if cb != null
+			destroy cb
+			cb = null
+	ondestroy
+		cancel()
+
+public function frentityInit()
+	startEntityLoop()
+
 init
 	onUnitIndex(() -> new Unit(getIndexingUnit()))
 	onUnitDeindex() ->
 		let u = Unit.units[getIndexingUnit().getIndex()]
 		if u != null
 			destroy u
-
-public function frentityInit()
-	startEntityLoop()
