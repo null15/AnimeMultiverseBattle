@@ -14,7 +14,7 @@ constant real CHAKRA_ROD_HEIGHT_OFFSET = 75.
 constant real CHAKRA_ROD_THROW_OFFSET = 75.
 constant real CHAKRA_ROD_BIND_DISTANCE = 150.
 constant real CHAKRA_ROD_MISSILE_SPEED = 1400.
-constant real CHAKRA_ROD_COLLISION = 96.
+constant real CHAKRA_ROD_COLLISION = 124.
 constant string CHAKRA_ROD_MODEL_PATH = "Nagato\\Rod\\ChakraRod.mdx"
 constant string CHAKRA_ROD_BLOOD_FX = "Objects\\Spawnmodels\\Human\\HumanBlood\\HeroBloodElfBlood.mdx"
 
@@ -22,15 +22,19 @@ class ChakraRodMissile
 	Missiles missile
 	unit ownerUnit
 	unit initialCaster
+	unit initialTarget
 	player ownerPlayer
+	player initialOwner
 	real bindDuration
 	boolean completed = false
+	boolean deflected = false
 	angle travelYaw = angle(0.)
 
 	construct(unit caster, unit target)
 		this.initialCaster = caster
 		this.ownerUnit = caster
 		this.ownerPlayer = caster.getOwner()
+		this.initialOwner = this.ownerPlayer
 		let level = caster.getAbilityLevel(NAGATO_UZUMAKI_BIND)
 		this.bindDuration = level > 0 ? 0.7 * level.toReal() : 0.
 		let casterEntity = caster.getEntity()
@@ -45,6 +49,7 @@ class ChakraRodMissile
 		this.missile.owner = this.ownerPlayer
 		this.missile.source = caster
 		this.missile.target = target
+		this.initialTarget = target
 		this.missile.collision = CHAKRA_ROD_COLLISION
 		this.missile.collideZ = true
 		this.missile.setModel(CHAKRA_ROD_MODEL_PATH)
@@ -63,6 +68,21 @@ class ChakraRodMissile
 			return this.initialCaster.getOwner()
 		return null
 
+	function clearInitialTarget() returns boolean
+		if this.initialTarget == null
+			return false
+		this.initialTarget = null
+		if this.missile != null
+			this.missile.flush()
+		return true
+
+	function markDeflected()
+		if this.deflected
+			return
+		this.deflected = true
+		if not this.clearInitialTarget() and this.missile != null
+			this.missile.flush()
+
 	function getRodYaw(unit victim) returns angle
 		if this.ownerUnit != null and victim != null
 			return this.ownerUnit.getPos().angleTo(victim.getPos())
@@ -73,14 +93,23 @@ class ChakraRodMissile
 	function onPeriod() returns boolean
 		if this.missile == null
 			return false
+		if not this.deflected and this.initialTarget != null and not this.initialTarget.isAlive()
+			this.clearInitialTarget()
 		if this.missile.owner != this.ownerPlayer
 			this.ownerPlayer = this.missile.owner
+			if this.deflected
+				if this.missile != null
+					this.missile.flush()
+			else if this.initialOwner != null and this.ownerPlayer != this.initialOwner
+				this.markDeflected()
 			if this.missile.source != null and this.missile.source.getOwner() == this.ownerPlayer
 				this.ownerUnit = this.missile.source
 			else
 				this.ownerUnit = null
 		else if this.missile.source != null and this.missile.source != this.ownerUnit and this.missile.source.getOwner() == this.ownerPlayer
 			this.ownerUnit = this.missile.source
+		if not this.deflected and this.missile.target == null and this.initialTarget != null
+			this.clearInitialTarget()
 		if this.missile.target != null
 			this.travelYaw = this.missile.getPos().toVec2().angleTo(this.missile.target.getPos())
 		return false
@@ -96,6 +125,10 @@ class ChakraRodMissile
 		if owner == null or not u.isEnemyOf(owner)
 			return false
 		if this.ownerUnit != null and u == this.ownerUnit
+			return false
+		if not this.deflected and this.initialTarget != null and u != this.initialTarget
+			if this.missile != null
+				this.missile.flush(u)
 			return false
 		this.completed = true
 		return this.applyBind(u)
@@ -126,7 +159,9 @@ class ChakraRodMissile
 	ondestroy
 		this.ownerUnit = null
 		this.initialCaster = null
+		this.initialTarget = null
 		this.ownerPlayer = null
+		this.initialOwner = null
 
 function cleanupRodVisual(unit rod)
 	if chakraRodVisuals.has(rod)
