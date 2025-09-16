@@ -42,6 +42,7 @@ function makeHero(
 	// Abilities (already pre-commaJoined by caller)
 	..setNormalAbilities(normalSpells)..setHeroAbilities(heroSpells)
 	// Targeting / classification
+	..setUnitClassification(commaList(UnitTargetType.Hero))
 	..setTargetedAs(commaList(UnitTargetType.Hero, UnitTargetType.Ground, UnitTargetType.Alive))
 	..setArmorType(ArmorType.Hero)
 	..setArmorSoundType(ArmorSoundType.Flesh)
