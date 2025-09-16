@@ -24,11 +24,10 @@
 - Maple summons her pet which sends 3 woodish colored shockwaves forward in a interval.
 - Enemies hit are slowed by 20%.
 - If enemies are hit by all 3 waves they become rooted for 1.5 seconds (value can change).
-- For each enemy unit hit maple receives a very small shield.
 
 ## R - Canon Modo Laser 
 - Maple fires a redish laser.
-- Enemy heroes hit deal 5% less damage (value can change).
+- Enemy heroes are briefly taunted towards mapple.
 - Changes skin to canon mode.
 
 ## T - Loving Sacrifice And Throne Of The Heavenly King
