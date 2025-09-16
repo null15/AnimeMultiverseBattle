@@ -4,15 +4,50 @@ import objectIDs
 import Tether
 import EntitySystem
 import EntityManagement
+import HashMap
+
+constant HashMap<unit, effect> chakraRodVisuals = new HashMap<unit, effect>()
+constant angle CHAKRA_ROD_PITCH = (80).fromDeg()
+constant angle CHAKRA_ROD_ROLL = (0).fromDeg()
+constant real CHAKRA_ROD_HEIGHT_OFFSET = 75.
+
+function cleanupRodVisual(unit rod)
+	if chakraRodVisuals.has(rod)
+		let fx = chakraRodVisuals.get(rod)
+		if fx != null
+			fx..setPos(vec2(-9999, -9999))..destr()
+		chakraRodVisuals.remove(rod)
+
+function createRodVisual(unit caster, unit rod, unit target)
+	cleanupRodVisual(rod)
+	let rodPos = rod.getPos3Real().add(0, 0, CHAKRA_ROD_HEIGHT_OFFSET)
+	angle yaw
+	if caster != null and target != null
+		yaw = caster.getPos().angleTo(target.getPos())
+	else
+		yaw = rod.getFacingAngle()
+	let fx = addEffect("Nagato\\Rod\\ChakraRod.mdx", rodPos)
+	fx..setScale(2.)..setOrientation(yaw, CHAKRA_ROD_PITCH, CHAKRA_ROD_ROLL)
+	chakraRodVisuals.put(rod, fx)
+
+function onRodRemoved()
+	let rod = getIndexingUnit()
+	if rod != null and rod.getTypeId() == NAGATO_UZUMAKI_ROD
+		cleanupRodVisual(rod)
 
 function onCast()
 	if GetSpellAbilityId() == NAGATO_UZUMAKI_BIND
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
+		if caster == null or target == null
+			return
 		let rod = Unit.create(caster.getOwner(), NAGATO_UZUMAKI_ROD, target.getPos())
+		rod.setVertexColor(255, 255, 255, 0)
+		createRodVisual(caster, rod, target)
 		let level = caster.getAbilityLevel(NAGATO_UZUMAKI_BIND)
 		let duration = 0.7 * level.toReal()
 		Tether.bindTimed(target, rod, 150, duration)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
+	onUnitDeindex(() -> onRodRemoved())
