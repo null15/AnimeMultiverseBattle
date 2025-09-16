@@ -288,6 +288,7 @@ import objectIDs
 	..setTooltipNormal(1, "NAGATO SHINRA TENSEI")
 	..setTooltipNormalExtended(1, "Repels nearby enemies and reflects projectiles.")
 	..presetIcon(Icons.bTNAcidBomb)
+	..setLevels(5)
 	..setEffectSound("_")
 	..presetEffects(lvl -> "_")
 	..presetAreaofEffect(lvl -> 0)

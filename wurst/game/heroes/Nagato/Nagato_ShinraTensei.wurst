@@ -75,7 +75,7 @@ class ShinraTensei
 			this.applyCollision(u)
 			return
 		forUnitsInRange(u.getPos(), 128.) (unit rod) ->
-			if rod.getTypeId() == NAGATO_UZUMAKI_BINDDUMMY
+			if rod.getTypeId() == NAGATO_UZUMAKI_ROD
 				this.applyCollision(u)
 
 	function applyCollision(unit u)

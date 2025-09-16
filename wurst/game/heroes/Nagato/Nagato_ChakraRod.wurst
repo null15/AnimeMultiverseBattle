@@ -2,14 +2,14 @@ package Nagato_ChakraRod
 
 import objectIDs
 import Tether
-import RegisterEvents
 import EntitySystem
+import EntityManagement
 
 function onCast()
 	if GetSpellAbilityId() == NAGATO_UZUMAKI_BIND
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
-		let rod = Unit.create(caster.getOwner(), NAGATO_UZUMAKI_BINDDUMMY, target.getPos())
+		let rod = Unit.create(caster.getOwner(), NAGATO_UZUMAKI_ROD, target.getPos())
 		let level = caster.getAbilityLevel(NAGATO_UZUMAKI_BIND)
 		let duration = 0.7 * level.toReal()
 		Tether.bindTimed(target, rod, 150, duration)
