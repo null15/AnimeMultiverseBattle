@@ -31,7 +31,7 @@ public class Pull
 			this.update()
 
 	function update()
-		if this.actor == null or not this.actor.isAlive()
+		if this.actor == null or not this.actor.isAliveTrick() or BlzBitAnd(BlzGetUnitIntegerField(this.actor, UNIT_IF_UNIT_CLASSIFICATION), GetHandleId(UNIT_CATEGORY_WARD)) != 0
 			stop()
 			return
 		if this.actor.isAbsolutePausedTimed()

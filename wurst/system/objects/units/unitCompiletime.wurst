@@ -107,6 +107,7 @@ function makeDummy(int id, string modelPath)
 	..setAcquisitionRange(INT_MAX.toReal())
 	..setNormalAbilities(
 		commaList(AbilityIds.crowForm))
+	..setTargetedAs(UnitTargetType.Ward)
 
 @compiletime function generateDummyUnit()
 	makeDummy(PROGRESS_BAR_DUMMY, "ui\\Bars\\ProgressbarTransformation.mdx")
