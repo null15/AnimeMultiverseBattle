@@ -130,6 +130,7 @@ public class Missiles
 	private int tileset = 0
 	private boolean launched = false
 	private CallbackPeriodic cb = null
+	private boolean terminating = false
 
 	unit source = null
 	unit target = null
@@ -300,6 +301,9 @@ public class Missiles
 	/* -------------------------------- Terminate ------------------------------- */
 
 	function terminate()
+		if terminating
+			return
+		terminating = true
 		nullTimer(() -> destroy this) // To wait until the loops ended
 
 	ondestroy

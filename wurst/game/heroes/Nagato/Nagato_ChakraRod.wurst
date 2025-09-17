@@ -44,7 +44,7 @@ class ChakraRodMissile
 		let launchPos = launchBase + facing.toVec(CHAKRA_ROD_THROW_OFFSET)
 		let targetPos2d = target != null ? target.getPos() : launchPos.toVec2() + facing.toVec(1.)
 		this.travelYaw = launchPos.toVec2().angleTo(targetPos2d)
-		let impactPos = target != null ? target.getPos().withZ(launchPos.z) : launchPos + facing.toVec(600.)
+		let impactPos = target != null ? target.getPos3Real().add(0, 0, CHAKRA_ROD_HEIGHT_OFFSET) : launchPos + facing.toVec(600.)
 		this.missile = new Missiles(launchPos, impactPos)
 		this.missile.owner = this.ownerPlayer
 		this.missile.source = caster

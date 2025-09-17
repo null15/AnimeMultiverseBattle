@@ -6,6 +6,8 @@ import ClosureTimers
 import objectIDs
 import ClosureEvents
 
+// Check my latest Codex prompt.
+
 init
 	nullTimer() ->
 		let start = vec2(1000., 1000.)
