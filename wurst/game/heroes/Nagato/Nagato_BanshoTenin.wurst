@@ -1,0 +1,14 @@
+package Nagato_BanshoTenin
+
+import ClosureEvents
+import objectIDs
+
+function onCast()
+	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN
+		let caster = GetTriggerUnit()
+		if caster == null
+			return
+		let target = GetSpellTargetUnit()
+
+init
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

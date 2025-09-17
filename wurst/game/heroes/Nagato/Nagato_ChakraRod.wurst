@@ -25,12 +25,14 @@ AnchorVisualSetup chakraRodVisualSetup = new AnchorVisualSetup(
 
 BindingProjectileConfig chakraRodConfig = null
 
-function computeBindDuration(unit caster, unit _target) returns real
+// ---------------------------------------------------- //
+
+function bindDuration(unit caster, unit _target) returns real
 	let level = caster.getAbilityLevel(NAGATO_UZUMAKI_BIND)
 	return level > 0 ? 0.7 * level.toReal() : 0.
 
-function onChakraRodImpact(BindingProjectile projectile, unit victim) returns bool
-	var rodOwner = projectile.getCurrentOwnerPlayer()
+function onImpact(BindingProjectile projectile, unit victim) returns bool
+	var rodOwner = projectile.getOwner()
 	if rodOwner == null
 		rodOwner = Player(PLAYER_NEUTRAL_PASSIVE)
 	let rod = Unit.create(rodOwner, NAGATO_UZUMAKI_ROD, victim.getPos())
@@ -44,7 +46,7 @@ function onChakraRodImpact(BindingProjectile projectile, unit victim) returns bo
 		blood..destr()
 	return true
 
-function ensureChakraRodConfig()
+function chakraRod_config()
 	if chakraRodConfig != null
 		return
 	chakraRodConfig = new BindingProjectileConfig(CHAKRA_ROD_MODEL_PATH, CHAKRA_ROD_COLLISION, CHAKRA_ROD_MISSILE_SPEED)
@@ -53,8 +55,8 @@ function ensureChakraRodConfig()
 	chakraRodConfig.forwardOffset = CHAKRA_ROD_THROW_OFFSET
 	chakraRodConfig.requireHeroTarget = true
 	chakraRodConfig.requireEnemyTarget = true
-	chakraRodConfig.durationProvider = (unit caster, unit target) -> computeBindDuration(caster, target)
-	chakraRodConfig.impactHandler = (BindingProjectile projectile, unit victim) -> onChakraRodImpact(projectile, victim)
+	chakraRodConfig.durationProvider = (unit caster, unit target) -> bindDuration(caster, target)
+	chakraRodConfig.impactHandler = (BindingProjectile projectile, unit victim) -> onImpact(projectile, victim)
 
 function onCast()
 	if GetSpellAbilityId() == NAGATO_UZUMAKI_BIND
@@ -63,7 +65,7 @@ function onCast()
 			return
 		let target = GetSpellTargetUnit()
 		caster.setAnimation(3)
-		ensureChakraRodConfig()
+		chakraRod_config()
 		launchBindingProjectile(caster, target, chakraRodConfig)
 
 init

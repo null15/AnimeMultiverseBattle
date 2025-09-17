@@ -78,7 +78,7 @@ public class BindingProjectile
 		this.initialTarget = target
 		this.ownerPlayer = caster != null ? caster.getOwner() : null
 		this.initialOwner = this.ownerPlayer
-		this.bindDuration = this.computeBindDuration(caster, target)
+		this.bindDuration = this.bindDuration(caster, target)
 		this.launchMissile(caster, target)
 
 	function getConfig() returns BindingProjectileConfig
@@ -93,7 +93,7 @@ public class BindingProjectile
 	function getMissile() returns Missiles
 		return this.missile
 
-	function getCurrentOwnerPlayer() returns player
+	function getOwner() returns player
 		if this.ownerPlayer != null
 			return this.ownerPlayer
 		if this.initialCaster != null
@@ -110,7 +110,7 @@ public class BindingProjectile
 	function getTravelYaw() returns angle
 		return this.travelYaw
 
-	function computeBindDuration(unit caster, unit target) returns real
+	function bindDuration(unit caster, unit target) returns real
 		if this.config != null and this.config.durationProvider != null
 			return this.config.durationProvider.compute(caster, target)
 		return 0.
@@ -183,7 +183,7 @@ public class BindingProjectile
 		if this.config.requireHeroTarget and not u.isType(UNIT_TYPE_HERO)
 			return false
 		if this.config.requireEnemyTarget
-			let owner = this.getCurrentOwnerPlayer()
+			let owner = this.getOwner()
 			if owner == null or not u.isEnemyOf(owner)
 				return false
 		if this.shouldIgnoreUnit(u)

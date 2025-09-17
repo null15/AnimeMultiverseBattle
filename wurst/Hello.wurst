@@ -23,12 +23,12 @@ init
 		Unit.create(players[2], ALL_MIGHT, vec2(0, 0))..setLevel(10, false)
 		Unit.create(players[3], NAGATO_UZUMAKI, vec2(0, 0))..setLevel(10, false)
 		Unit.create(players[4], NAGATO_UZUMAKI_ROD, vec2(0, 0))..setLevel(10, false)
-		Unit.create(players[5], NAGATO_UZUMAKI, vec2(-700, -700))..setLevel(10, false).setMoveSpeed(0)
+		Unit.create(players[7], NAGATO_UZUMAKI, vec2(-700, -700))..setLevel(10, false).setMoveSpeed(0)
 		players[1].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
 		players[2].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
 		players[3].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
 		players[4].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
-		players[5].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
+		// players[5].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
 
 		CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()
 

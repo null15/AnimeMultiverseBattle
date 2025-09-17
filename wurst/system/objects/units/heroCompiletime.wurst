@@ -119,7 +119,7 @@ function makeHero(
 @compiletime function generateHeroObject()
 	makeHero(
 		NAGATO_UZUMAKI, UnitIds.paladin,
-		Icons.bTNAcorn, "Nagato", "The Painspreader",
+		Icons.bTNAcorn, "Nagato", "Some cool title here",
 		"A man who suffered much pain, now he wnats to spread it like Covid to others",
 		"Nagato\\Nagato\\NagatoUzumaki.mdx", 0.8,
 		9, 1,
@@ -129,7 +129,7 @@ function makeHero(
 		300, 300, 5,
 		1, 1,
 		commaList(AbilityIds.inventory),
-				commaList(NAGATO_SHINRA_TENSEI, NAGATO_UZUMAKI_BIND),
+				commaList(NAGATO_BANSHO_TENIN, NAGATO_SHINRA_TENSEI, NAGATO_UZUMAKI_BIND),
 		24, 150, "", 0,
 		12, 500, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
 
