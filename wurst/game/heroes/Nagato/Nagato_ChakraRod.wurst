@@ -51,7 +51,7 @@ class ChakraRodMissile
 		this.missile.target = target
 		this.initialTarget = target
 		this.missile.collision = CHAKRA_ROD_COLLISION
-		this.missile.collideZ = true
+		this.missile.collideZ = false
 		this.missile.setModel(CHAKRA_ROD_MODEL_PATH)
 		this.missile.setScale(2.)
 		this.missile.setHideFxOnRemove(true)
@@ -94,6 +94,8 @@ class ChakraRodMissile
 	function onPeriod() returns boolean
 		if this.missile == null
 			return false
+		if this.tryAutoBindInitialTarget()
+			return true
 		if not this.deflected and this.initialTarget != null and not this.initialTarget.isAlive()
 			this.clearInitialTarget()
 		if this.missile.owner != this.ownerPlayer
@@ -114,6 +116,20 @@ class ChakraRodMissile
 		if this.missile.target != null
 			this.travelYaw = this.missile.getPos().toVec2().angleTo(this.missile.target.getPos())
 		return false
+
+	function tryAutoBindInitialTarget() returns boolean
+		if this.completed or this.deflected
+			return false
+		let target = this.initialTarget
+		if target == null or not target.isAlive()
+			return false
+		if this.missile == null
+			return false
+		let missilePos = this.missile.getPos().toVec2()
+		let maxDistance = CHAKRA_ROD_COLLISION + target.getCollisionSize()
+		if missilePos.distanceTo(target.getPos()) > maxDistance
+			return false
+		return this.onHit(target)
 
 	function onHit(unit u) returns boolean
 		if this.completed
