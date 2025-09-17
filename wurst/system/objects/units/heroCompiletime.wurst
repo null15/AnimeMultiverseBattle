@@ -119,7 +119,7 @@ function makeHero(
 @compiletime function generateHeroObject()
 	makeHero(
 		NAGATO_UZUMAKI, UnitIds.paladin,
-		Icons.bTNAcorn, "Nagato", "Some cool title here",
+		Icons.bTNAcorn, "Nagato", "Deva Path",
 		"A man who suffered much pain, now he wnats to spread it like Covid to others",
 		"Nagato\\Nagato\\NagatoUzumaki.mdx", 0.8,
 		9, 1,
