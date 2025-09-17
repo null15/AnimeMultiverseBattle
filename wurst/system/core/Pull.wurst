@@ -4,6 +4,12 @@ import ClosureTimers
 import HashMap
 import EntitySystem
 import EntityManagement
+import Utility
+
+public interface UnitFilter
+	function get(unit which) returns bool
+
+UnitFilter UNIT_FILTER = (unit u) -> not u.isWard()
 
 public class Pull
 	static HashMap<unit, Pull> active = new HashMap<unit, Pull>
@@ -31,7 +37,7 @@ public class Pull
 			this.update()
 
 	function update()
-		if this.actor == null or not this.actor.isAliveTrick() or BlzBitAnd(BlzGetUnitIntegerField(this.actor, UNIT_IF_UNIT_CLASSIFICATION), GetHandleId(UNIT_CATEGORY_WARD)) == 0
+		if this.actor == null or not this.actor.isAliveTrick()
 			stop()
 			return
 		if this.actor.isAbsolutePausedTimed()
@@ -67,12 +73,12 @@ public class Pull
 		destroy this
 
 	static function toUnit(unit target, unit source, real stopRange, real speed) returns Pull
-		if target == null or source == null
+		if target == null or source == null or not UNIT_FILTER.get(target)
 			return null
 		return new Pull(target, source.getPos(), stopRange, speed, source)
 
 	static function toPoint(unit target, vec2 point, real stopRange, real speed) returns Pull
-		if target == null
+		if target == null or not UNIT_FILTER.get(target)
 			return null
 		return new Pull(target, point, stopRange, speed, null)
 

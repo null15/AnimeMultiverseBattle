@@ -32,6 +32,7 @@ import LinkedListModule
 import HashMap
 import Objects
 import EntitySystem
+import Utility
 
 /** A vec3 -> real function. */
 public interface TerrainZProvider
@@ -77,7 +78,7 @@ Warning: this is not a lock-safe form of crowd control.
 @configurable let USE_PROP_WINDOW_MODIFIERS = true
 
 /** Units must match this filter, or Knockback3 takes no effect. */
-@configurable UnitFilter UNIT_FILTER = (unit u) -> not u.isType(UNIT_TYPE_FLYING)
+UnitFilter UNIT_FILTER = (unit u) -> not u.isType(UNIT_TYPE_FLYING) and not u.isWard()
 
 
 public class Knockback3
@@ -282,32 +283,30 @@ public class Knockback3
 	private static function tick()
 		for knockback from staticItr()
 			if not knockback.u.isAbsolutePausedTimed()
-				// If unit has "ward" classification, then the handle returns "512" value. 
-				if BlzBitAnd(BlzGetUnitIntegerField(knockback.u, UNIT_IF_UNIT_CLASSIFICATION), GetHandleId(UNIT_CATEGORY_WARD)) == 0
-					let pos3 = knockback.u.getPos3Fly()
-					var newPos3 = pos3 + knockback.del
+				let pos3 = knockback.u.getPos3Fly()
+				var newPos3 = pos3 + knockback.del
 
-					if not newPos3.inPlayable()
-						newPos3.x = pos3.x
-						newPos3.y = pos3.y
-						knockback.del = ZERO2.withZ(knockback.del.z)
+				if not newPos3.inPlayable()
+					newPos3.x = pos3.x
+					newPos3.y = pos3.y
+					knockback.del = ZERO2.withZ(knockback.del.z)
 
-					let velXySquared = knockback.del.toVec2().lengthSq()
+				let velXySquared = knockback.del.toVec2().lengthSq()
 
-					if pos3.z < isAirborneThreshold
-						tickNearGround(knockback, newPos3, pos3, velXySquared)
-					else
-						tickAboveGround(knockback, newPos3, pos3)
+				if pos3.z < isAirborneThreshold
+					tickNearGround(knockback, newPos3, pos3, velXySquared)
+				else
+					tickAboveGround(knockback, newPos3, pos3)
 
-					if velXySquared > destroyDestructableSpeedThreshold * ANIMATION_PERIOD and pos3.z < destroyDestructableHeightThreshold
-						tickTryDestructable(knockback, newPos3)
+				if velXySquared > destroyDestructableSpeedThreshold * ANIMATION_PERIOD and pos3.z < destroyDestructableHeightThreshold
+					tickTryDestructable(knockback, newPos3)
 
-					let isVelxyLow = velXySquared < (minimumSlideSpeed * minimumSlideSpeed) * ANIMATION_PERIOD
-					let isVelzLow = knockback.del.z.abs() < -1. * elasticityThreshold * ANIMATION_PERIOD
-					let isAirborne = pos3.z > isAirborneThreshold
-					if isVelxyLow and isVelzLow and not isAirborne
-						knockback.u.setFlyHeight(0., 0.)
-						destroy knockback
+				let isVelxyLow = velXySquared < (minimumSlideSpeed * minimumSlideSpeed) * ANIMATION_PERIOD
+				let isVelzLow = knockback.del.z.abs() < -1. * elasticityThreshold * ANIMATION_PERIOD
+				let isAirborne = pos3.z > isAirborneThreshold
+				if isVelxyLow and isVelzLow and not isAirborne
+					knockback.u.setFlyHeight(0., 0.)
+					destroy knockback
 
 		if size == 0
 			clock.pause()
