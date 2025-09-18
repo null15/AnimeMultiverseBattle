@@ -6,19 +6,21 @@ import ClosureTimers
 import HashMap
 import EntitySystem
 import ClosureEvents
+import SoundUtils
+import SoundSystem
 
 constant real BANSHO_PERIOD = 0.03125
 constant real BANSHO_STOP_RANGE = 128.
 constant real BANSHO_MIN_SPEED = 150.
 constant real BANSHO_FX_OFFSET = 80.
 constant string BANSHO_DIRT_FX = "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdx"
+constant SoundDefinition snd_BanshoTenin = new SoundDefinition("Nagato\\BanshoTenin\\BanshoTenin.mp3", false, true)
 
 constant HashMap<unit, BanshoTenin> active = new HashMap<unit, BanshoTenin>()
 
 class BanshoTenin
 	unit caster
 	unit target
-	Pull pull
 	CallbackPeriodic cb
 	effect dirtFx
 	real elapsed
@@ -32,16 +34,17 @@ class BanshoTenin
 		var speed = target.getMoveSpeed()
 		if speed < BANSHO_MIN_SPEED
 			speed = BANSHO_MIN_SPEED
-		this.pull = Pull.toUnit(target, caster, -1., speed)
-		if this.pull == null
+		let pull = Pull.toUnit(target, caster, BANSHO_STOP_RANGE, speed)
+		if pull == null
 			this.finished = true
 		else
+			playSound(snd_BanshoTenin, this.caster.getPos3Real(), 700)
 			this.dirtFx = addEffect(BANSHO_DIRT_FX, target.getPos3Real())
 			this.cb = doPeriodically(BANSHO_PERIOD) (CallbackPeriodic c) ->
 				this.update()
 
 	function isActive() returns boolean
-		return not this.finished and this.pull != null
+		return not this.finished
 
 	function update()
 		if this.finished
@@ -76,8 +79,11 @@ class BanshoTenin
 		var appliedSpeed = this.target.getMoveSpeed()
 		if appliedSpeed < BANSHO_MIN_SPEED
 			appliedSpeed = BANSHO_MIN_SPEED
-		if this.pull != null
-			this.pull.speed = appliedSpeed
+		let pull = Pull.getActive(this.target)
+		if pull == null
+			stop()
+			return
+		pull.speed = appliedSpeed
 		if this.dirtFx != null
 			let behindPos = dist > 0. ? targetPos - diff.norm() * BANSHO_FX_OFFSET : targetPos
 			let groundPos = this.target.getPos3Real()
@@ -90,9 +96,8 @@ class BanshoTenin
 		if this.cb != null
 			destroy this.cb
 			this.cb = null
-		if this.pull != null
-			this.pull.stop()
-			this.pull = null
+		if this.target != null
+			Pull.stopActive(this.target)
 		if this.dirtFx != null
 			this.dirtFx..setPos(vec2(-99999, -99999))..destr()
 			this.dirtFx = null
@@ -104,7 +109,6 @@ class BanshoTenin
 
 	ondestroy
 		this.cb = null
-		this.pull = null
 		this.dirtFx = null
 
 function onChannel()

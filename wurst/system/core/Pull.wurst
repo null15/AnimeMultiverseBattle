@@ -72,6 +72,18 @@ public class Pull
 			this.cb = null
 		destroy this
 
+	static function getActive(unit actor) returns Pull
+		if actor == null
+			return null
+		if active.has(actor)
+			return active.get(actor)
+		return null
+
+	static function stopActive(unit actor)
+		let inst = getActive(actor)
+		if inst != null
+			inst.stop()
+
 	static function toUnit(unit target, unit source, real stopRange, real speed) returns Pull
 		if target == null or source == null or not UNIT_FILTER.get(target)
 			return null
