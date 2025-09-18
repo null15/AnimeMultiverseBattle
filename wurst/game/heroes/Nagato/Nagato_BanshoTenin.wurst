@@ -37,6 +37,8 @@ class BanshoTenin
 		let pull = Pull.toUnit(target, caster, BANSHO_STOP_RANGE, speed)
 		if pull == null
 			this.finished = true
+			if this.caster != null and this.caster.isAlive()
+				this.caster.issueImmediateOrder("stop")
 		else
 			playSound(snd_BanshoTenin, this.caster.getPos3Real(), 700)
 			this.dirtFx = addEffect(BANSHO_DIRT_FX, target.getPos3Real())
@@ -50,17 +52,17 @@ class BanshoTenin
 		if this.finished
 			return
 		if this.caster == null or not this.caster.isAlive()
-			stop()
+			this.stop(true)
 			return
 		if this.target == null or not this.target.isAlive()
-			stop()
+			this.stop(true)
 			return
 		let casterPos = this.caster.getPos()
 		let targetPos = this.target.getPos()
 		let diff = casterPos - targetPos
 		let dist = diff.length()
 		if dist <= BANSHO_STOP_RANGE
-			stop()
+			this.stop(true)
 			return
 		this.elapsed += BANSHO_PERIOD
 		if this.caster.isEnemyOf(this.target)
@@ -81,7 +83,7 @@ class BanshoTenin
 			appliedSpeed = BANSHO_MIN_SPEED
 		let pull = Pull.getActive(this.target)
 		if pull == null
-			stop()
+			this.stop(true)
 			return
 		pull.speed = appliedSpeed
 		if this.dirtFx != null
@@ -89,10 +91,12 @@ class BanshoTenin
 			let groundPos = this.target.getPos3Real()
 			this.dirtFx.setPos(vec3(behindPos.x, behindPos.y, groundPos.z))
 
-	function stop()
+	function stop(boolean orderCaster)
 		if this.finished
 			return
 		this.finished = true
+		if orderCaster and this.caster != null and this.caster.isAlive()
+			this.caster.issueImmediateOrder("stop")
 		if this.cb != null
 			destroy this.cb
 			this.cb = null
@@ -120,7 +124,7 @@ function onChannel()
 		if target == null or not target.isType(UNIT_TYPE_HERO)
 			return
 		if active.has(caster)
-			active.get(caster).stop()
+			active.get(caster).stop(false)
 		let inst = new BanshoTenin(caster, target)
 		if inst.isActive()
 			active.put(caster, inst)
@@ -131,7 +135,7 @@ function onStop()
 	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN
 		let caster = GetTriggerUnit()
 		if caster != null and active.has(caster)
-			active.get(caster).stop()
+			active.get(caster).stop(false)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())
