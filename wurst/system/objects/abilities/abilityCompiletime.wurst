@@ -313,7 +313,7 @@ import objectIDs
 	..setHotkeyTurnOff("E")
 	..presetCooldown(lvl -> 1)
 	..presetButtonPosNormal(0, 2)
-	..presetTargetsAllowed(lvl -> commaList(UnitTargetType.Hero))
+	..presetTargetsAllowed(lvl -> commaList(UnitTargetType.Hero, UnitTargetType.Allies, UnitTargetType.Enemies))
 	registerElementalSpell(Element.LIGHTNING, NAGATO_BANSHO_TENIN)
 
 	new AbilityDefinitionKeeperoftheGroveTranquility(NAGATO_SHINRA_TENSEI)
