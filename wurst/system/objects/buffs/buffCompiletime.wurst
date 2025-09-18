@@ -8,7 +8,3 @@ import BuffObjEditing
 	new BuffDefinition(BUFF_DEFINITION_EXAMPLE, BuffIds.drainLifeCaster)
 		..setName("Example Usage of Buff Definition")
 		..setArtTarget("_")
-		..setCaster("_")
-		..setEffect("_")
-		..setMissileArt("_")
-		..setTargetAttachments(0)

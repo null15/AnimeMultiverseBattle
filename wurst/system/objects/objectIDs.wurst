@@ -108,4 +108,4 @@ public constant			NAGATO_UZUMAKI_ROD			= compiletime(UNIT_ID_GEN.next())
 /* ---------------------------- MISC ---------------------------- */
 public constant 		ALL_MIGHT_POWER_SKIN 		= compiletime(HERO_ID_GEN.next())
 public constant			PROGRESS_BAR_DUMMY			= compiletime(UNIT_ID_GEN.next())
-public constant			BUFF_DEFINITION_EXAMPLE     = compiletime(BUFF_ID_GEN.next())
+public constant			BUFF_DEFINITION_EXAMPLE		= compiletime(BUFF_ID_GEN.next())
