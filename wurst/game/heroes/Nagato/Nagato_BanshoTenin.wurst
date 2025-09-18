@@ -1,14 +1,135 @@
 package Nagato_BanshoTenin
 
-import ClosureEvents
 import objectIDs
+import Pull
+import ClosureTimers
+import HashMap
+import EntitySystem
+import ClosureEvents
 
-function onCast()
+constant real BANSHO_PERIOD = 0.03125
+constant real BANSHO_STOP_RANGE = 128.
+constant real BANSHO_MIN_SPEED = 150.
+constant real BANSHO_FX_OFFSET = 80.
+constant string BANSHO_DIRT_FX = "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdx"
+
+constant HashMap<unit, BanshoTenin> active = new HashMap<unit, BanshoTenin>()
+
+class BanshoTenin
+	unit caster
+	unit target
+	Pull pull
+	CallbackPeriodic cb
+	effect dirtFx
+	real elapsed
+	boolean finished
+
+	construct(unit caster, unit target)
+		this.caster = caster
+		this.target = target
+		this.elapsed = 0.
+		this.finished = false
+		var speed = target.getMoveSpeed()
+		if speed < BANSHO_MIN_SPEED
+			speed = BANSHO_MIN_SPEED
+		this.pull = Pull.toUnit(target, caster, -1., speed)
+		if this.pull == null
+			this.finished = true
+		else
+			this.dirtFx = addEffect(BANSHO_DIRT_FX, target.getPos3Real())
+			this.cb = doPeriodically(BANSHO_PERIOD) (CallbackPeriodic c) ->
+				this.update()
+
+	function isActive() returns boolean
+		return not this.finished and this.pull != null
+
+	function update()
+		if this.finished
+			return
+		if this.caster == null or not this.caster.isAlive()
+			stop()
+			return
+		if this.target == null or not this.target.isAlive()
+			stop()
+			return
+		let casterPos = this.caster.getPos()
+		let targetPos = this.target.getPos()
+		let diff = casterPos - targetPos
+		let dist = diff.length()
+		if dist <= BANSHO_STOP_RANGE
+			stop()
+			return
+		this.elapsed += BANSHO_PERIOD
+		if this.caster.isEnemyOf(this.target)
+			let rawLevel = this.caster.getAbilityLevel(NAGATO_BANSHO_TENIN)
+			let lvl = rawLevel > 0 ? rawLevel.toReal() : 1.
+			let baseDps = 14. + 6. * lvl
+			let rampDps = 8. + 3. * lvl
+			let damage = (baseDps + rampDps * this.elapsed) * BANSHO_PERIOD
+			this.caster.damageTarget(this.target, damage, ATTACK_TYPE_HERO)
+		else
+			this.target.clearTimedPause()
+			UnitRemoveBuffsEx(this.target, false, true, true, true, true, true, true)
+			let defaultSpeed = this.target.getDefaultMovespeed()
+			if this.target.getMoveSpeed() < defaultSpeed
+				this.target.setMoveSpeed(defaultSpeed)
+		var appliedSpeed = this.target.getMoveSpeed()
+		if appliedSpeed < BANSHO_MIN_SPEED
+			appliedSpeed = BANSHO_MIN_SPEED
+		if this.pull != null
+			this.pull.speed = appliedSpeed
+		if this.dirtFx != null
+			let behindPos = dist > 0. ? targetPos - diff.norm() * BANSHO_FX_OFFSET : targetPos
+			let groundPos = this.target.getPos3Real()
+			this.dirtFx.setPos(vec3(behindPos.x, behindPos.y, groundPos.z))
+
+	function stop()
+		if this.finished
+			return
+		this.finished = true
+		if this.cb != null
+			destroy this.cb
+			this.cb = null
+		if this.pull != null
+			this.pull.stop()
+			this.pull = null
+		if this.dirtFx != null
+			this.dirtFx..setPos(vec2(-99999, -99999))..destr()
+			this.dirtFx = null
+		if this.caster != null and active.has(this.caster)
+			active.remove(this.caster)
+		this.caster = null
+		this.target = null
+		destroy this
+
+	ondestroy
+		this.cb = null
+		this.pull = null
+		this.dirtFx = null
+
+function onChannel()
 	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN
 		let caster = GetTriggerUnit()
 		if caster == null
 			return
-		let _target = GetSpellTargetUnit()
+		let target = GetSpellTargetUnit()
+		if target == null or not target.isType(UNIT_TYPE_HERO)
+			return
+		if active.has(caster)
+			active.get(caster).stop()
+		let inst = new BanshoTenin(caster, target)
+		if inst.isActive()
+			active.put(caster, inst)
+		else
+			destroy inst
+
+function onStop()
+	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN
+		let caster = GetTriggerUnit()
+		if caster != null and active.has(caster)
+			active.get(caster).stop()
 
 init
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, () -> onStop())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, () -> onStop())
