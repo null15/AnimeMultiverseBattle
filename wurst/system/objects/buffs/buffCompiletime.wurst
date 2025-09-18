@@ -6,8 +6,9 @@ import BuffObjEditing
 
 @compiletime function buffCompiletime()
 	new BuffDefinition(NAGATO_UZUMAKI_QBUFF, BuffIds.drainLifeCaster)
-		..setName("Banshō Ten'in (hidden)")
-		..setArtTarget("")
-		..setCaster("")
-		..setEffect("")
+		..setName("Banshō Ten'in")
+		..setArtTarget("_")
+		..setCaster("_")
+		..setEffect("_")
+		..setMissileArt("_")
 		..setTargetAttachments(0)
