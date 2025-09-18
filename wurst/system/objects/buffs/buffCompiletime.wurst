@@ -5,8 +5,8 @@ import BuffIds
 import BuffObjEditing
 
 @compiletime function buffCompiletime()
-	new BuffDefinition(NAGATO_UZUMAKI_QBUFF, BuffIds.drainLifeCaster)
-		..setName("Banshō Ten'in")
+	new BuffDefinition(BUFF_DEFINITION_EXAMPLE, BuffIds.drainLifeCaster)
+		..setName("Example Usage of Buff Definition")
 		..setArtTarget("_")
 		..setCaster("_")
 		..setEffect("_")

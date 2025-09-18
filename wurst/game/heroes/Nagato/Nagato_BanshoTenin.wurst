@@ -8,7 +8,7 @@ function onCast()
 		let caster = GetTriggerUnit()
 		if caster == null
 			return
-		let target = GetSpellTargetUnit()
+		let _target = GetSpellTargetUnit()
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
