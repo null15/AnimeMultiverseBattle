@@ -6,7 +6,10 @@ import ClosureTimers
 import objectIDs
 import ClosureEvents
 
-// Check my latest Codex prompt.
+// My notes:
+// Implement Bansho Tenin.
+// Decided to give up on native abilities for the most part and code the AI logic myself, apparently melee AI is stupid.
+// How AI works: Timer handles running the state --> Events run swapping states
 
 init
 	nullTimer() ->
