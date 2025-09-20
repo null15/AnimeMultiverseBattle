@@ -22,9 +22,8 @@ constant string KUCHIYOSE_TELEPORT_WIND_MODEL_PATH = "Nagato\\Kuchiyose\\Kuchiyo
 constant real KUCHIYOSE_TELEPORT_WIND_TIME_SCALE = 2.
 constant string KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_1 = "Nagato\\Kuchiyose\\WindChannel1.mdx"
 constant string KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_2 = "Nagato\\Kuchiyose\\WindChannel2.mdx"
-constant int CASTER_ANIMATION_CHANNEL = 8
-constant int CASTER_ANIMATION_END = 17
-constant int ANIMAL_PATH_ANIMATION_END = 7
+constant int ANIMATION_CHANNEL = 8
+constant int ANIMATION_END = 17
 constant HashMap<unit, SummonAnimalPath> active = new HashMap<unit, SummonAnimalPath>()
 
 function releaseEffect(effect fx) returns effect
@@ -35,7 +34,8 @@ function releaseEffect(effect fx) returns effect
 class SummonAnimalPath
 	unit caster
 	vec2 targetPos
-	effect scribble
+	effect scribble1
+	effect scribble2
 	unit animalPath
 	boolean finished
 	LinkedList<effect> channelWindEffects
@@ -52,16 +52,25 @@ class SummonAnimalPath
 
 	function createVisuals()
 		let casterPos = this.getCasterEffectPos()
-		this.scribble = addEffect(KUCHIYOSE_SCRIBBLE_MODEL_PATH, casterPos)..playAnimation(ANIM_TYPE_STAND)
 		this.animalPath = Unit.create(this.caster.getOwner(), NAGATO_ANIMAL_PATH_SUMMON, this.targetPos)..setScale(0.7)
+		let animalPathPos = this.getAnimalPathEffectPos()
+		this.scribble1 = addEffect(KUCHIYOSE_SCRIBBLE_MODEL_PATH, casterPos)..playAnimation(ANIM_TYPE_STAND)
+		this.scribble2 = addEffect(KUCHIYOSE_SCRIBBLE_MODEL_PATH, animalPathPos)..playAnimation(ANIM_TYPE_STAND)
 		if this.animalPath != null
 			this.animalPath.setFacing(this.caster.getFacingAngle())
+			this.animalPath..setAnimation(ANIMATION_CHANNEL)..setTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
 
 	function getCasterEffectPos() returns vec3
 		if this.caster == null
 			return vec3(0, 0, 0)
 		let casterEntity = this.caster.getEntity()
 		return casterEntity != null ? casterEntity.getPos() : this.caster.getPos3Real()
+
+	function getAnimalPathEffectPos() returns vec3
+		if this.animalPath == null
+			return vec3(0, 0, 0)
+		let animalPathEntity = this.animalPath.getEntity()
+		return animalPathEntity != null ? animalPathEntity.getPos() : this.animalPath.getPos3Real()
 
 	function startChannelWindEffects()
 		this.playChannelWindEffect(true)
@@ -81,11 +90,15 @@ class SummonAnimalPath
 	function playChannelWindEffect(boolean playFirst)
 		if this.caster == null
 			return
-		let casterPos = this.getCasterEffectPos()
+		let casterPos		= this.getCasterEffectPos()
+		let animalPathPos	= this.getAnimalPathEffectPos()
 		let modelPath = playFirst ? KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_1 : KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_2
-		let effectInstance = this.createChannelWindEffect(modelPath, casterPos)
-		if effectInstance != null
-			this.channelWindEffects.add(effectInstance)
+		let effectInstance1 = this.createChannelWindEffect(modelPath, casterPos)
+		let effectInstance2 = this.createChannelWindEffect(modelPath, animalPathPos)
+		if effectInstance1 != null
+			this.channelWindEffects.add(effectInstance1)
+		if effectInstance2 != null
+			this.channelWindEffects.add(effectInstance2)
 
 	function createChannelWindEffect(string modelPath, vec3 pos) returns effect
 		let eff = addEffect(modelPath, pos)
@@ -145,7 +158,7 @@ class SummonAnimalPath
 		if casterUnit != null
 			nullTimer() ->
 				if casterUnit != null and casterUnit.isAlive()
-					casterUnit..setAnimation(CASTER_ANIMATION_END)..setTimeScale(CASTER_FINISH_ANIMATION_TIME_SCALE)
+					casterUnit..setAnimation(ANIMATION_END)..setTimeScale(CASTER_FINISH_ANIMATION_TIME_SCALE)
 
 	function spawnTeleportWindAt(vec2 pos)
 		let fx = addEffect(KUCHIYOSE_TELEPORT_WIND_MODEL_PATH, pos.toVec3())
@@ -180,8 +193,9 @@ class SummonAnimalPath
 		this.animalPath = null
 		if summon == null
 			return
-		doAfter(ANIMAL_PATH_FINISH_ANIMATION_DELAY) ->
-			summon.setAnimation(ANIMAL_PATH_ANIMATION_END)
+		summon..setAnimation(ANIMATION_END)..setTimeScale(CASTER_FINISH_ANIMATION_TIME_SCALE)
+		// doAfter(ANIMAL_PATH_FINISH_ANIMATION_DELAY) ->
+			// summon.setAnimation(ANIMATION_END)
 		doAfter(ANIMAL_PATH_LINGER_DURATION) ->
 			if summon != null
 				summon.remove()
@@ -193,12 +207,14 @@ class SummonAnimalPath
 			summon.remove()
 
 	function cleanupScribble()
-		this.scribble = releaseEffect(this.scribble)
+		this.scribble1 = releaseEffect(this.scribble1)
+		this.scribble2 = releaseEffect(this.scribble2)
 
 	ondestroy
 		this.stopChannelWindEffects()
 		this.animalPath = null
-		this.scribble = null
+		this.scribble1 = null
+		this.scribble2 = null
 
 function onChannel()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
@@ -220,7 +236,7 @@ function onChannel()
 		active.put(caster, inst)
 		nullTimer() ->
 			if caster != null
-				caster..setAnimation(CASTER_ANIMATION_CHANNEL)..setTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
+				caster..setAnimation(ANIMATION_CHANNEL)..setTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
 
 function onEnd()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
