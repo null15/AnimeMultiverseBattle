@@ -10,7 +10,8 @@ import EntitySystem
 constant real SUMMON_CHANNEL_TIME = 3.
 constant real ANIMAL_PATH_TELEPORT_RADIUS = 600.
 constant real ANIMAL_PATH_TELEPORT_SPREAD = 128.
-constant real ANIMAL_PATH_LINGER_DURATION = 1.25
+constant real ANIMAL_PATH_LINGER_DURATION = 0.70
+constant real ANIMAL_PATH_TELEPORT_DELAY = 0.7
 constant string KUCHIYOSE_SCRIBBLE_MODEL_PATH = "Nagato\\Kuchiyose\\kuchiyose.mdx"
 constant int CASTER_ANIMATION_CHANNEL = 8
 constant int CASTER_ANIMATION_END = 17
@@ -31,8 +32,8 @@ class SummonAnimalPath
 		this.createVisuals()
 
 	function createVisuals()
-		this.scribble = addEffect(KUCHIYOSE_SCRIBBLE_MODEL_PATH, this.targetPos.toVec3())
-		this.animalPath = Unit.create(this.caster.getOwner(), NAGATO_ANIMAL_PATH_SUMMON, this.targetPos)
+		this.scribble = addEffect(KUCHIYOSE_SCRIBBLE_MODEL_PATH, this.caster.getEntity().getPos())..playAnimation(ANIM_TYPE_STAND)
+		this.animalPath = Unit.create(this.caster.getOwner(), NAGATO_ANIMAL_PATH_SUMMON, this.targetPos)..setScale(0.7)
 		if this.animalPath != null
 			this.animalPath.setFacing(this.caster.getFacingAngle())
 
@@ -43,18 +44,36 @@ class SummonAnimalPath
 		if this.caster != null and active.has(this.caster)
 			active.remove(this.caster)
 		if success
-			this.teleportAllies()
-			this.playAnimalPathFinishAnimation()
+			this.startSuccessfulFinish()
 		else
-			this.removeAnimalPathImmediate()
+			this.cancelFinish()
+
+	function startSuccessfulFinish()
+		this.playCasterFinishAnimation()
+		this.playAnimalPathFinishAnimation()
+		let inst = this
+		doAfter(ANIMAL_PATH_TELEPORT_DELAY) ->
+			inst.completeSuccessfulFinish()
+
+	function completeSuccessfulFinish()
+		this.teleportAllies()
 		this.cleanupScribble()
+		this.caster = null
+		destroy this
+
+	function cancelFinish()
+		this.removeAnimalPathImmediate()
+		this.cleanupScribble()
+		this.playCasterFinishAnimation()
+		this.caster = null
+		destroy this
+
+	function playCasterFinishAnimation()
 		let casterUnit = this.caster
 		if casterUnit != null
 			nullTimer() ->
 				if casterUnit != null and casterUnit.isAlive()
-					casterUnit.setAnimation(CASTER_ANIMATION_END)
-		this.caster = null
-		destroy this
+					casterUnit..setAnimation(CASTER_ANIMATION_END)..setTimeScale(1)
 
 	function teleportAllies()
 		if this.caster == null or not this.caster.isAlive()
@@ -80,7 +99,8 @@ class SummonAnimalPath
 		this.animalPath = null
 		if summon == null
 			return
-		summon.setAnimation(ANIMAL_PATH_ANIMATION_END)
+		doAfter(0.45) -> 
+			summon.setAnimation(ANIMAL_PATH_ANIMATION_END)
 		doAfter(ANIMAL_PATH_LINGER_DURATION) ->
 			if summon != null
 				summon.remove()
@@ -120,7 +140,7 @@ function onChannel()
 		active.put(caster, inst)
 		nullTimer() ->
 			if caster != null
-				caster.setAnimation(CASTER_ANIMATION_CHANNEL)
+				caster..setAnimation(CASTER_ANIMATION_CHANNEL)..setTimeScale(0.5)..queueAnimation("spell,one")
 
 function onEnd()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
