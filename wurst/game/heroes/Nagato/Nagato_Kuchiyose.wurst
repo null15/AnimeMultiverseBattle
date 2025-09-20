@@ -15,7 +15,7 @@ constant real ANIMAL_PATH_TELEPORT_DELAY = 0.7
 constant real ANIMAL_PATH_FINISH_ANIMATION_DELAY = 0.45
 constant real CASTER_CHANNEL_ANIMATION_TIME_SCALE = 0.5
 constant real CASTER_FINISH_ANIMATION_TIME_SCALE = 1.
-constant real ANIMAL_PATH_CHANNEL_WIND_PERIOD = 0.1
+constant real ANIMAL_PATH_CHANNEL_WIND_PERIOD = 0.3
 constant real ANIMAL_PATH_TELEPORT_WIND_RELEASE_DELAY = 1.5
 constant string KUCHIYOSE_SCRIBBLE_MODEL_PATH = "Nagato\\Kuchiyose\\kuchiyose.mdx"
 constant string KUCHIYOSE_TELEPORT_WIND_MODEL_PATH = "Nagato\\Kuchiyose\\KuchiyoseWind.mdx"
@@ -38,8 +38,7 @@ class SummonAnimalPath
 	effect scribble
 	unit animalPath
 	boolean finished
-	effect channelWind1
-	effect channelWind2
+	LinkedList<effect> channelWindEffects
 	CallbackPeriodic channelWindTimer
 	boolean nextChannelWindIsFirst
 
@@ -47,6 +46,7 @@ class SummonAnimalPath
 		this.caster = caster
 		this.targetPos = targetPos
 		this.finished = false
+		this.channelWindEffects = new LinkedList<effect>
 		this.createVisuals()
 		this.startChannelWindEffects()
 
@@ -82,17 +82,13 @@ class SummonAnimalPath
 		if this.caster == null
 			return
 		let casterPos = this.getCasterEffectPos()
-		if playFirst
-			this.channelWind1 = this.ensureChannelWindEffect(this.channelWind1, KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_1, casterPos)
-		else
-			this.channelWind2 = this.ensureChannelWindEffect(this.channelWind2, KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_2, casterPos)
+		let modelPath = playFirst ? KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_1 : KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_2
+		let effectInstance = this.createChannelWindEffect(modelPath, casterPos)
+		if effectInstance != null
+			this.channelWindEffects.add(effectInstance)
 
-	function ensureChannelWindEffect(effect fx, string modelPath, vec3 pos) returns effect
-		var eff = fx
-		if eff == null
-			eff = addEffect(modelPath, pos)
-		else
-			eff.setPos(pos)
+	function createChannelWindEffect(string modelPath, vec3 pos) returns effect
+		let eff = addEffect(modelPath, pos)
 		if eff != null
 			eff.setTime(0.)
 			eff.playAnimation(ANIM_TYPE_BIRTH)
@@ -102,8 +98,15 @@ class SummonAnimalPath
 		if this.channelWindTimer != null
 			destroy this.channelWindTimer
 			this.channelWindTimer = null
-		this.channelWind1 = releaseEffect(this.channelWind1)
-		this.channelWind2 = releaseEffect(this.channelWind2)
+		this.releaseAllChannelWindEffects()
+
+	function releaseAllChannelWindEffects()
+		if this.channelWindEffects == null
+			return
+		for fx in this.channelWindEffects
+			releaseEffect(fx)
+		destroy this.channelWindEffects
+		this.channelWindEffects = null
 
 	function finish(boolean success)
 		if this.finished

@@ -7,3 +7,5 @@ init
     onUnitIndex() ->
         if getIndexingUnit().getTypeId() == NAGATO_UZUMAKI
             getIndexingUnit().addEffect("Nagato\\Nagato\\PainHead.mdx", "head")
+        else if getIndexingUnit().getTypeId() == NAGATO_ANIMAL_PATH_SUMMON
+            getIndexingUnit().addEffect("Nagato\\Kuchiyose\\AnimalPathHead.mdx", "head")

@@ -110,6 +110,6 @@ function makeDummy(int id, string modelPath)
 	..setNormalAbilities(
 		commaList(AbilityIds.crowForm))
 
-	makeDummy(NAGATO_ANIMAL_PATH_SUMMON, "Nagato\\Kuchiyose\\AnimalPath.mdx")
+	makeDummy(NAGATO_ANIMAL_PATH_SUMMON, "Nagato\\Nagato\\DevaPain.mdx")
 @compiletime function generateDummyUnit()
 	makeDummy(PROGRESS_BAR_DUMMY, "ui\\Bars\\ProgressbarTransformation.mdx")
