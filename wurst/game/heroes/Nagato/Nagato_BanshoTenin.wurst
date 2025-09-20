@@ -20,7 +20,6 @@ constant angle BANSHO_DIRT_ROLL						= (0)	.fromDeg()
 constant angle BANSHO_DIRT_YAW_OFFSET				= (180)	.fromDeg()
 constant int CASTER_ANIMATION_INDEX					= 13
 constant real CASTER_ANIMATION_SPEED				= 1.5
-
 constant HashMap<unit, BanshoTenin> active			= new HashMap<unit, BanshoTenin>()
 
 class BanshoTenin

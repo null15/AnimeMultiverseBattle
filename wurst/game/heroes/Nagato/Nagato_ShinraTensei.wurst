@@ -11,33 +11,32 @@ import EntityManagement
 import SoundUtils
 import SoundSystem
 
-constant SoundDefinition snd_ShinraTensei = new SoundDefinition("Nagato\\Shinra Tensei\\ShinraTensei.mp3", false, true)
-constant string SHINRA_TENSEI_FX = "Nagato\\Shinra Tensei\\ShinraTensei.mdx"
-constant string SHINRA_TENSEI_DIRT_FX = "Nagato\\Shinra Tensei\\ShinraTenseiDirt.mdx"
-constant string SHINRA_TENSEI_DUST_FX = "Nagato\\Shinra Tensei\\DustWaveVersion2.mdx"
-constant string SHINRA_TENSEI_BLAST_FX = "Nagato\\Shinra Tensei\\ShinraTenseiBlast.mdx"
-constant real SHINRA_TENSEI_PERIOD = 0.1
-constant real SHINRA_TENSEI_DURATION = 2.
-constant real SHINRA_TENSEI_RADIUS = 400.
-constant real SHINRA_TENSEI_DAMAGE_PER_TICK = 1.
-constant real SHINRA_TENSEI_KNOCKBACK_SPEED = 800.
-constant angle SHINRA_TENSEI_INITIAL_AIR_ANGLE = (30.).fromDeg()
-constant real SHINRA_TENSEI_MAX_VERTICAL_SPEED = 600.
-constant real SHINRA_TENSEI_MAIN_Z_OFFSET = -300.
-constant real SHINRA_TENSEI_MAIN_SCALE = 1.5
-constant real SHINRA_TENSEI_DIRT_SCALE = 0.1
-constant real SHINRA_TENSEI_DIRT_TIME_SCALE = 0.5
-constant real SHINRA_TENSEI_DUST_SCALE = 4.
-constant real SHINRA_TENSEI_BLAST_SCALE = 2.
-constant real SHINRA_TENSEI_SOUND_RADIUS = 700.
-constant real SHINRA_TENSEI_COLLISION_RADIUS = 128.
-constant real SHINRA_TENSEI_COLLISION_DAMAGE = 5.
-constant real SHINRA_TENSEI_COLLISION_SLOW_FACTOR = 0.6
-constant real SHINRA_TENSEI_COLLISION_SLOW_DURATION = 2.
-constant int CASTER_ANIMATION_INDEX = 12
-constant real CASTER_ANIMATION_SPEED = 0.5
-
-constant HashMap<unit, ShinraTensei> active = new HashMap<unit, ShinraTensei>()
+constant SoundDefinition snd_ShinraTensei				= new SoundDefinition("Nagato\\Shinra Tensei\\ShinraTensei.mp3", false, true)
+constant string SHINRA_TENSEI_FX						= "Nagato\\Shinra Tensei\\ShinraTensei.mdx"
+constant string SHINRA_TENSEI_DIRT_FX					= "Nagato\\Shinra Tensei\\ShinraTenseiDirt.mdx"
+constant string SHINRA_TENSEI_DUST_FX					= "Nagato\\Shinra Tensei\\DustWaveVersion2.mdx"
+constant string SHINRA_TENSEI_BLAST_FX					= "Nagato\\Shinra Tensei\\ShinraTenseiBlast.mdx"
+constant real SHINRA_TENSEI_PERIOD						= 0.1
+constant real SHINRA_TENSEI_DURATION					= 2.
+constant real SHINRA_TENSEI_RADIUS						= 400.
+constant real SHINRA_TENSEI_DAMAGE_PER_TICK				= 1.
+constant real SHINRA_TENSEI_KNOCKBACK_SPEED				= 800.
+constant angle SHINRA_TENSEI_INITIAL_AIR_ANGLE			= (30)	.fromDeg()
+constant real SHINRA_TENSEI_MAX_VERTICAL_SPEED			= 600.
+constant real SHINRA_TENSEI_MAIN_Z_OFFSET				= -300.
+constant real SHINRA_TENSEI_MAIN_SCALE					= 1.5
+constant real SHINRA_TENSEI_DIRT_SCALE					= 0.1
+constant real SHINRA_TENSEI_DIRT_TIME_SCALE				= 0.5
+constant real SHINRA_TENSEI_DUST_SCALE					= 4.
+constant real SHINRA_TENSEI_BLAST_SCALE					= 2.
+constant real SHINRA_TENSEI_SOUND_RADIUS				= 700.
+constant real SHINRA_TENSEI_COLLISION_RADIUS			= 128.
+constant real SHINRA_TENSEI_COLLISION_DAMAGE			= 5.
+constant real SHINRA_TENSEI_COLLISION_SLOW_FACTOR		= 0.6
+constant real SHINRA_TENSEI_COLLISION_SLOW_DURATION		= 2.
+constant int CASTER_ANIMATION_INDEX						= 12
+constant real CASTER_ANIMATION_SPEED					= 0.5
+constant HashMap<unit, ShinraTensei> active				= new HashMap<unit, ShinraTensei>()
 
 function releaseEffect(effect fx) returns effect
 	if fx != null
