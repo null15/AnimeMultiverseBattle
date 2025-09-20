@@ -9,14 +9,16 @@ import ClosureEvents
 import SoundUtils
 import SoundSystem
 
-constant real BANSHO_PERIOD = 0.03125
-constant real BANSHO_STOP_RANGE = 128.
-constant real BANSHO_MIN_SPEED = 150.
-constant real BANSHO_FX_OFFSET = 80.
-constant string BANSHO_DIRT_FX = "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdx"
-constant SoundDefinition snd_BanshoTenin = new SoundDefinition("Nagato\\BanshoTenin\\BanshoTenin.mp3", false, true)
+constant real BANSHO_PERIOD							= 0.03125
+constant real BANSHO_STOP_RANGE						= 128.
+constant real BANSHO_MIN_SPEED						= 150.
+constant real BANSHO_FX_OFFSET						= 80.
+constant string BANSHO_DIRT_FX						= "Nagato\\BanshoTenin\\BanshoTeninDragDirt.mdx"
+constant SoundDefinition snd_BanshoTenin			= new SoundDefinition("Nagato\\BanshoTenin\\BanshoTenin.mp3", false, true)
+constant int CASTER_ANIMATION_INDEX					= 13
+constant real CASTER_ANIMATION_SPEED				= 1.5
 
-constant HashMap<unit, BanshoTenin> active = new HashMap<unit, BanshoTenin>()
+constant HashMap<unit, BanshoTenin> active			= new HashMap<unit, BanshoTenin>()
 
 class BanshoTenin
 	unit caster
@@ -119,13 +121,19 @@ function onChannel()
 	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN
 		let caster = GetTriggerUnit()
 		if caster == null
+			printTimedToPlayer("Caster invalid, aborting spell cast", 3, caster.getOwner())
 			return
 		let target = GetSpellTargetUnit()
-		if target == null or not target.isType(UNIT_TYPE_HERO)
+		if target == null // or not target.isType(UNIT_TYPE_HERO)
+			printTimedToPlayer("Target invalid, aborting spell cast", 3, caster.getOwner())
 			return
 		if active.has(caster)
 			active.get(caster).stop(false)
 		let inst = new BanshoTenin(caster, target)
+		nullTimer() -> 
+			caster
+			..setAnimation(CASTER_ANIMATION_INDEX)
+			..setTimeScale(CASTER_ANIMATION_SPEED)
 		if inst.isActive()
 			active.put(caster, inst)
 		else

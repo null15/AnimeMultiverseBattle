@@ -1,0 +1,9 @@
+package Nagato_Misc
+
+import UnitIndexer
+import objectIDs
+
+init
+    onUnitIndex() ->
+        if getIndexingUnit().getTypeId() == NAGATO_UZUMAKI
+            getIndexingUnit().addEffect("Nagato\\Nagato\\PainHead.mdx", "head")

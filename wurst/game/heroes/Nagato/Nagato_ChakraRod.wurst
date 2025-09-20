@@ -5,16 +5,24 @@ import EntitySystem
 import objectIDs
 import BindingProjectileSystem
 import Tether
+import ClosureTimers
 
-constant angle CHAKRA_ROD_PITCH = (80).fromDeg()
-constant angle CHAKRA_ROD_ROLL = (0).fromDeg()
-constant real CHAKRA_ROD_HEIGHT_OFFSET = 75.
-constant real CHAKRA_ROD_THROW_OFFSET = 75.
-constant real CHAKRA_ROD_BIND_DISTANCE = 150.
-constant real CHAKRA_ROD_MISSILE_SPEED = 1400.
-constant real CHAKRA_ROD_COLLISION = 124.
-constant string CHAKRA_ROD_MODEL_PATH = "Nagato\\Rod\\ChakraRod.mdx"
-constant string CHAKRA_ROD_BLOOD_FX = "Objects\\Spawnmodels\\Human\\HumanBlood\\HeroBloodElfBlood.mdx"
+constant angle CHAKRA_ROD_PITCH							= (80).fromDeg()
+constant angle CHAKRA_ROD_ROLL							= (0).fromDeg()
+constant real CHAKRA_ROD_HEIGHT_OFFSET					= 75.
+constant real CHAKRA_ROD_THROW_OFFSET					= 75.
+constant real CHAKRA_ROD_BIND_DISTANCE					= 150.
+constant real CHAKRA_ROD_MISSILE_SPEED					= 1400.
+constant real CHAKRA_ROD_COLLISION						= 124.
+constant real CHAKRA_ROD_PROJECTILE_SCALE				= 2.
+constant bool REQUIRE_HERO_TARGET						= false
+constant bool REQUIRE_ENEMY_TARGET						= false
+constant string CHAKRA_ROD_MODEL_PATH					= "Nagato\\Chakra Rod\\ChakraRod.mdx"
+constant string CHAKRA_ROD_BLOOD_FX						= "Objects\\Spawnmodels\\Human\\HumanBlood\\HeroBloodElfBlood.mdx"
+constant int CASTER_ANIMATION_INDEX						= 9
+constant real CASTER_ANIMATION_SPEED					= 3
+
+// ---------------------------------------------------- //
 
 AnchorVisualSetup chakraRodVisualSetup = new AnchorVisualSetup(
 	CHAKRA_ROD_MODEL_PATH,
@@ -35,7 +43,7 @@ function onImpact(BindingProjectile projectile, unit victim) returns bool
 	var rodOwner = projectile.getOwner()
 	if rodOwner == null
 		rodOwner = Player(PLAYER_NEUTRAL_PASSIVE)
-	let rod = Unit.create(rodOwner, NAGATO_UZUMAKI_ROD, victim.getPos())
+	let rod = Unit.create(rodOwner, NAGATO_UZUMAKI_CHAKRA_ROD, victim.getPos())
 	let yaw = projectile.getFacingYaw(victim)
 	rod.setFacing(yaw)
 	rod.setVertexColor(255, 255, 255, 0)
@@ -50,23 +58,31 @@ function chakraRod_config()
 	if chakraRodConfig != null
 		return
 	chakraRodConfig = new BindingProjectileConfig(CHAKRA_ROD_MODEL_PATH, CHAKRA_ROD_COLLISION, CHAKRA_ROD_MISSILE_SPEED)
-	chakraRodConfig.projectileScale = 2.
-	chakraRodConfig.heightOffset = CHAKRA_ROD_HEIGHT_OFFSET
-	chakraRodConfig.forwardOffset = CHAKRA_ROD_THROW_OFFSET
-	chakraRodConfig.requireHeroTarget = true
-	chakraRodConfig.requireEnemyTarget = true
-	chakraRodConfig.durationProvider = (unit caster, unit target) -> bindDuration(caster, target)
-	chakraRodConfig.impactHandler = (BindingProjectile projectile, unit victim) -> onImpact(projectile, victim)
+	chakraRodConfig.projectileScale						= CHAKRA_ROD_PROJECTILE_SCALE
+	chakraRodConfig.heightOffset						= CHAKRA_ROD_HEIGHT_OFFSET
+	chakraRodConfig.forwardOffset						= CHAKRA_ROD_THROW_OFFSET
+	chakraRodConfig.requireHeroTarget					= REQUIRE_HERO_TARGET
+	chakraRodConfig.requireEnemyTarget					= REQUIRE_ENEMY_TARGET
+	chakraRodConfig.durationProvider					= (unit caster, unit target) -> bindDuration(caster, target)
+	chakraRodConfig.impactHandler						= (BindingProjectile projectile, unit victim) -> onImpact(projectile, victim)
 
 function onCast()
 	if GetSpellAbilityId() == NAGATO_UZUMAKI_BIND
 		let caster = GetTriggerUnit()
 		if caster == null
+			printTimedToPlayer("Caster invalid, aborting spell cast", 3, caster.getOwner())
 			return
 		let target = GetSpellTargetUnit()
-		caster.setAnimation(3)
-		chakraRod_config()
-		launchBindingProjectile(caster, target, chakraRodConfig)
+		if target == null
+			printTimedToPlayer("Target invalid, aborting spell cast", 3, caster.getOwner())
+			return
+		doAfter(0.1) -> // Delay so animation can fit in
+			chakraRod_config()
+			launchBindingProjectile(caster, target, chakraRodConfig)
+		nullTimer() -> 
+			caster
+			..setAnimation(CASTER_ANIMATION_INDEX)
+			..setTimeScale(CASTER_ANIMATION_SPEED)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

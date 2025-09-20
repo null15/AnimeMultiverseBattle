@@ -11,9 +11,12 @@ import EntityManagement
 import SoundUtils
 import SoundSystem
 
-constant HashMap<unit, ShinraTensei> active = new HashMap<unit, ShinraTensei>()
-constant real MAX_Z_VEL = 600.
 constant SoundDefinition snd_ShinraTensei = new SoundDefinition("Nagato\\Shinra Tensei\\ShinraTensei.mp3", false, true)
+constant real MAX_Z_VEL = 600.
+constant int CASTER_ANIMATION_INDEX					= 12
+constant real CASTER_ANIMATION_SPEED				= 0.5
+
+constant HashMap<unit, ShinraTensei> active = new HashMap<unit, ShinraTensei>()
 
 class ShinraTensei
 	unit caster
@@ -78,7 +81,7 @@ class ShinraTensei
 			this.applyCollision(u)
 			return
 		forUnitsInRange(u.getPos(), 128.) (unit rod) ->
-			if rod.getTypeId() == NAGATO_UZUMAKI_ROD
+			if rod.getTypeId() == NAGATO_UZUMAKI_CHAKRA_ROD
 				this.applyCollision(u)
 
 	function applyCollision(unit u)
@@ -112,6 +115,10 @@ function onCast()
 		let caster = GetTriggerUnit()
 		let inst = new ShinraTensei(caster)
 		active.put(caster, inst)
+		nullTimer() -> 
+			caster
+			..setAnimation(CASTER_ANIMATION_INDEX)
+			..setTimeScale(CASTER_ANIMATION_SPEED)
 
 function onStop()
 	if GetSpellAbilityId() == NAGATO_SHINRA_TENSEI

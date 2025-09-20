@@ -10,6 +10,8 @@ import ClosureEvents
 // Implement Bansho Tenin.
 // Decided to give up on native abilities for the most part and code the AI logic myself, apparently melee AI is stupid.
 // How AI works: Timer handles running the state --> Events run swapping states
+// What I should do now is change dirt orientation on bansho tenin so it is angled right
+// Furthermore, setunitFacing before taking unit facing angle, to avoid improper angle calculations (unit take time to change his facing angle)
 
 init
 	nullTimer() ->
@@ -25,7 +27,7 @@ init
 		Unit.create(players[1], NAGATO_UZUMAKI, vec2(0, 0))..setLevel(10, false)
 		Unit.create(players[2], ALL_MIGHT, vec2(0, 0))..setLevel(10, false)
 		Unit.create(players[3], NAGATO_UZUMAKI, vec2(0, 0))..setLevel(10, false)
-		Unit.create(players[4], NAGATO_UZUMAKI_ROD, vec2(0, 0))..setLevel(10, false)
+		Unit.create(players[4], NAGATO_UZUMAKI_CHAKRA_ROD, vec2(0, 0))..setLevel(10, false)
 		Unit.create(players[7], NAGATO_UZUMAKI, vec2(-700, -700))..setLevel(10, false).setMoveSpeed(0)
 		players[1].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
 		players[2].setPlayerAlliance(players[0], ALLIANCE_SHARED_CONTROL, true)
@@ -36,5 +38,5 @@ init
 		CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()
 
 	EventListener.add(EVENT_PLAYER_CHAT_FILTER) -> 
-		if EventData.getChatMessage() == "tbd"
-			print("--------------")
+		if EventData.getChatMessage() == "revive"
+			Unit.getHero(players[0].getId()).revive(vec2(0, 0), true)
