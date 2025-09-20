@@ -9,8 +9,6 @@ import ClosureEvents
 // My notes:
 // Decided to give up on native abilities for the most part and code the AI logic myself, apparently melee AI is stupid.
 // How AI works: Timer handles running the state --> Events run swapping states
-// What I should do now is change dirt orientation on bansho tenin so it is angled right
-// Furthermore, setunitFacing before taking unit facing angle, to avoid improper angle calculations (unit take time to change his facing angle)
 
 init
 	nullTimer() ->
