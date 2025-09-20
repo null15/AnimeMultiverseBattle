@@ -1,0 +1,68 @@
+package Teleport
+
+import ClosureForGroups
+import EntityManagement
+
+public interface TeleportFilter
+	function allows(unit which) returns bool
+
+TeleportFilter TELEPORT_ALL_UNITS_FILTER = (unit u) -> u != null
+
+constant real DEFAULT_SPREAD_DISTANCE = 96.
+
+public function teleportUnitToPoint(unit which, vec2 destination) returns boolean
+	if which == null or not which.isAlive()
+		return false
+	which.setPos(destination)
+	syncEntityPosition(which, destination)
+	return true
+
+public function teleportUnitToPointFacing(unit which, vec2 destination, angle facing) returns boolean
+	if not teleportUnitToPoint(which, destination)
+		return false
+	which.setFacing(facing)
+	return true
+
+public function teleportUnitToUnit(unit which, unit target) returns boolean
+	if target == null
+		return false
+	return teleportUnitToPoint(which, target.getPos())
+
+public function teleportUnitToUnitOffset(unit which, unit target, real distance, angle relativeAngle) returns boolean
+	if target == null
+		return false
+	let facing = target.getFacingAngle() + relativeAngle
+	let destination = target.getPos() + facing.toVec(distance)
+	return teleportUnitToPoint(which, destination)
+
+public function teleportUnitsInRangeToPoint(vec2 center, real radius, vec2 destination, TeleportFilter filter, real spacing) returns int
+	var _moved = 0
+	let spread = spacing > 0. ? spacing : DEFAULT_SPREAD_DISTANCE
+	forUnitsInRange(center, radius) (unit u) ->
+		if filter == null or filter.allows(u)
+			let place = destination + placementOffset(_moved, spread)
+			if teleportUnitToPoint(u, place)
+				_moved++
+	return _moved
+
+public function teleportUnitsInRangeToUnit(vec2 center, real radius, unit target, TeleportFilter filter, real spacing) returns int
+	if target == null
+		return 0
+	return teleportUnitsInRangeToPoint(center, radius, target.getPos(), filter, spacing)
+
+function placementOffset(int index, real spacing) returns vec2
+	if index <= 0
+		return ZERO2
+	let ring = index div 6 + 1
+	let ringSize = 6 * ring
+	let slot = index % ringSize
+	let angleStep = 360. / ringSize.toReal()
+	let yaw = (slot * angleStep).fromDeg()
+	return yaw.toVec(spacing * ring.toReal())
+
+function syncEntityPosition(unit which, vec2 destination)
+	let entity = which.getEntity()
+	if entity == null
+		return
+	let current = entity.getPos()
+	entity.setPos(destination.withZ(current.z))

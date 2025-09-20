@@ -1,3 +1,140 @@
 package Nagato_Kuchiyose
 
-// Ability R here
+import objectIDs
+import HashMap
+import Teleport
+import ClosureTimers
+import EntityManagement
+import EntitySystem
+
+constant real SUMMON_CHANNEL_TIME = 3.
+constant real ANIMAL_PATH_TELEPORT_RADIUS = 600.
+constant real ANIMAL_PATH_TELEPORT_SPREAD = 128.
+constant real ANIMAL_PATH_LINGER_DURATION = 1.25
+constant string KUCHIYOSE_SCRIBBLE_MODEL_PATH = "Nagato\\Kuchiyose\\kuchiyose.mdx"
+constant int CASTER_ANIMATION_CHANNEL = 8
+constant int CASTER_ANIMATION_END = 17
+constant int ANIMAL_PATH_ANIMATION_END = 7
+constant HashMap<unit, SummonAnimalPath> active = new HashMap<unit, SummonAnimalPath>()
+
+class SummonAnimalPath
+	unit caster
+	vec2 targetPos
+	effect scribble
+	unit animalPath
+	boolean finished
+
+	construct(unit caster, vec2 targetPos)
+		this.caster = caster
+		this.targetPos = targetPos
+		this.finished = false
+		this.createVisuals()
+
+	function createVisuals()
+		this.scribble = addEffect(KUCHIYOSE_SCRIBBLE_MODEL_PATH, this.targetPos.toVec3())
+		this.animalPath = Unit.create(this.caster.getOwner(), NAGATO_ANIMAL_PATH_SUMMON, this.targetPos)
+		if this.animalPath != null
+			this.animalPath.setFacing(this.caster.getFacingAngle())
+
+	function finish(boolean success)
+		if this.finished
+			return
+		this.finished = true
+		if this.caster != null and active.has(this.caster)
+			active.remove(this.caster)
+		if success
+			this.teleportAllies()
+			this.playAnimalPathFinishAnimation()
+		else
+			this.removeAnimalPathImmediate()
+		this.cleanupScribble()
+		let casterUnit = this.caster
+		if casterUnit != null
+			nullTimer() ->
+				if casterUnit != null and casterUnit.isAlive()
+					casterUnit.setAnimation(CASTER_ANIMATION_END)
+		this.caster = null
+		destroy this
+
+	function teleportAllies()
+		if this.caster == null or not this.caster.isAlive()
+			this.removeAnimalPathImmediate()
+			return
+		let origin = this.caster.getPos()
+		teleportUnitToPoint(this.caster, this.targetPos)
+		teleportUnitsInRangeToPoint(origin, ANIMAL_PATH_TELEPORT_RADIUS, this.targetPos, (unit u) -> this.shouldTeleport(u), ANIMAL_PATH_TELEPORT_SPREAD)
+
+	function shouldTeleport(unit u) returns bool
+		if u == null or not u.isAlive()
+			return false
+		if u == this.caster
+			return false
+		if not u.isType(UNIT_TYPE_HERO)
+			return false
+		if not this.caster.isAllyOf(u)
+			return false
+		return true
+
+	function playAnimalPathFinishAnimation()
+		let summon = this.animalPath
+		this.animalPath = null
+		if summon == null
+			return
+		summon.setAnimation(ANIMAL_PATH_ANIMATION_END)
+		doAfter(ANIMAL_PATH_LINGER_DURATION) ->
+			if summon != null
+				summon.remove()
+
+	function removeAnimalPathImmediate()
+		let summon = this.animalPath
+		this.animalPath = null
+		if summon != null
+			summon.remove()
+
+	function cleanupScribble()
+		if this.scribble != null
+			this.scribble..setPos(vec2(-99999, -99999))..destr()
+			this.scribble = null
+
+	ondestroy
+		this.animalPath = null
+		this.scribble = null
+
+function onChannel()
+	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
+		let caster = GetTriggerUnit()
+		if caster == null
+			return
+		let targetPos = EventData.getSpellTargetPos()
+		if not caster.getOwner().hasVisibility(targetPos)
+			printTimedToPlayer("Target area is not visible.", SUMMON_CHANNEL_TIME, caster.getOwner())
+			caster.issueImmediateOrder("stop")
+			return
+		if not targetPos.isTerrainWalkable()
+			printTimedToPlayer("Cannot summon there.", SUMMON_CHANNEL_TIME, caster.getOwner())
+			caster.issueImmediateOrder("stop")
+			return
+		if active.has(caster)
+			active.get(caster).finish(false)
+		let inst = new SummonAnimalPath(caster, targetPos)
+		active.put(caster, inst)
+		nullTimer() ->
+			if caster != null
+				caster.setAnimation(CASTER_ANIMATION_CHANNEL)
+
+function onEnd()
+	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
+		let caster = GetTriggerUnit()
+		if caster != null and active.has(caster)
+			active.get(caster).finish(false)
+
+function onFinish()
+	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
+		let caster = GetTriggerUnit()
+		if caster != null and active.has(caster)
+			active.get(caster).finish(true)
+
+init
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, () -> onEnd())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, () -> onFinish())
