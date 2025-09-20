@@ -12,12 +12,12 @@ import SoundSystem
 constant SoundDefinition snd_BanshoTenin			= new SoundDefinition("Nagato\\BanshoTenin\\BanshoTenin.mp3", false, true)
 constant real BANSHO_PERIOD							= 0.03125
 constant real BANSHO_STOP_RANGE						= 128.
-constant real BANSHO_MIN_SPEED						= 150.
+constant real BANSHO_MIN_SPEED						= 300.
 constant real BANSHO_FX_OFFSET						= 80.
 constant string BANSHO_DIRT_FX						= "Nagato\\BanshoTenin\\BanshoTeninDragDirt.mdx"
-constant angle BANSHO_DIRT_PITCH					= (0).fromDeg()
-constant angle BANSHO_DIRT_ROLL						= (0).fromDeg()
-constant angle BANSHO_DIRT_YAW_OFFSET				= (180.).fromDeg()
+constant angle BANSHO_DIRT_PITCH					= (0)	.fromDeg()
+constant angle BANSHO_DIRT_ROLL						= (0)	.fromDeg()
+constant angle BANSHO_DIRT_YAW_OFFSET				= (180)	.fromDeg()
 constant int CASTER_ANIMATION_INDEX					= 13
 constant real CASTER_ANIMATION_SPEED				= 1.5
 

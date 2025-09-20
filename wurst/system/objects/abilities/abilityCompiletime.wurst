@@ -294,6 +294,7 @@ import objectIDs
 	..presetDurationNormal(lvl -> 6)
 	..presetFollowThroughTime(lvl -> 6)
 	..presetManaCost(lvl -> 1)
+	..presetCastRange(lvl -> 1200)
 	..setHotkeyLearn("Q")
 	..setHotkeyNormal("Q")
 	..setHotkeyTurnOff("Q")
