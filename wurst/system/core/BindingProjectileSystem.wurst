@@ -148,6 +148,13 @@ public class BindingProjectile
 		this.missile.launch()
 
 	function getLaunchFacing(unit caster) returns angle
+		if caster == null
+			return angle(0.)
+		let target = this.initialTarget
+		if target != null
+			let facing = caster.getPos().angleTo(target.getPos())
+			caster.setFacing(facing)
+			return facing
 		return caster.getFacingAngle()
 
 	function getTargetLocation(unit _caster, unit target, vec3 launchPos, angle facing) returns vec2

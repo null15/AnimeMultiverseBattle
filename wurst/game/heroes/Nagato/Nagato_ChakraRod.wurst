@@ -76,10 +76,11 @@ function onCast()
 		if target == null
 			printTimedToPlayer("Target invalid, aborting spell cast", 3, caster.getOwner())
 			return
+		caster.setFacing(caster.getPos().angleTo(target.getPos()))
 		doAfter(0.1) -> // Delay so animation can fit in
 			chakraRod_config()
 			launchBindingProjectile(caster, target, chakraRodConfig)
-		nullTimer() -> 
+		nullTimer() ->
 			caster
 			..setAnimation(CASTER_ANIMATION_INDEX)
 			..setTimeScale(CASTER_ANIMATION_SPEED)

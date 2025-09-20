@@ -12,11 +12,37 @@ import SoundUtils
 import SoundSystem
 
 constant SoundDefinition snd_ShinraTensei = new SoundDefinition("Nagato\\Shinra Tensei\\ShinraTensei.mp3", false, true)
-constant real MAX_Z_VEL = 600.
-constant int CASTER_ANIMATION_INDEX					= 12
-constant real CASTER_ANIMATION_SPEED				= 0.5
+constant string SHINRA_TENSEI_FX = "Nagato\\Shinra Tensei\\ShinraTensei.mdx"
+constant string SHINRA_TENSEI_DIRT_FX = "Nagato\\Shinra Tensei\\ShinraTenseiDirt.mdx"
+constant string SHINRA_TENSEI_DUST_FX = "Nagato\\Shinra Tensei\\DustWaveVersion2.mdx"
+constant string SHINRA_TENSEI_BLAST_FX = "Nagato\\Shinra Tensei\\ShinraTenseiBlast.mdx"
+constant real SHINRA_TENSEI_PERIOD = 0.1
+constant real SHINRA_TENSEI_DURATION = 2.
+constant real SHINRA_TENSEI_RADIUS = 400.
+constant real SHINRA_TENSEI_DAMAGE_PER_TICK = 1.
+constant real SHINRA_TENSEI_KNOCKBACK_SPEED = 800.
+constant angle SHINRA_TENSEI_INITIAL_AIR_ANGLE = (30.).fromDeg()
+constant real SHINRA_TENSEI_MAX_VERTICAL_SPEED = 600.
+constant real SHINRA_TENSEI_MAIN_Z_OFFSET = -300.
+constant real SHINRA_TENSEI_MAIN_SCALE = 1.5
+constant real SHINRA_TENSEI_DIRT_SCALE = 0.1
+constant real SHINRA_TENSEI_DIRT_TIME_SCALE = 0.5
+constant real SHINRA_TENSEI_DUST_SCALE = 4.
+constant real SHINRA_TENSEI_BLAST_SCALE = 2.
+constant real SHINRA_TENSEI_SOUND_RADIUS = 700.
+constant real SHINRA_TENSEI_COLLISION_RADIUS = 128.
+constant real SHINRA_TENSEI_COLLISION_DAMAGE = 5.
+constant real SHINRA_TENSEI_COLLISION_SLOW_FACTOR = 0.6
+constant real SHINRA_TENSEI_COLLISION_SLOW_DURATION = 2.
+constant int CASTER_ANIMATION_INDEX = 12
+constant real CASTER_ANIMATION_SPEED = 0.5
 
 constant HashMap<unit, ShinraTensei> active = new HashMap<unit, ShinraTensei>()
+
+function releaseEffect(effect fx) returns effect
+	if fx != null
+		fx..setPos(vec2(-99999, -99999))..destr()
+	return null
 
 class ShinraTensei
 	unit caster
@@ -30,49 +56,77 @@ class ShinraTensei
 
 	construct(unit caster)
 		this.caster = caster
-		this.remaining = 2.
+		this.remaining = SHINRA_TENSEI_DURATION
 		this.affected = new HashSet<unit>
-		this.shinraTensei = addEffect("Nagato\\Shinra Tensei\\ShinraTensei.mdx", this.caster.getEntity().getPos().add(0, 0, -300))..setScale(1.5)
-		this.shinraTenseiDirt = addEffect("Nagato\\Shinra Tensei\\ShinraTenseiDirt.mdx", this.caster.getEntity().getPos().add(0, 0, 0))..setScale(0.1)..setTimeScale(0.5)..playAnimation(ANIM_TYPE_BIRTH)
-		this.dustWave = addEffect("Nagato\\Shinra Tensei\\DustWaveVersion2.mdx", this.caster.getEntity().getPos())..playAnimation(ANIM_TYPE_BIRTH)..setScale(4)
-		this.shinraTenseiBlast = addEffect("Nagato\\Shinra Tensei\\ShinraTenseiBlast.mdx", this.caster.getEntity().getPos())..playAnimation(ANIM_TYPE_STAND)..setScale(2)
-		playSound(snd_ShinraTensei, this.caster.getEntity().getPos(), 700)
-		this.cb = doPeriodically(0.1) (CallbackPeriodic c) ->
+		this.createEffects()
+		playSound(snd_ShinraTensei, this.getCasterEffectPos(), SHINRA_TENSEI_SOUND_RADIUS)
+		this.cb = doPeriodically(SHINRA_TENSEI_PERIOD) (CallbackPeriodic c) ->
 			this.tick()
 
+	function createEffects()
+		let casterPos = this.getCasterEffectPos()
+		this.shinraTensei = addEffect(SHINRA_TENSEI_FX, casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))..setScale(SHINRA_TENSEI_MAIN_SCALE)
+		this.shinraTenseiDirt = addEffect(SHINRA_TENSEI_DIRT_FX, casterPos)..setScale(SHINRA_TENSEI_DIRT_SCALE)..setTimeScale(SHINRA_TENSEI_DIRT_TIME_SCALE)..playAnimation(ANIM_TYPE_BIRTH)
+		this.dustWave = addEffect(SHINRA_TENSEI_DUST_FX, casterPos)..playAnimation(ANIM_TYPE_BIRTH)..setScale(SHINRA_TENSEI_DUST_SCALE)
+		this.shinraTenseiBlast = addEffect(SHINRA_TENSEI_BLAST_FX, casterPos)..playAnimation(ANIM_TYPE_STAND)..setScale(SHINRA_TENSEI_BLAST_SCALE)
+
 	function tick()
-		if caster == null or not caster.isAlive()
-			stop()
+		if this.caster == null or not this.caster.isAlive()
+			this.stop()
 			return
-		this.remaining -= 0.1
-		if this.remaining <= 0
-			stop()
+		this.remaining -= SHINRA_TENSEI_PERIOD
+		if this.remaining <= 0.
+			this.stop()
 			return
-		let center = caster.getPos()
-		this.shinraTensei.setPos(this.caster.getEntity().getPos().add(0, 0, -300))
-		this.shinraTenseiDirt.setPos(this.caster.getEntity().getPos().add(0, 0, 0))
-		this.dustWave.setPos(this.caster.getEntity().getPos())
-		this.shinraTenseiBlast.setPos(this.caster.getEntity().getPos())
-		forUnitsInRange(center, 400.) (unit u) ->
-			if caster.isEnemyOf(u)
-				caster.damageTarget(u, 1., ATTACK_TYPE_HERO)
-				let angle = center.angleTo(u.getPos())
-				if affected.has(u)
-					// AI did the math
-					let v = Knockback3.getVel(u)
-					let vz = (v.z / ANIMATION_PERIOD).clamp(-MAX_Z_VEL, MAX_Z_VEL)
-					let speed = SquareRoot(800. * 800. + vz * vz)
-					let air = vz.atan2(800.).fromRad()
-					Knockback3.setVel(u, speed, angle, air)
-				else
-					Knockback3.setVel(u, 800., angle, (30.).fromDeg())
-					affected.add(u)
+		let casterPos = this.getCasterEffectPos()
+		this.updateEffects(casterPos)
+		let center = casterPos.toVec2()
+		this.affectUnits(center)
+		this.deflectMissiles(center)
+
+	function getCasterEffectPos() returns vec3
+		if this.caster == null
+			return vec3(0, 0, 0)
+		let casterEntity = this.caster.getEntity()
+		return casterEntity != null ? casterEntity.getPos() : this.caster.getPos3Real()
+
+	function updateEffects(vec3 casterPos)
+		if this.shinraTensei != null
+			this.shinraTensei.setPos(casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))
+		if this.shinraTenseiDirt != null
+			this.shinraTenseiDirt.setPos(casterPos)
+		if this.dustWave != null
+			this.dustWave.setPos(casterPos)
+		if this.shinraTenseiBlast != null
+			this.shinraTenseiBlast.setPos(casterPos)
+
+	function affectUnits(vec2 center)
+		forUnitsInRange(center, SHINRA_TENSEI_RADIUS) (unit u) ->
+			if this.caster.isEnemyOf(u)
+				this.caster.damageTarget(u, SHINRA_TENSEI_DAMAGE_PER_TICK, ATTACK_TYPE_HERO)
+				let direction = center.angleTo(u.getPos())
+				this.applyKnockback(u, direction)
 				this.checkCollision(u)
+
+	function applyKnockback(unit u, angle direction)
+		if this.affected.has(u)
+			let velocity = Knockback3.getVel(u)
+			let vertical = (velocity.z / ANIMATION_PERIOD).clamp(-SHINRA_TENSEI_MAX_VERTICAL_SPEED, SHINRA_TENSEI_MAX_VERTICAL_SPEED)
+			let speed = SquareRoot(SHINRA_TENSEI_KNOCKBACK_SPEED * SHINRA_TENSEI_KNOCKBACK_SPEED + vertical * vertical)
+			let air = vertical.atan2(SHINRA_TENSEI_KNOCKBACK_SPEED).fromRad()
+			Knockback3.setVel(u, speed, direction, air)
+		else
+			Knockback3.setVel(u, SHINRA_TENSEI_KNOCKBACK_SPEED, direction, SHINRA_TENSEI_INITIAL_AIR_ANGLE)
+			this.affected.add(u)
+
+	function deflectMissiles(vec2 center)
+		if this.caster == null
+			return
 		for m in Missiles.collection
-			if m.owner != caster.getOwner()
-				let mPos = m.getPos().toVec2()
-				if mPos.distanceTo(center) <= 400.
-					let target = mPos + (mPos - center)
+			if m.owner != this.caster.getOwner()
+				let missilePos = m.getPos().toVec2()
+				if missilePos.distanceTo(center) <= SHINRA_TENSEI_RADIUS
+					let target = missilePos + (missilePos - center)
 					m.owner = this.caster.getOwner()
 					m.deflect(target)
 
@@ -80,42 +134,43 @@ class ShinraTensei
 		if not u.getPos().isTerrainWalkable()
 			this.applyCollision(u)
 			return
-		forUnitsInRange(u.getPos(), 128.) (unit rod) ->
+		forUnitsInRange(u.getPos(), SHINRA_TENSEI_COLLISION_RADIUS) (unit rod) ->
 			if rod.getTypeId() == NAGATO_UZUMAKI_CHAKRA_ROD
 				this.applyCollision(u)
 
 	function applyCollision(unit u)
-		caster.damageTarget(u, 5., ATTACK_TYPE_HERO)
+		if this.caster == null
+			return
+		this.caster.damageTarget(u, SHINRA_TENSEI_COLLISION_DAMAGE, ATTACK_TYPE_HERO)
 		let baseSpeed = u.getMoveSpeed()
-		u.setMoveSpeed(baseSpeed * 0.6)
-		doAfter(2.) ->
+		u.setMoveSpeed(baseSpeed * SHINRA_TENSEI_COLLISION_SLOW_FACTOR)
+		doAfter(SHINRA_TENSEI_COLLISION_SLOW_DURATION) ->
 			if u != null
 				u.setMoveSpeed(baseSpeed)
 
 	function stop()
-		if cb != null
-			destroy cb
-			cb = null
-		active.remove(caster)
-		if affected != null
-			destroy affected
-			affected = null
-		if this.shinraTensei != null
-			this.shinraTensei..setPos(vec2(-99999, -99999))..destr()
-		if this.shinraTenseiDirt != null
-			this.shinraTenseiDirt..setPos(vec2(-99999, -99999))..destr()
-		if this.dustWave != null
-			this.dustWave..setPos(vec2(-99999, -99999))..destr()
-		if this.shinraTenseiBlast != null
-			this.shinraTenseiBlast..setPos(vec2(-99999, -99999))..destr()
+		if this.cb != null
+			destroy this.cb
+			this.cb = null
+		if this.caster != null and active.has(this.caster)
+			active.remove(this.caster)
+		if this.affected != null
+			destroy this.affected
+			this.affected = null
+		this.shinraTensei = releaseEffect(this.shinraTensei)
+		this.shinraTenseiDirt = releaseEffect(this.shinraTenseiDirt)
+		this.dustWave = releaseEffect(this.dustWave)
+		this.shinraTenseiBlast = releaseEffect(this.shinraTenseiBlast)
 		destroy this
 
 function onCast()
 	if GetSpellAbilityId() == NAGATO_SHINRA_TENSEI
 		let caster = GetTriggerUnit()
+		if caster == null
+			return
 		let inst = new ShinraTensei(caster)
 		active.put(caster, inst)
-		nullTimer() -> 
+		nullTimer() ->
 			caster
 			..setAnimation(CASTER_ANIMATION_INDEX)
 			..setTimeScale(CASTER_ANIMATION_SPEED)
@@ -123,7 +178,7 @@ function onCast()
 function onStop()
 	if GetSpellAbilityId() == NAGATO_SHINRA_TENSEI
 		let caster = GetTriggerUnit()
-		if active.has(caster)
+		if caster != null and active.has(caster)
 			active.get(caster).stop()
 
 init

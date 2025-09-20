@@ -9,12 +9,15 @@ import ClosureEvents
 import SoundUtils
 import SoundSystem
 
+constant SoundDefinition snd_BanshoTenin			= new SoundDefinition("Nagato\\BanshoTenin\\BanshoTenin.mp3", false, true)
 constant real BANSHO_PERIOD							= 0.03125
 constant real BANSHO_STOP_RANGE						= 128.
 constant real BANSHO_MIN_SPEED						= 150.
 constant real BANSHO_FX_OFFSET						= 80.
 constant string BANSHO_DIRT_FX						= "Nagato\\BanshoTenin\\BanshoTeninDragDirt.mdx"
-constant SoundDefinition snd_BanshoTenin			= new SoundDefinition("Nagato\\BanshoTenin\\BanshoTenin.mp3", false, true)
+constant angle BANSHO_DIRT_PITCH					= (0).fromDeg()
+constant angle BANSHO_DIRT_ROLL						= (0).fromDeg()
+constant angle BANSHO_DIRT_YAW_OFFSET				= (180.).fromDeg()
 constant int CASTER_ANIMATION_INDEX					= 13
 constant real CASTER_ANIMATION_SPEED				= 1.5
 
@@ -44,6 +47,7 @@ class BanshoTenin
 		else
 			playSound(snd_BanshoTenin, this.caster.getPos3Real(), 700)
 			this.dirtFx = addEffect(BANSHO_DIRT_FX, target.getPos3Real())
+			this.updateDirtEffect(this.caster.getPos(), this.target.getPos())
 			this.cb = doPeriodically(BANSHO_PERIOD) (CallbackPeriodic c) ->
 				this.update()
 
@@ -88,10 +92,7 @@ class BanshoTenin
 			this.stop(true)
 			return
 		pull.speed = appliedSpeed
-		if this.dirtFx != null
-			let behindPos = dist > 0. ? targetPos - diff.norm() * BANSHO_FX_OFFSET : targetPos
-			let groundPos = this.target.getPos3Real()
-			this.dirtFx.setPos(vec3(behindPos.x, behindPos.y, groundPos.z))
+		this.updateDirtEffect(casterPos, targetPos)
 
 	function stop(boolean orderCaster)
 		if this.finished
@@ -112,6 +113,16 @@ class BanshoTenin
 		this.caster = null
 		this.target = null
 		destroy this
+
+	function updateDirtEffect(vec2 casterPos, vec2 targetPos)
+		if this.dirtFx == null or this.target == null
+			return
+		let yaw = casterPos.angleTo(targetPos)
+		let behindPos = casterPos.distanceToSq(targetPos) > 0. ? targetPos + yaw.toVec(BANSHO_FX_OFFSET) : targetPos
+		let groundPos = this.target.getPos3Real()
+		this.dirtFx
+		..setPos(vec3(behindPos.x, behindPos.y, groundPos.z))
+		..setOrientation(yaw + BANSHO_DIRT_YAW_OFFSET, BANSHO_DIRT_PITCH, BANSHO_DIRT_ROLL)
 
 	ondestroy
 		this.cb = null

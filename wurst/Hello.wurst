@@ -7,7 +7,6 @@ import objectIDs
 import ClosureEvents
 
 // My notes:
-// Implement Bansho Tenin.
 // Decided to give up on native abilities for the most part and code the AI logic myself, apparently melee AI is stupid.
 // How AI works: Timer handles running the state --> Events run swapping states
 // What I should do now is change dirt orientation on bansho tenin so it is angled right
