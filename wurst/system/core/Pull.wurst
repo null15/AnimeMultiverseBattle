@@ -9,7 +9,7 @@ import Utility
 public interface UnitFilter
 	function get(unit which) returns bool
 
-UnitFilter UNIT_FILTER = (unit u) -> not u.isWard()
+UnitFilter UNIT_FILTER = (unit u) -> not u.isGiant()
 
 public class Pull
 	static HashMap<unit, Pull> active = new HashMap<unit, Pull>

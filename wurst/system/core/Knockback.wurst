@@ -78,7 +78,7 @@ Warning: this is not a lock-safe form of crowd control.
 @configurable let USE_PROP_WINDOW_MODIFIERS = true
 
 /** Units must match this filter, or Knockback3 takes no effect. */
-UnitFilter UNIT_FILTER = (unit u) -> not u.isType(UNIT_TYPE_FLYING) and not u.isWard()
+UnitFilter UNIT_FILTER = (unit u) -> not u.isType(UNIT_TYPE_FLYING) and not u.isGiant()
 
 
 public class Knockback3

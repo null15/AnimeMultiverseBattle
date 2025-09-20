@@ -4,6 +4,6 @@ package Utility
 * Checks if unit has ward classification. If they have, it returns "512" and since 512 != 0, statement is true 
 * If they do not match the classification, it returns "0". 0 != 0, statement is false.
 * */
-public function unit.isWard() returns boolean
+public function unit.isGiant() returns boolean
 	let classification = BlzGetUnitIntegerField(this, UNIT_IF_UNIT_CLASSIFICATION)
 	return (BlzBitAnd(classification, GetHandleId(UNIT_CATEGORY_GIANT)) != 0)

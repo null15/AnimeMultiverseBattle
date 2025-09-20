@@ -141,7 +141,6 @@ public class Unit
 	static Unit array units
 	static HashMap<int, LinkedList<unit>> unitsByType = new HashMap<int, LinkedList<unit>>()
 	static unit array heroes
-
 	unit actor
 	UnitsEntity entity
 
