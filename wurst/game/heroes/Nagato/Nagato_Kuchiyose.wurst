@@ -6,6 +6,8 @@ import Teleport
 import ClosureTimers
 import EntityManagement
 import EntitySystem
+import SoundUtils
+import SoundSystem
 
 constant real SUMMON_CHANNEL_TIME = 3.
 constant real ANIMAL_PATH_TELEPORT_RADIUS = 600.
@@ -23,6 +25,14 @@ constant string KUCHIYOSE_TELEPORT_WIND_MODEL_PATH = "Nagato\\Kuchiyose\\Kuchiyo
 constant real KUCHIYOSE_TELEPORT_WIND_TIME_SCALE = 2.
 constant string KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_1 = "Nagato\\Kuchiyose\\WindChannel1.mdx"
 constant string KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_2 = "Nagato\\Kuchiyose\\WindChannel2.mdx"
+constant SoundDefinition snd_KuchiyoseHandSign = new SoundDefinition("Nagato\\Kuchiyose\\HandSign.mp3", false, true)
+constant SoundDefinition snd_KuchiyoseSummoning = new SoundDefinition("Nagato\\Kuchiyose\\SummoningSoundEffect.mp3", false, true)
+constant SoundDefinition snd_KuchiyosePoof = new SoundDefinition("Nagato\\Kuchiyose\\Poof.mp3", false, true)
+constant SoundDefinition snd_KuchiyoseChant = new SoundDefinition("Nagato\\Kuchiyose\\AnimalPathChant.mp3", false, true)
+constant real KUCHIYOSE_SOUND_RADIUS = 700.
+constant real KUCHIYOSE_HANDSIGN_SOUND_PERIOD = 0.425
+constant int KUCHIYOSE_HANDSIGN_SOUND_LIMIT = 6
+constant real KUCHIYOSE_SUMMONING_SOUND_LEAD = 0.25
 constant int ANIMATION_CHANNEL = 8
 constant int ANIMATION_END = 17
 constant HashMap<unit, SummonAnimalPath> active = new HashMap<unit, SummonAnimalPath>()
@@ -42,14 +52,18 @@ class SummonAnimalPath
 	LinkedList<effect> channelWindEffects
 	CallbackPeriodic channelWindTimer
 	boolean nextChannelWindIsFirst
+	CallbackPeriodic handSignSoundTimer
+	int handSignSoundPlaysRemaining
 
 	construct(unit caster, vec2 targetPos)
 		this.caster = caster
 		this.targetPos = targetPos
 		this.finished = false
 		this.channelWindEffects = new LinkedList<effect>
+		this.handSignSoundPlaysRemaining = KUCHIYOSE_HANDSIGN_SOUND_LIMIT
 		this.createVisuals()
 		this.startChannelWindEffects()
+		this.startHandSignSound()
 
 	function createVisuals()
 		let casterPos = this.getCasterEffectPos()
@@ -114,6 +128,41 @@ class SummonAnimalPath
 			this.channelWindTimer = null
 		this.releaseAllChannelWindEffects()
 
+	function startHandSignSound()
+		if not this.shouldContinueHandSignSound()
+			return
+		this.playHandSignSound()
+		if KUCHIYOSE_HANDSIGN_SOUND_PERIOD <= 0.
+			return
+		let inst = this
+		this.handSignSoundTimer = doPeriodically(KUCHIYOSE_HANDSIGN_SOUND_PERIOD) (CallbackPeriodic c) ->
+			if inst.shouldContinueHandSignSound()
+				inst.playHandSignSound()
+			else
+				inst.handSignSoundTimer = null
+				destroy c
+
+	function shouldContinueHandSignSound() returns boolean
+		if this.finished
+			return false
+		if this.caster == null
+			return false
+		if not this.caster.isAlive()
+			return false
+		if KUCHIYOSE_HANDSIGN_SOUND_LIMIT > 0 and this.handSignSoundPlaysRemaining <= 0
+			return false
+		return true
+
+	function playHandSignSound()
+		playSound(snd_KuchiyoseHandSign, this.getCasterEffectPos(), KUCHIYOSE_SOUND_RADIUS)
+		if KUCHIYOSE_HANDSIGN_SOUND_LIMIT > 0
+			this.handSignSoundPlaysRemaining -= 1
+
+	function stopHandSignSound()
+		if this.handSignSoundTimer != null
+			destroy this.handSignSoundTimer
+			this.handSignSoundTimer = null
+
 	function releaseAllChannelWindEffects()
 		if this.channelWindEffects == null
 			return
@@ -127,6 +176,7 @@ class SummonAnimalPath
 			return
 		this.finished = true
 		this.stopChannelWindEffects()
+		this.stopHandSignSound()
 		if this.caster != null and active.has(this.caster)
 			active.remove(this.caster)
 		if success
@@ -137,9 +187,24 @@ class SummonAnimalPath
 	function startSuccessfulFinish()
 		this.playCasterFinishAnimation()
 		this.playAnimalPathFinishAnimation()
+		this.schedulePreTeleportSound()
 		let inst = this
 		doAfter(ANIMAL_PATH_TELEPORT_DELAY) ->
 			inst.completeSuccessfulFinish()
+
+	function schedulePreTeleportSound()
+		let inst = this
+		let delay = ANIMAL_PATH_TELEPORT_DELAY - KUCHIYOSE_SUMMONING_SOUND_LEAD
+		if delay <= 0.
+			inst.playSummoningSound()
+		else
+			doAfter(delay) ->
+				inst.playSummoningSound()
+
+	function playSummoningSound()
+		if this.caster == null
+			return
+		playSound(snd_KuchiyoseSummoning, this.targetPos.toVec3(), KUCHIYOSE_SOUND_RADIUS)
 
 	function completeSuccessfulFinish()
 		this.teleportAllies()
@@ -176,6 +241,11 @@ class SummonAnimalPath
 		teleportUnitToPoint(this.caster, this.targetPos)
 		teleportUnitsInRangeToPoint(origin, ANIMAL_PATH_TELEPORT_RADIUS, this.targetPos, (unit u) -> this.shouldTeleport(u), ANIMAL_PATH_TELEPORT_SPREAD)
 		this.spawnTeleportWindAt(this.targetPos)
+		this.playPoofSound()
+
+	function playPoofSound()
+		playSound(snd_KuchiyosePoof, this.targetPos.toVec3(), KUCHIYOSE_SOUND_RADIUS)
+		playSound(snd_KuchiyoseChant, this.targetPos.toVec3(), KUCHIYOSE_SOUND_RADIUS)
 
 	function shouldTeleport(unit u) returns bool
 		if u == null or not u.isAlive()
@@ -212,9 +282,11 @@ class SummonAnimalPath
 
 	ondestroy
 		this.stopChannelWindEffects()
+		this.stopHandSignSound()
 		this.animalPath = null
 		this.scribble1 = null
 		this.scribble2 = null
+		this.handSignSoundTimer = null
 
 function onChannel()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
