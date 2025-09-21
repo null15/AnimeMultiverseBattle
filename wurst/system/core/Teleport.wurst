@@ -2,6 +2,7 @@ package Teleport
 
 import ClosureForGroups
 import EntityManagement
+import Heightmap
 
 public interface TeleportFilter
 	function allows(unit which) returns bool
@@ -65,4 +66,7 @@ function syncEntityPosition(unit which, vec2 destination)
 	if entity == null
 		return
 	let current = entity.getPos()
-	entity.setPos(destination.withZ(current.z))
+	let currentGround = current.getHeightMap()
+	let targetGround = destination.getHeightMap()
+	let heightOffset = current.z - currentGround
+	entity.setPos(destination.withZ(targetGround + heightOffset))
