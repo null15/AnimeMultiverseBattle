@@ -17,6 +17,7 @@ constant real CASTER_CHANNEL_ANIMATION_TIME_SCALE = 0.5
 constant real CASTER_FINISH_ANIMATION_TIME_SCALE = 1.
 constant real ANIMAL_PATH_CHANNEL_WIND_PERIOD = 0.3
 constant real ANIMAL_PATH_TELEPORT_WIND_RELEASE_DELAY = 1.5
+constant angle ANIMAL_PATH_SOUTH_FACING = (270.).fromDeg()
 constant string KUCHIYOSE_SCRIBBLE_MODEL_PATH = "Nagato\\Kuchiyose\\kuchiyose.mdx"
 constant string KUCHIYOSE_TELEPORT_WIND_MODEL_PATH = "Nagato\\Kuchiyose\\KuchiyoseWind.mdx"
 constant real KUCHIYOSE_TELEPORT_WIND_TIME_SCALE = 2.
@@ -57,7 +58,7 @@ class SummonAnimalPath
 		this.scribble1 = addEffect(KUCHIYOSE_SCRIBBLE_MODEL_PATH, casterPos)..playAnimation(ANIM_TYPE_STAND)
 		this.scribble2 = addEffect(KUCHIYOSE_SCRIBBLE_MODEL_PATH, animalPathPos)..playAnimation(ANIM_TYPE_STAND)
 		if this.animalPath != null
-			this.animalPath.setFacing(this.caster.getFacingAngle())
+			this.animalPath.setFacing(ANIMAL_PATH_SOUTH_FACING)
 			this.animalPath..setAnimation(ANIMATION_CHANNEL)..setTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
 
 	function getCasterEffectPos() returns vec3
@@ -172,7 +173,6 @@ class SummonAnimalPath
 			this.removeAnimalPathImmediate()
 			return
 		let origin = this.caster.getPos()
-		this.spawnTeleportWindAt(origin)
 		teleportUnitToPoint(this.caster, this.targetPos)
 		teleportUnitsInRangeToPoint(origin, ANIMAL_PATH_TELEPORT_RADIUS, this.targetPos, (unit u) -> this.shouldTeleport(u), ANIMAL_PATH_TELEPORT_SPREAD)
 		this.spawnTeleportWindAt(this.targetPos)
