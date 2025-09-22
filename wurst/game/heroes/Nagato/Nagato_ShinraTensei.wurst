@@ -182,9 +182,8 @@ function onChannel()
 		let inst = new ShinraTensei(caster)
 		active.put(caster, inst)
 		nullTimer() ->
-			caster
-			..setAnimation(CASTER_ANIMATION_INDEX)
-			..setTimeScale(CASTER_ANIMATION_SPEED)
+			caster.setAnimation(CASTER_ANIMATION_INDEX)
+			caster.setEntityTimeScale(CASTER_ANIMATION_SPEED)
 
 function onStop()
 	if GetSpellAbilityId() == NAGATO_SHINRA_TENSEI

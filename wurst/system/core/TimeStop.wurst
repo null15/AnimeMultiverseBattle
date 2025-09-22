@@ -1,10 +1,10 @@
 package TimeStop
 
 import HashMap
-import LinkedList
 import ClosureTimers
-import UnitIndexer
 import TimeStopOverlay
+import EntitySystem
+import EntityManagement
 
 let timeStopStates = new HashMap<unit, TimeStopState>()
 let playerStopCounts = new HashMap<player, int>()
@@ -74,12 +74,16 @@ class TimeStopState
 		if target != null
 			originalPropWindow = target.getPropWindow()
 			originalTurnRate = target.getField(UNIT_RF_TURN_RATE)
-			originalTimeScale = 1
+			originalTimeScale = target.getEntityTimeScale()
+			let entity = target.getEntity() castTo UnitsEntity
 			target
 			..setPropWindow(angle(0))
 			..setField(UNIT_RF_TURN_RATE, 0)
 			..disableAttack(true, false)
-			..setTimeScale(0)
+			if entity != null
+				entity.onTimeStopStart()
+			else
+				target.setTimeScale(0)
 			owner = target.getOwner()
 		else
 			owner = null
@@ -96,11 +100,15 @@ class TimeStopState
 	function deactivate()
 		if stored
 			if target != null
+				let entity = target.getEntity() castTo UnitsEntity
 				target
 				..setPropWindow(angle(originalPropWindow.radians()))
 				..setField(UNIT_RF_TURN_RATE, originalTurnRate)
 				..disableAttack(false, false)
-				..setTimeScale(originalTimeScale)
+				if entity != null
+					entity.onTimeStopEnd()
+				else
+					target.setTimeScale(originalTimeScale)
 			if owner != null
 				releasePlayerControl(owner)
 			owner = null

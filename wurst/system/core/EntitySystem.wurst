@@ -3,7 +3,6 @@ package EntitySystem
 import EntityManagement
 import ClosureTimers
 import HashMap
-import TimeStop
 import Utility
 
 let unitPauseTimers = new HashMap<unit, LinkedList<CallbackSingle>>()
@@ -36,7 +35,7 @@ class ChannelTracker
 		if caster == null or not caster.isAlive()
 			reset()
 			return 0.
-		if caster.isTimeStopped()
+		if owner.isTimeStopActive()
 			return 0.
 		if remaining <= 0.
 			return 0.
@@ -91,6 +90,8 @@ public class UnitsEntity extends UnitEntity
 	int absPauseCount = 0
 	LinkedList<PauseTimer> pauseCbs = new LinkedList<PauseTimer>()
 	LinkedList<PauseTimer> absPauseCbs = new LinkedList<PauseTimer>()
+	real timeScale = 1.
+	int timeStopDepth = 0
 	ChannelTracker channelTracker
 
 	construct(unit actor)
@@ -156,6 +157,37 @@ public class UnitsEntity extends UnitEntity
 	function isAbsPaused() returns boolean
 		return absPauseCount > 0
 
+	function setTimeScale(real scale)
+		timeScale = scale
+		if actor != null and timeStopDepth == 0
+			actor.setTimeScale(scale)
+
+	function getTimeScale() returns real
+		return timeScale
+
+	function applyStoredTimeScale()
+		if actor != null
+			actor.setTimeScale(timeScale)
+
+	function onTimeStopStart()
+		timeStopDepth += 1
+		if timeStopDepth == 1 and actor != null
+			actor.setTimeScale(0)
+
+	function onTimeStopEnd()
+		if timeStopDepth <= 0
+			return
+		timeStopDepth -= 1
+		if timeStopDepth == 0
+			applyStoredTimeScale()
+
+	function clearTimeStop()
+		timeStopDepth = 0
+		applyStoredTimeScale()
+
+	function isTimeStopActive() returns boolean
+		return timeStopDepth > 0
+
 	function startChanneling(int abilityId, real duration)
 		if channelTracker != null
 			channelTracker.start(abilityId, duration)
@@ -165,7 +197,7 @@ public class UnitsEntity extends UnitEntity
 			return channelTracker.consume(abilityId, delta)
 		if delta <= 0.
 			return 0.
-		return actor != null and actor.isTimeStopped() ? 0. : delta
+		return isTimeStopActive() ? 0. : delta
 
 	function finishChanneling(int abilityId)
 		if channelTracker != null
@@ -195,6 +227,8 @@ public class UnitsEntity extends UnitEntity
 		return channelTracker != null ? channelTracker.getDuration(abilityId) : 0.
 
 	ondestroy
+		if timeStopDepth > 0
+			clearTimeStop()
 		if channelTracker != null
 			channelTracker.reset()
 			destroy channelTracker
@@ -267,7 +301,7 @@ public function unit.consumeChannelTime(int abilityId, real delta) returns real
 		return u.consumeChanneling(abilityId, delta)
 	if delta <= 0.
 		return 0.
-	return this.isTimeStopped() ? 0. : delta
+	return delta
 
 public function unit.finishChanneling(int abilityId)
 	let u = this.getEntity() castTo UnitsEntity
@@ -301,6 +335,17 @@ public function unit.getChannelRemaining(int abilityId) returns real
 public function unit.getChannelDuration(int abilityId) returns real
 	let u = this.getEntity() castTo UnitsEntity
 	return u != null ? u.getChannelDuration(abilityId) : 0.
+
+public function unit.setEntityTimeScale(real scale)
+	let u = this.getEntity() castTo UnitsEntity
+	if u != null
+		u.setTimeScale(scale)
+	else
+		SetUnitTimeScale(this, scale)
+
+public function unit.getEntityTimeScale() returns real
+	let u = this.getEntity() castTo UnitsEntity
+	return u != null ? u.getTimeScale() : 1.
 
 public class Unit
 	static Unit array units
