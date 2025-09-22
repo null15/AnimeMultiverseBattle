@@ -1,50 +1,78 @@
 package TimeStopOverlay
 
+/*
+ * Fullscreen overlay that blocks mouse clicks.
+ *
+ * The frame is created once at map init so it can be shown
+ * or hidden for any player when time stop effects are active.
+ */
+
 import FramehandleNames
 import ClosureTimers
 
-public framehandle timeStopOverlay = null
-framehandle timeStopOverlayParent = null
+public framehandle timeStopOverlayFrame = null
+framehandle timeStopOverlayBackdrop = null
 
-function setupTimeStopOverlay()
-	if timeStopOverlay != null
+constant string TIME_STOP_OVERLAY_BUTTON = "TimeStopOverlayButton"
+constant string TIME_STOP_OVERLAY_BACKDROP = "TimeStopOverlayBackdrop"
+constant string TIME_STOP_OVERLAY_TEXTURE = "ReplaceableTextures\\CameraMasks\\Black_mask.blp"
+constant int TIME_STOP_OVERLAY_LEVEL = 50
+constant int TIME_STOP_OVERLAY_ALPHA = 150
+
+function createOverlayFrames()
+	if timeStopOverlayFrame != null
 		return
-	let consoleBackdrop = getFrame("ConsoleUIBackdrop", 0)
-	let parent = createFrame("FRAME", "TimeStopOverlayParent", consoleBackdrop, "", 0)
-	parent.setAllPoints(consoleBackdrop)
-	timeStopOverlayParent = parent
-	let blocker = createFrame(FramehandleTypeNames.simpleframe, "TimeStopOverlay", parent, "", 0)
-	blocker.setAllPoints(parent)
-	blocker.setAlpha(0)
-	blocker.setLevel(10)
-	blocker.hide()
-	timeStopOverlay = blocker
 
-public function showTimeStopOverlay()
-	if timeStopOverlay == null
-		setupTimeStopOverlay()
-	timeStopOverlay.show()
+	let parent = getFrame("ConsoleUIBackdrop", 0)
 
-public function hideTimeStopOverlay()
-	if timeStopOverlay != null
-		timeStopOverlay.hide()
+	timeStopOverlayFrame = createFrame(FramehandleTypeNames.gluebutton, TIME_STOP_OVERLAY_BUTTON, parent, "", 0)
+		..setAllPoints(parent)
+		..setLevel(TIME_STOP_OVERLAY_LEVEL)
+		..setAlpha(0)
+
+	timeStopOverlayBackdrop = createFrame(FramehandleTypeNames.backdrop, TIME_STOP_OVERLAY_BACKDROP, timeStopOverlayFrame, "", 0)
+		..setAllPoints(timeStopOverlayFrame)
+		..setTexture(TIME_STOP_OVERLAY_TEXTURE, 0, true)
+		..setAlpha(TIME_STOP_OVERLAY_ALPHA)
+
+	timeStopOverlayFrame.hide()
 
 public function player.showTimeStopOverlay()
-	if timeStopOverlay == null
-		setupTimeStopOverlay()
-	timeStopOverlay.show(this)
+	if timeStopOverlayFrame == null
+		createOverlayFrames()
+
+	timeStopOverlayFrame.show(this)
 
 public function player.hideTimeStopOverlay()
-	if timeStopOverlay != null
-		timeStopOverlay.hide(this)
+	if timeStopOverlayFrame == null
+		return
+
+	timeStopOverlayFrame.hide(this)
+
+public function showTimeStopOverlayForAll()
+	if timeStopOverlayFrame == null
+		createOverlayFrames()
+
+	timeStopOverlayFrame.show()
+
+public function hideTimeStopOverlayForAll()
+	if timeStopOverlayFrame == null
+		return
+
+	timeStopOverlayFrame.hide()
 
 public function showTimeStopOverlayForPid(int pid)
+	if pid < 0 or pid >= bj_MAX_PLAYERS
+		return
+
 	players[pid].showTimeStopOverlay()
 
 public function hideTimeStopOverlayForPid(int pid)
+	if pid < 0 or pid >= bj_MAX_PLAYERS
+		return
+
 	players[pid].hideTimeStopOverlay()
 
 init
 	doAfter(1) -> 
-		
-		setupTimeStopOverlay()
+		createOverlayFrames()
