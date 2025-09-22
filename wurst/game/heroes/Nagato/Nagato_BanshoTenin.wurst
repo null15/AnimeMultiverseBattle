@@ -5,6 +5,7 @@ import Pull
 import ClosureTimers
 import HashMap
 import EntitySystem
+import TimeStop
 import ClosureEvents
 import SoundUtils
 import SoundSystem
@@ -78,6 +79,7 @@ class BanshoTenin
 			let damage = (baseDps + rampDps * this.elapsed) * BANSHO_PERIOD
 			this.caster.damageTarget(this.target, damage, ATTACK_TYPE_HERO)
 		else
+			this.target.clearTimeStop()
 			this.target.clearTimedPause()
 			UnitRemoveBuffsEx(this.target, false, true, true, true, true, true, true)
 			let defaultSpeed = this.target.getDefaultMovespeed()
@@ -140,7 +142,7 @@ function onChannel()
 		if active.has(caster)
 			active.get(caster).stop(false)
 		let inst = new BanshoTenin(caster, target)
-		nullTimer() -> 
+		nullTimer() ->
 			caster
 			..setAnimation(CASTER_ANIMATION_INDEX)
 			..setTimeScale(CASTER_ANIMATION_SPEED)

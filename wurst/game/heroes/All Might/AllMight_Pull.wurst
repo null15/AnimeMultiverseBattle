@@ -4,8 +4,7 @@ import objectIDs
 import Pull
 import ClosureForGroups
 import RegisterEvents
-import ClosureTimers
-import TimeStopOverlay
+import TimeStop
 
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_PULL1
@@ -23,22 +22,8 @@ function onCast()
 function prop()
 	if GetSpellAbilityId() == 'root'
 		let targ = GetSpellTargetUnit()
-		let tOwner = targ.getOwner()
-		let propWindow = targ.getPropWindow()
-		let turnRate = targ.getField(UNIT_RF_TURN_RATE)
-
-		targ..setPropWindow(angle(0))
-		..setField(UNIT_RF_TURN_RATE, 0)
-		..disableAttack(true, false)
-		..setTimeScale(0)
-		tOwner.disableControl()
-
-		doAfter(2) -> 
-			targ..setPropWindow(angle(propWindow.radians()))
-			..setField(UNIT_RF_TURN_RATE, turnRate)
-			..disableAttack(false, false)
-			..setTimeScale(1)
-			tOwner.enableControl()
+		if targ != null
+			targ.timeStopTimed(2)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

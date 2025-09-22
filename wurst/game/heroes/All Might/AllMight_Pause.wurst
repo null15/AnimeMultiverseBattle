@@ -2,9 +2,9 @@ package AllMight_Pause
 
 import Missiles
 import ClosureForGroups
-import EntitySystem
 import objectIDs
 import RegisterEvents
+import TimeStop
 
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_PAUSE1
@@ -14,7 +14,7 @@ function onCast()
 
 		forUnitsInRange(center, radius) (unit u) ->
 			if u != caster
-				u.pauseTimed(5, true)
+				u.timeStopTimed(5)
 
 		for miss in Missiles.collection
 			if miss.getPos().toVec2().distanceTo(center) <= radius

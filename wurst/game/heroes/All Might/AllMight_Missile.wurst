@@ -4,7 +4,7 @@ import Entity
 import objectIDs
 import SpellAPI
 import ClosureForGroups
-import EntitySystem
+import TimeStop
 
 import Assets
 import Missiles
@@ -35,7 +35,7 @@ function onCast()
 		let casterPos = casterPosZ.toVec2()
 
 		let range = 900.
-		let coneOrientation = casterPos.angleTo(EventData.getSpellTargetPos())		
+		let coneOrientation = casterPos.angleTo(EventData.getSpellTargetPos())
 		let coneAngle = coneAngle(30)
 
 		new Missiles(casterPosZ, EventData.getSpellTargetPos().toVec3().add(0, 0, 50))
@@ -49,7 +49,7 @@ function onCast()
 				let targetPos = u.getPos()
 				if isPointInCone(casterPos, targetPos, range, coneOrientation, coneAngle)
 					caster.damageTarget(u, 50, ATTACK_TYPE_HERO)
-					u.pauseTimed(3)
+					u.timeStopTimed(3)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())

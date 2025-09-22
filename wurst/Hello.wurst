@@ -6,6 +6,10 @@ import ClosureTimers
 import objectIDs
 import ClosureEvents
 
+// Current TimeStop good implemented so far.
+// Question is, do we keep relative/absolute pauses? I was thinking, maybe they useful for target animation spells, that are long and use pause
+// But we pause in the code anyway, does it help to use this pause system? Have to think on it.
+
 init
 	nullTimer() ->
 		let start = vec2(1000., 1000.)
