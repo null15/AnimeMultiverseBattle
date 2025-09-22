@@ -7,7 +7,6 @@ package TimeStopOverlay
  * or hidden for any player when time stop effects are active.
  */
 
-import Framehandle
 import FramehandleNames
 import ClosureTimers
 
@@ -31,12 +30,14 @@ function createOverlayFrames()
 	..setAbsPoint(FRAMEPOINT_BOTTOMRIGHT, WHOLE_SCREEN_BOTTOMRIGHT)
 	..setLevel(TIME_STOP_OVERLAY_LEVEL)
 	..setAlpha(0)
+	..setFocus(true)
 
 	timeStopOverlayBackdrop = createFrame(FramehandleTypeNames.backdrop, TIME_STOP_OVERLAY_BACKDROP, timeStopOverlayFrame, "", 0)
 	..setAllPoints(timeStopOverlayFrame)
 	..setLevel(TIME_STOP_OVERLAY_LEVEL)
 	..setTexture(TIME_STOP_OVERLAY_TEXTURE, 0, true)
 	..setAlpha(TIME_STOP_OVERLAY_ALPHA)
+	..setFocus(true)
 
 	timeStopOverlayFrame.hide()
 
@@ -44,7 +45,9 @@ public function player.showTimeStopOverlay()
 	if timeStopOverlayFrame == null
 		createOverlayFrames()
 
-	timeStopOverlayFrame.show(this)
+	timeStopOverlayFrame
+	..show(this)
+	..setFocus(true)
 
 public function player.hideTimeStopOverlay()
 	if timeStopOverlayFrame == null
@@ -56,7 +59,9 @@ public function showTimeStopOverlayForAll()
 	if timeStopOverlayFrame == null
 		createOverlayFrames()
 
-	timeStopOverlayFrame.show()
+	timeStopOverlayFrame
+	..show()
+	..setFocus(true)
 
 public function hideTimeStopOverlayForAll()
 	if timeStopOverlayFrame == null
