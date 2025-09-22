@@ -4,6 +4,7 @@ import EntityManagement
 import ClosureTimers
 import HashMap
 import TimeStop
+import Utility
 
 let unitPauseTimers = new HashMap<unit, LinkedList<CallbackSingle>>()
 
@@ -43,16 +44,14 @@ class ChannelTracker
 		remaining -= consumed
 		return consumed
 
-	function finish(int abilityId)
+	function finish(int abilityId) returns boolean
 		if not active or abilityId != this.abilityId
-			return
+			return false
 		active = false
 		remaining = 0.
 		duration = 0.
-		let caster = owner.actor
 		this.abilityId = 0
-		if caster != null and caster.isAlive()
-			caster.issueImmediateOrder("stop")
+		return true
 
 	function clear(int abilityId)
 		if abilityId == 0 or (active and abilityId == this.abilityId)
@@ -170,9 +169,10 @@ public class UnitsEntity extends UnitEntity
 
 	function finishChanneling(int abilityId)
 		if channelTracker != null
-			channelTracker.finish(abilityId)
+			if channelTracker.finish(abilityId)
+				actor.stopOrder()
 		else if actor != null and actor.isAlive()
-			actor.issueImmediateOrder("stop")
+			actor.stopOrder()
 
 	function clearChanneling(int abilityId)
 		if channelTracker != null
@@ -209,6 +209,7 @@ public class UnitsEntity extends UnitEntity
 			if hndl != null
 				hndl.cancel()
 				destroy hndl
+
 public function unit.pauseTimed(real duration, boolean absolute)
 	let u = this.getEntity() castTo UnitsEntity
 	if u != null
@@ -273,7 +274,7 @@ public function unit.finishChanneling(int abilityId)
 	if u != null
 		u.finishChanneling(abilityId)
 	else if this != null and this.isAlive()
-		this.issueImmediateOrder("stop")
+		this.stopOrder()
 
 public function unit.clearChanneling(int abilityId)
 	let u = this.getEntity() castTo UnitsEntity

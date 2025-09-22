@@ -1,4 +1,5 @@
 package Utility
+import ClosureTimers
 
 /** 
 * Checks if unit has ward classification. If they have, it returns "512" and since 512 != 0, statement is true 
@@ -7,3 +8,14 @@ package Utility
 public function unit.isGiant() returns boolean
 	let classification = BlzGetUnitIntegerField(this, UNIT_IF_UNIT_CLASSIFICATION)
 	return (BlzBitAnd(classification, GetHandleId(UNIT_CATEGORY_GIANT)) != 0)
+
+/**
+* Schedules a stop order on the given unit.
+*/
+public function unit.stopOrder()
+	if this == null or not this.isAlive()
+		return
+	let toStop = this
+	nullTimer() ->
+		if toStop != null and toStop.isAlive()
+			toStop.issueImmediateOrder("stop")
