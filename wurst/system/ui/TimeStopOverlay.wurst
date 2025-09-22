@@ -12,11 +12,14 @@ import ClosureTimers
 
 public framehandle timeStopOverlayFrame = null
 framehandle timeStopOverlayBackdrop = null
+framehandle timeStopOverlayInput = null
 
 constant string TIME_STOP_OVERLAY_BUTTON = "TimeStopOverlayButton"
 constant string TIME_STOP_OVERLAY_BACKDROP = "TimeStopOverlayBackdrop"
 constant string TIME_STOP_OVERLAY_TEXTURE = "ReplaceableTextures\\CameraMasks\\Black_mask.blp"
 constant string TIME_STOP_OVERLAY_BUTTON_TYPE = "SIMPLEBUTTON"
+constant string TIME_STOP_OVERLAY_INPUT = "TimeStopOverlayInput"
+constant string TIME_STOP_OVERLAY_INPUT_TEMPLATE = "EscMenuEditBoxTemplate"
 constant int TIME_STOP_OVERLAY_LEVEL = 1
 constant int TIME_STOP_OVERLAY_ALPHA = 100
 
@@ -39,6 +42,16 @@ function createOverlayFrames()
 	..setAlpha(TIME_STOP_OVERLAY_ALPHA)
 	..setFocus(true)
 
+	timeStopOverlayInput = createFrame(FramehandleTypeNames.editbox, TIME_STOP_OVERLAY_INPUT, timeStopOverlayFrame, TIME_STOP_OVERLAY_INPUT_TEMPLATE, 0)
+	..clearAllPoints()
+	..setPoint(FRAMEPOINT_CENTER, timeStopOverlayFrame, FRAMEPOINT_CENTER)
+	..setSize(0.0001, 0.0001)
+	..setLevel(TIME_STOP_OVERLAY_LEVEL)
+	..setAlpha(0)
+	..setText("")
+	..setFocus(false)
+	..hide()
+
 	timeStopOverlayFrame.hide()
 
 public function player.showTimeStopOverlay()
@@ -47,13 +60,23 @@ public function player.showTimeStopOverlay()
 
 	timeStopOverlayFrame
 	..show(this)
-	..setFocus(true)
+	..setFocus(this, true)
+
+	timeStopOverlayInput
+	..show(this)
+	..setText(this, "")
+	..setFocus(this, true)
 
 public function player.hideTimeStopOverlay()
 	if timeStopOverlayFrame == null
 		return
 
 	timeStopOverlayFrame.hide(this)
+
+	timeStopOverlayInput
+	..setFocus(this, false)
+	..setText(this, "")
+	..hide(this)
 
 public function showTimeStopOverlayForAll()
 	if timeStopOverlayFrame == null
@@ -63,11 +86,21 @@ public function showTimeStopOverlayForAll()
 	..show()
 	..setFocus(true)
 
+	timeStopOverlayInput
+	..show()
+	..setText("")
+	..setFocus(true)
+
 public function hideTimeStopOverlayForAll()
 	if timeStopOverlayFrame == null
 		return
 
 	timeStopOverlayFrame.hide()
+
+	timeStopOverlayInput
+	..setFocus(false)
+	..setText("")
+	..hide()
 
 public function showTimeStopOverlayForPid(int pid)
 	if pid < 0 or pid >= bj_MAX_PLAYERS
@@ -82,5 +115,5 @@ public function hideTimeStopOverlayForPid(int pid)
 	players[pid].hideTimeStopOverlay()
 
 init
-	doAfter(1) -> 
+	doAfter(1) ->
 		createOverlayFrames()
