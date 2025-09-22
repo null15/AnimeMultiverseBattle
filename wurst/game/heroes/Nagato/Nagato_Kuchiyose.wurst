@@ -430,7 +430,7 @@ function onEnd()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
 		let caster = GetTriggerUnit()
 		if caster != null and active.has(caster)
-			active.get(caster).finish(true)
+			active.get(caster).finish(true) // <-- instead of true, we have false for failed channel
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())
