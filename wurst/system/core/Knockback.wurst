@@ -217,7 +217,7 @@ public class Knockback3
 				knockback.del *= (1. - frictionCoefficientGround)
 
 				if velXySquared > frictionFxThreshold * frictionFxThreshold * ANIMATION_PERIOD
-					addEffect(frictionFxPath, pos3).destr()
+					addEffect(frictionFxPath, pos3).destroyEntityEffect()
 
 			if USE_MOVE_SPEED_MODIFIERS
 				knockback.u.setMoveSpeed(knockback.u.getDefaultMovespeed())

@@ -8,6 +8,7 @@ import EntityManagement
 import EntitySystem
 import SoundUtils
 import SoundSystem
+import TimeStop
 
 constant real SUMMON_CHANNEL_TIME = 3.
 constant real ANIMAL_PATH_TELEPORT_RADIUS = 600.
@@ -40,7 +41,9 @@ constant HashMap<unit, SummonAnimalPath> active = new HashMap<unit, SummonAnimal
 
 function releaseEffect(effect fx) returns effect
 	if fx != null
-		fx..setPos(vec2(-99999, -99999))..destr()
+		fx.clearTimeStop()
+		fx.setEntityPos(vec2(-99999, -99999))
+		fx.destroyEntityEffect()
 	return null
 
 class SummonAnimalPath

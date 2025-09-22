@@ -6,6 +6,168 @@ import HashMap
 import Utility
 
 let unitPauseTimers = new HashMap<unit, LinkedList<CallbackSingle>>()
+let effectEntities = new HashMap<effect, EffectsEntity>()
+
+public class EffectsEntity
+	effect actor
+	vec3 position = vec3(0, 0, 0)
+	real uniformScale = 1.
+	vec3 matrixScale = vec3(1., 1., 1.)
+	boolean useMatrixScale = false
+	real timeScale = 1.
+	int timeStopDepth = 0
+
+	construct(effect actor)
+		this.actor = actor
+		if actor != null
+			this.position = actor.getPos3()
+
+	function setScale(real scale)
+		uniformScale = scale
+		useMatrixScale = false
+		if actor != null
+			actor.setScale(scale)
+
+	function setScale(vec3 scale)
+		matrixScale = scale
+		useMatrixScale = true
+		if actor != null
+			actor.setScale(scale)
+
+	function getScale() returns real
+		return uniformScale
+
+	function setPosition(vec3 pos)
+		position = pos
+		if actor != null
+			actor.setPos(pos)
+
+	function setPosition(vec2 pos)
+		position = vec3(pos.x, pos.y, position.z)
+		if actor != null
+			actor.setPos(pos)
+
+	function setHeight(real height)
+		position = vec3(position.x, position.y, height)
+		if actor != null
+			actor.setPosition(position.x, position.y, height)
+
+	function setTimeScale(real scale)
+		timeScale = scale
+		if timeStopDepth == 0 and actor != null
+			actor.setTimeScale(scale)
+
+	function getTimeScale() returns real
+		return timeScale
+
+	function applyStoredTimeScale()
+		if actor != null
+			actor.setTimeScale(timeScale)
+
+	function onTimeStopStart()
+		timeStopDepth += 1
+		if timeStopDepth == 1 and actor != null
+			actor.setTimeScale(0)
+
+	function onTimeStopEnd()
+		if timeStopDepth <= 0
+			return
+		timeStopDepth -= 1
+		if timeStopDepth == 0
+			applyStoredTimeScale()
+
+	function clearTimeStop()
+		timeStopDepth = 0
+		applyStoredTimeScale()
+
+	function reapplyState()
+		if actor == null
+			return
+		if useMatrixScale
+			actor.setScale(matrixScale)
+		else
+			actor.setScale(uniformScale)
+		actor.setPos(position)
+		if timeStopDepth == 0
+			actor.setTimeScale(timeScale)
+
+	ondestroy
+		actor = null
+
+function ensureEffectEntity(effect fx) returns EffectsEntity
+	if fx == null
+		return null
+	var entity = effectEntities.get(fx)
+	if entity == null
+		entity = new EffectsEntity(fx)
+		effectEntities.put(fx, entity)
+	return entity
+
+public function effect.getEntity() returns EffectsEntity
+	return effectEntities.get(this)
+
+public function effect.ensureEntity() returns EffectsEntity
+	return ensureEffectEntity(this)
+
+public function effect.releaseEntity()
+	if this == null
+		return
+	let entity = effectEntities.get(this)
+	if entity != null
+		effectEntities.remove(this)
+		destroy entity
+
+public function effect.setEntityTimeScale(real scale) returns effect
+	let entity = ensureEffectEntity(this)
+	if entity != null
+		entity.setTimeScale(scale)
+	return this
+
+public function effect.getEntityTimeScale() returns real
+	let entity = this.getEntity()
+	return entity != null ? entity.getTimeScale() : 1.
+
+public function effect.setEntityScale(real scale) returns effect
+	let entity = ensureEffectEntity(this)
+	if entity != null
+		entity.setScale(scale)
+	return this
+
+public function effect.setEntityScale(vec3 scale) returns effect
+	let entity = ensureEffectEntity(this)
+	if entity != null
+		entity.setScale(scale)
+	return this
+
+public function effect.setEntityPos(vec3 pos) returns effect
+	let entity = ensureEffectEntity(this)
+	if entity != null
+		entity.setPosition(pos)
+	return this
+
+public function effect.setEntityPos(vec2 pos) returns effect
+	let entity = ensureEffectEntity(this)
+	if entity != null
+		entity.setPosition(pos)
+	return this
+
+public function effect.setEntityHeight(real height) returns effect
+	let entity = ensureEffectEntity(this)
+	if entity != null
+		entity.setHeight(height)
+	return this
+
+public function effect.destroyEntityEffect() returns effect
+	if this == null
+		return null
+	this.releaseEntity()
+	DestroyEffect(this)
+	return null
+
+public function effect.reapplyEntityState()
+	let entity = this.getEntity()
+	if entity != null
+		entity.reapplyState()
 
 class ChannelTracker
 	UnitsEntity owner

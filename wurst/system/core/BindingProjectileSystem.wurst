@@ -3,6 +3,8 @@ package BindingProjectileSystem
 import HashMap
 import Missiles
 import EntityManagement
+import EntitySystem
+import TimeStop
 
 constant HashMap<unit, effect> anchorVisuals = new HashMap<unit, effect>()
 
@@ -309,7 +311,7 @@ public function setAnchorVisual(unit anchor, string modelPath, real heightOffset
 	let pos = anchor.getPos3Real().add(0, 0, heightOffset)
 	let fx = addEffect(modelPath, pos)
 	if fx != null
-		fx..setScale(scale)..setOrientation(yaw, pitch, roll)
+		fx..setEntityScale(scale)..setOrientation(yaw, pitch, roll)
 		anchorVisuals.put(anchor, fx)
 	return fx
 
@@ -319,7 +321,9 @@ public function clearAnchorVisual(unit anchor)
 	if anchorVisuals.has(anchor)
 		let fx = anchorVisuals.get(anchor)
 		if fx != null
-			fx..setPos(vec2(-99999, -99999))..destr()
+			fx.clearTimeStop()
+			fx.setEntityPos(vec2(-99999, -99999))
+			fx.destroyEntityEffect()
 		anchorVisuals.remove(anchor)
 
 function onAnchorRemoved()

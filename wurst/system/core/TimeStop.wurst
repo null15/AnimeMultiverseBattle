@@ -8,6 +8,7 @@ import EntityManagement
 
 let timeStopStates = new HashMap<unit, TimeStopState>()
 let playerStopCounts = new HashMap<player, int>()
+let effectTimeStopStates = new HashMap<effect, EffectTimeStopState>()
 
 function addPlayerControl(player p)
 	if p == null
@@ -111,8 +112,8 @@ class TimeStopState
 					target.setTimeScale(originalTimeScale)
 			if owner != null
 				releasePlayerControl(owner)
-			owner = null
-			stored = false
+		owner = null
+		stored = false
 		cleanupIfIdle()
 
 	function addTimer(TimeStopTimer time)
@@ -158,6 +159,90 @@ class TimeStopState
 		tracked = null
 		owner = null
 
+class EffectTimeStopState
+	effect tracked
+	LinkedList<TimeStopTimer> timers
+	int count = 0
+	boolean stored = false
+	boolean destroying = false
+
+	construct(effect target)
+		this.tracked = target
+		this.timers = new LinkedList<TimeStopTimer>()
+
+	function start()
+		if count == 0
+			activate()
+		count += 1
+
+	function activate()
+		if stored
+			return
+		if tracked != null
+			let entity = tracked.ensureEntity()
+			if entity != null
+				entity.onTimeStopStart()
+		stored = true
+
+	function decrease()
+		if count == 0
+			return
+		count -= 1
+		if count == 0
+			deactivate()
+
+	function deactivate()
+		if stored
+			if tracked != null
+				let entity = tracked.getEntity()
+				if entity != null
+					entity.onTimeStopEnd()
+				else
+					BlzSetSpecialEffectTimeScale(tracked, 1.)
+			stored = false
+		cleanupIfIdle()
+
+	function addTimer(TimeStopTimer time)
+		timers.add(time)
+
+	function removeTimer(TimeStopTimer time)
+		timers.remove(time)
+		cleanupIfIdle()
+
+	function clear()
+		while not timers.isEmpty()
+			let time = timers.dequeue()
+			if time != null
+				time.cancel()
+				destroy time
+		count = 0
+		deactivate()
+
+	function onEffectRemoved()
+		tracked = null
+		clear()
+
+	function isActive() returns boolean
+		return count > 0
+
+	function cleanupIfIdle()
+		if destroying
+			return
+		if count == 0 and timers.isEmpty() and not stored
+			destroying = true
+			if tracked != null and effectTimeStopStates.has(tracked)
+				effectTimeStopStates.remove(tracked)
+			destroy this
+
+	ondestroy
+		while not timers.isEmpty()
+			let time = timers.dequeue()
+			if time != null
+				time.cancel()
+				destroy time
+		destroy timers
+		tracked = null
+
 function ensureState(unit target) returns TimeStopState
 	if target == null
 		return null
@@ -165,6 +250,15 @@ function ensureState(unit target) returns TimeStopState
 	if state == null
 		state = new TimeStopState(target)
 		timeStopStates.put(target, state)
+	return state
+
+function ensureEffectState(effect target) returns EffectTimeStopState
+	if target == null
+		return null
+	var state = effectTimeStopStates.get(target)
+	if state == null
+		state = new EffectTimeStopState(target)
+		effectTimeStopStates.put(target, state)
 	return state
 
 public function unit.startTimeStop()
@@ -202,6 +296,43 @@ public function unit.clearTimeStop()
 
 public function unit.isTimeStopped() returns boolean
 	let state = timeStopStates.get(this)
+	return state != null and state.isActive()
+
+public function effect.startTimeStop()
+	let state = ensureEffectState(this)
+	if state != null
+		state.start()
+
+public function effect.stopTimeStop()
+	let state = effectTimeStopStates.get(this)
+	if state != null
+		state.decrease()
+
+public function effect.timeStopTimed(real duration)
+	let state = ensureEffectState(this)
+	if state == null
+		return
+	state.start()
+	if duration <= 0
+		state.decrease()
+		return
+	let time = new TimeStopTimer()
+	state.addTimer(time)
+	CallbackSingle cb
+	cb = doAfter(duration) ->
+		state.decrease()
+		state.removeTimer(time)
+		time.finish()
+		destroy time
+	time.setCallback(cb)
+
+public function effect.clearTimeStop()
+	let state = effectTimeStopStates.get(this)
+	if state != null
+		state.clear()
+
+public function effect.isTimeStopped() returns boolean
+	let state = effectTimeStopStates.get(this)
 	return state != null and state.isActive()
 
 function onUnitRemoved()

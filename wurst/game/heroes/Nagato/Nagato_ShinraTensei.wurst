@@ -11,6 +11,7 @@ import EntityManagement
 import EntitySystem
 import SoundUtils
 import SoundSystem
+import TimeStop
 
 constant SoundDefinition snd_ShinraTensei				= new SoundDefinition("Nagato\\Shinra Tensei\\ShinraTensei.mp3", false, true)
 constant string SHINRA_TENSEI_FX						= "Nagato\\Shinra Tensei\\ShinraTensei.mdx"
@@ -41,7 +42,9 @@ constant HashMap<unit, ShinraTensei> active				= new HashMap<unit, ShinraTensei>
 
 function releaseEffect(effect fx) returns effect
 	if fx != null
-		fx..setPos(vec2(-99999, -99999))..destr()
+		fx.clearTimeStop()
+		fx.setEntityPos(vec2(-99999, -99999))
+		fx.destroyEntityEffect()
 	return null
 
 class ShinraTensei
@@ -52,6 +55,7 @@ class ShinraTensei
 	effect shinraTenseiDirt
 	effect dustWave
 	effect shinraTenseiBlast
+	boolean effectsTimeStopped = false
 
 	construct(unit caster)
 		this.caster = caster
@@ -63,15 +67,16 @@ class ShinraTensei
 
 	function createEffects()
 		let casterPos = this.getCasterEffectPos()
-		this.shinraTensei = addEffect(SHINRA_TENSEI_FX, casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))..setScale(SHINRA_TENSEI_MAIN_SCALE)
-		this.shinraTenseiDirt = addEffect(SHINRA_TENSEI_DIRT_FX, casterPos)..setScale(SHINRA_TENSEI_DIRT_SCALE)..setTimeScale(SHINRA_TENSEI_DIRT_TIME_SCALE)..playAnimation(ANIM_TYPE_BIRTH)
-		this.dustWave = addEffect(SHINRA_TENSEI_DUST_FX, casterPos)..playAnimation(ANIM_TYPE_BIRTH)..setScale(SHINRA_TENSEI_DUST_SCALE)
-		this.shinraTenseiBlast = addEffect(SHINRA_TENSEI_BLAST_FX, casterPos)..playAnimation(ANIM_TYPE_STAND)..setScale(SHINRA_TENSEI_BLAST_SCALE)
+		this.shinraTensei = addEffect(SHINRA_TENSEI_FX, casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))..setEntityScale(SHINRA_TENSEI_MAIN_SCALE)
+		this.shinraTenseiDirt = addEffect(SHINRA_TENSEI_DIRT_FX, casterPos)..setEntityScale(SHINRA_TENSEI_DIRT_SCALE)..setEntityTimeScale(SHINRA_TENSEI_DIRT_TIME_SCALE)..playAnimation(ANIM_TYPE_BIRTH)
+		this.dustWave = addEffect(SHINRA_TENSEI_DUST_FX, casterPos)..playAnimation(ANIM_TYPE_BIRTH)..setEntityScale(SHINRA_TENSEI_DUST_SCALE)
+		this.shinraTenseiBlast = addEffect(SHINRA_TENSEI_BLAST_FX, casterPos)..playAnimation(ANIM_TYPE_STAND)..setEntityScale(SHINRA_TENSEI_BLAST_SCALE)
 
 	function tick()
 		if this.caster == null or not this.caster.isAlive()
 			this.stop()
 			return
+		this.updateEffectsTimeStop(this.caster.isTimeStopped())
 		if not this.caster.isChannelingAbility(NAGATO_SHINRA_TENSEI)
 			this.stop()
 			return
@@ -99,13 +104,42 @@ class ShinraTensei
 
 	function updateEffects(vec3 casterPos)
 		if this.shinraTensei != null
-			this.shinraTensei.setPos(casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))
+			this.shinraTensei.setEntityPos(casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))
 		if this.shinraTenseiDirt != null
-			this.shinraTenseiDirt.setPos(casterPos)
+			this.shinraTenseiDirt.setEntityPos(casterPos)
 		if this.dustWave != null
-			this.dustWave.setPos(casterPos)
+			this.dustWave.setEntityPos(casterPos)
 		if this.shinraTenseiBlast != null
-			this.shinraTenseiBlast.setPos(casterPos)
+			this.shinraTenseiBlast.setEntityPos(casterPos)
+
+	function startEffectsTimeStop()
+		if this.shinraTensei != null
+			this.shinraTensei.startTimeStop()
+		if this.shinraTenseiDirt != null
+			this.shinraTenseiDirt.startTimeStop()
+		if this.dustWave != null
+			this.dustWave.startTimeStop()
+		if this.shinraTenseiBlast != null
+			this.shinraTenseiBlast.startTimeStop()
+
+	function stopEffectsTimeStop()
+		if this.shinraTensei != null
+			this.shinraTensei.stopTimeStop()
+		if this.shinraTenseiDirt != null
+			this.shinraTenseiDirt.stopTimeStop()
+		if this.dustWave != null
+			this.dustWave.stopTimeStop()
+		if this.shinraTenseiBlast != null
+			this.shinraTenseiBlast.stopTimeStop()
+
+	function updateEffectsTimeStop(boolean active)
+		if active
+			if not this.effectsTimeStopped
+				this.effectsTimeStopped = true
+				this.startEffectsTimeStop()
+		else if this.effectsTimeStopped
+			this.effectsTimeStopped = false
+			this.stopEffectsTimeStop()
 
 	function affectUnits(vec2 center)
 		forUnitsInRange(center, SHINRA_TENSEI_RADIUS) (unit u) ->
@@ -162,6 +196,9 @@ class ShinraTensei
 		if this.caster != null and active.has(this.caster)
 			active.remove(this.caster)
 			this.caster.clearChanneling(NAGATO_SHINRA_TENSEI)
+		if this.effectsTimeStopped
+			this.stopEffectsTimeStop()
+			this.effectsTimeStopped = false
 		if this.affected != null
 			destroy this.affected
 			this.affected = null

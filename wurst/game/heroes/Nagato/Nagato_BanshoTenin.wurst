@@ -107,7 +107,9 @@ class BanshoTenin
 		if this.target != null
 			Pull.stopActive(this.target)
 		if this.dirtFx != null
-			this.dirtFx..setPos(vec2(-99999, -99999))..destr()
+			this.dirtFx.clearTimeStop()
+			this.dirtFx.setEntityPos(vec2(-99999, -99999))
+			this.dirtFx.destroyEntityEffect()
 			this.dirtFx = null
 		if this.caster != null and active.has(this.caster)
 			active.remove(this.caster)
@@ -122,7 +124,7 @@ class BanshoTenin
 		let behindPos = casterPos.distanceToSq(targetPos) > 0. ? targetPos + yaw.toVec(BANSHO_FX_OFFSET) : targetPos
 		let groundPos = this.target.getPos3Real()
 		this.dirtFx
-		..setPos(vec3(behindPos.x, behindPos.y, groundPos.z))
+		..setEntityPos(vec3(behindPos.x, behindPos.y, groundPos.z))
 		..setOrientation(yaw + BANSHO_DIRT_YAW_OFFSET, BANSHO_DIRT_PITCH, BANSHO_DIRT_ROLL)
 
 	ondestroy

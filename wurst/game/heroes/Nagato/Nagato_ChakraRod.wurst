@@ -6,6 +6,7 @@ import objectIDs
 import BindingProjectileSystem
 import Tether
 import ClosureTimers
+import TimeStop
 
 constant angle CHAKRA_ROD_PITCH							= (80)	.fromDeg()
 constant angle CHAKRA_ROD_ROLL							= (0)	.fromDeg()
@@ -51,7 +52,8 @@ function onImpact(BindingProjectile projectile, unit victim) returns bool
 	Tether.bindTimed(victim, rod, CHAKRA_ROD_BIND_DISTANCE, projectile.getBindDuration())
 	let blood = addEffect(CHAKRA_ROD_BLOOD_FX, victim.getPos3Real())
 	if blood != null
-		blood..destr()
+		blood.clearTimeStop()
+		blood.destroyEntityEffect()
 	return true
 
 function chakraRod_config()
