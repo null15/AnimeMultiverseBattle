@@ -185,7 +185,7 @@ function onChannel()
 		nullTimer() ->
 			caster
 			..setAnimation(CASTER_ANIMATION_INDEX)
-			..setTimeScale(CASTER_ANIMATION_SPEED)
+			..setEntityTimeScale(CASTER_ANIMATION_SPEED)
 		if inst.isActive()
 			active.put(caster, inst)
 		else
@@ -200,4 +200,3 @@ function onStop()
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, () -> onStop())
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, () -> onStop())

@@ -93,7 +93,7 @@ class SummonAnimalPath
 				scribbleActor2.playAnimation(ANIM_TYPE_STAND)
 		if this.animalPath != null
 			this.animalPath.setFacing(ANIMAL_PATH_SOUTH_FACING)
-			this.animalPath..setAnimation(ANIMATION_CHANNEL)..setTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
+			this.animalPath..setAnimation(ANIMATION_CHANNEL)..setEntityTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
 
 	function startEffectTimeStop(EffectsEntity entity)
 		if entity == null
@@ -373,7 +373,7 @@ class SummonAnimalPath
 		if casterUnit != null
 			nullTimer() ->
 				if casterUnit != null and casterUnit.isAlive() and not casterUnit.isTimeStopped()
-					casterUnit..setAnimation(ANIMATION_END)..setTimeScale(CASTER_FINISH_ANIMATION_TIME_SCALE)
+					casterUnit..setAnimation(ANIMATION_END)..setEntityTimeScale(CASTER_FINISH_ANIMATION_TIME_SCALE)
 
 	function spawnTeleportWindAt(vec2 pos)
 		let entity = addEffectEntity(KUCHIYOSE_TELEPORT_WIND_MODEL_PATH, pos.toVec3())
@@ -416,7 +416,7 @@ class SummonAnimalPath
 		this.animalPath = null
 		if summon == null
 			return
-		summon..setAnimation(ANIMATION_END)..setTimeScale(CASTER_FINISH_ANIMATION_TIME_SCALE)
+		summon..setAnimation(ANIMATION_END)..setEntityTimeScale(CASTER_FINISH_ANIMATION_TIME_SCALE)
 		// doAfter(ANIMAL_PATH_FINISH_ANIMATION_DELAY) ->
 			// summon.setAnimation(ANIMATION_END)
 		doAfter(ANIMAL_PATH_LINGER_DURATION) ->
@@ -468,7 +468,7 @@ function onChannel()
 		active.put(caster, inst)
 		nullTimer() ->
 			if caster != null
-				caster..setAnimation(ANIMATION_CHANNEL)..setTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
+				caster..setAnimation(ANIMATION_CHANNEL)..setEntityTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
 
 function onEnd()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH

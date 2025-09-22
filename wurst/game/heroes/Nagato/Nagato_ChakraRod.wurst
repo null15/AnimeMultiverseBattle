@@ -83,7 +83,7 @@ function onCast()
 		nullTimer() ->
 			caster
 			..setAnimation(CASTER_ANIMATION_INDEX)
-			..setTimeScale(CASTER_ANIMATION_SPEED)
+			..setEntityTimeScale(CASTER_ANIMATION_SPEED)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
