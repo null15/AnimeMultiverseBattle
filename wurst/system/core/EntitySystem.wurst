@@ -3,9 +3,85 @@ package EntitySystem
 import EntityManagement
 import ClosureTimers
 import HashMap
+import TimeStop
 
 let unitPauseTimers = new HashMap<unit, LinkedList<CallbackSingle>>()
 
+class ChannelTracker
+	UnitsEntity owner
+	int abilityId = 0
+	real duration = 0.
+	real remaining = 0.
+	boolean active = false
+
+	construct(UnitsEntity owner)
+		this.owner = owner
+
+	function start(int abilityId, real duration)
+		reset()
+		if abilityId == 0
+			return
+		this.abilityId = abilityId
+		this.duration = duration > 0. ? duration : 0.
+		this.remaining = this.duration
+		this.active = true
+
+	function consume(int abilityId, real delta) returns real
+		if not active or abilityId != this.abilityId
+			return 0.
+		if delta <= 0.
+			return 0.
+		let caster = owner.actor
+		if caster == null or not caster.isAlive()
+			reset()
+			return 0.
+		if caster.isTimeStopped()
+			return 0.
+		if remaining <= 0.
+			return 0.
+		let consumed = remaining < delta ? remaining : delta
+		remaining -= consumed
+		return consumed
+
+	function finish(int abilityId)
+		if not active or abilityId != this.abilityId
+			return
+		active = false
+		remaining = 0.
+		duration = 0.
+		let caster = owner.actor
+		this.abilityId = 0
+		if caster != null and caster.isAlive()
+			caster.issueImmediateOrder("stop")
+
+	function clear(int abilityId)
+		if abilityId == 0 or (active and abilityId == this.abilityId)
+			reset()
+
+	function reset()
+		active = false
+		abilityId = 0
+		duration = 0.
+		remaining = 0.
+
+	function isChanneling(int abilityId) returns boolean
+		return active and abilityId == this.abilityId
+
+	function hasChanneling() returns boolean
+		return active
+
+	function getRemaining(int abilityId) returns real
+		if active and abilityId == this.abilityId
+			return remaining
+		return 0.
+
+	function getDuration(int abilityId) returns real
+		if abilityId == this.abilityId
+			return duration
+		return 0.
+
+	ondestroy
+		owner = null
 /** Entity Wrapper for our Objects. With this, we're able to accurately keep track of our object data.
 * For example, pause relative and pause absolute, we can accurately keep this information accurate, allowing two types of pauses to co-exist.
 * In the future, we might have other data attachments we want to attach to our objects and keep them accurately represented.
@@ -16,9 +92,11 @@ public class UnitsEntity extends UnitEntity
 	int absPauseCount = 0
 	LinkedList<PauseTimer> pauseCbs = new LinkedList<PauseTimer>()
 	LinkedList<PauseTimer> absPauseCbs = new LinkedList<PauseTimer>()
+	ChannelTracker channelTracker
 
 	construct(unit actor)
 		super(actor)
+		this.channelTracker = new ChannelTracker(this)
 
 	function pauseTimed(real duration, boolean absolute)
 		if absolute
@@ -79,7 +157,48 @@ public class UnitsEntity extends UnitEntity
 	function isAbsPaused() returns boolean
 		return absPauseCount > 0
 
+	function startChanneling(int abilityId, real duration)
+		if channelTracker != null
+			channelTracker.start(abilityId, duration)
+
+	function consumeChanneling(int abilityId, real delta) returns real
+		if channelTracker != null
+			return channelTracker.consume(abilityId, delta)
+		if delta <= 0.
+			return 0.
+		return actor != null and actor.isTimeStopped() ? 0. : delta
+
+	function finishChanneling(int abilityId)
+		if channelTracker != null
+			channelTracker.finish(abilityId)
+		else if actor != null and actor.isAlive()
+			actor.issueImmediateOrder("stop")
+
+	function clearChanneling(int abilityId)
+		if channelTracker != null
+			channelTracker.clear(abilityId)
+
+	function clearChanneling()
+		if channelTracker != null
+			channelTracker.reset()
+
+	function isChannelingAbility(int abilityId) returns boolean
+		return channelTracker != null and channelTracker.isChanneling(abilityId)
+
+	function hasChanneling() returns boolean
+		return channelTracker != null and channelTracker.hasChanneling()
+
+	function getChannelRemaining(int abilityId) returns real
+		return channelTracker != null ? channelTracker.getRemaining(abilityId) : 0.
+
+	function getChannelDuration(int abilityId) returns real
+		return channelTracker != null ? channelTracker.getDuration(abilityId) : 0.
+
 	ondestroy
+		if channelTracker != null
+			channelTracker.reset()
+			destroy channelTracker
+			channelTracker = null
 		while not pauseCbs.isEmpty()
 			let hndl = pauseCbs.dequeue()
 			if hndl != null
@@ -90,7 +209,6 @@ public class UnitsEntity extends UnitEntity
 			if hndl != null
 				hndl.cancel()
 				destroy hndl
-
 public function unit.pauseTimed(real duration, boolean absolute)
 	let u = this.getEntity() castTo UnitsEntity
 	if u != null
@@ -136,6 +254,52 @@ public function unit.isAbsolutePausedTimed() returns boolean
 	if u != null
 		return u.isAbsPaused()
 	return this.isPaused()
+
+public function unit.startChanneling(int abilityId, real duration)
+	let u = this.getEntity() castTo UnitsEntity
+	if u != null
+		u.startChanneling(abilityId, duration)
+
+public function unit.consumeChannelTime(int abilityId, real delta) returns real
+	let u = this.getEntity() castTo UnitsEntity
+	if u != null
+		return u.consumeChanneling(abilityId, delta)
+	if delta <= 0.
+		return 0.
+	return this.isTimeStopped() ? 0. : delta
+
+public function unit.finishChanneling(int abilityId)
+	let u = this.getEntity() castTo UnitsEntity
+	if u != null
+		u.finishChanneling(abilityId)
+	else if this != null and this.isAlive()
+		this.issueImmediateOrder("stop")
+
+public function unit.clearChanneling(int abilityId)
+	let u = this.getEntity() castTo UnitsEntity
+	if u != null
+		u.clearChanneling(abilityId)
+
+public function unit.clearAllChanneling()
+	let u = this.getEntity() castTo UnitsEntity
+	if u != null
+		u.clearChanneling()
+
+public function unit.isChannelingAbility(int abilityId) returns boolean
+	let u = this.getEntity() castTo UnitsEntity
+	return u != null and u.isChannelingAbility(abilityId)
+
+public function unit.isChannelingAny() returns boolean
+	let u = this.getEntity() castTo UnitsEntity
+	return u != null and u.hasChanneling()
+
+public function unit.getChannelRemaining(int abilityId) returns real
+	let u = this.getEntity() castTo UnitsEntity
+	return u != null ? u.getChannelRemaining(abilityId) : 0.
+
+public function unit.getChannelDuration(int abilityId) returns real
+	let u = this.getEntity() castTo UnitsEntity
+	return u != null ? u.getChannelDuration(abilityId) : 0.
 
 public class Unit
 	static Unit array units

@@ -8,6 +8,7 @@ import ClosureTimers
 import HashMap
 import HashSet
 import EntityManagement
+import EntitySystem
 import SoundUtils
 import SoundSystem
 
@@ -45,7 +46,6 @@ function releaseEffect(effect fx) returns effect
 
 class ShinraTensei
 	unit caster
-	real remaining
 	CallbackPeriodic cb
 	HashSet<unit> affected
 	effect shinraTensei
@@ -55,7 +55,6 @@ class ShinraTensei
 
 	construct(unit caster)
 		this.caster = caster
-		this.remaining = SHINRA_TENSEI_DURATION
 		this.affected = new HashSet<unit>
 		this.createEffects()
 		playSound(snd_ShinraTensei, this.getCasterEffectPos(), SHINRA_TENSEI_SOUND_RADIUS)
@@ -73,8 +72,17 @@ class ShinraTensei
 		if this.caster == null or not this.caster.isAlive()
 			this.stop()
 			return
-		this.remaining -= SHINRA_TENSEI_PERIOD
-		if this.remaining <= 0.
+		if not this.caster.isChannelingAbility(NAGATO_SHINRA_TENSEI)
+			this.stop()
+			return
+		let consumed = this.caster.consumeChannelTime(NAGATO_SHINRA_TENSEI, SHINRA_TENSEI_PERIOD)
+		if consumed <= 0.
+			if this.caster.getChannelRemaining(NAGATO_SHINRA_TENSEI) <= 0.
+				this.caster.finishChanneling(NAGATO_SHINRA_TENSEI)
+				this.stop()
+			return
+		if this.caster.getChannelRemaining(NAGATO_SHINRA_TENSEI) <= 0.
+			this.caster.finishChanneling(NAGATO_SHINRA_TENSEI)
 			this.stop()
 			return
 		let casterPos = this.getCasterEffectPos()
@@ -153,6 +161,7 @@ class ShinraTensei
 			this.cb = null
 		if this.caster != null and active.has(this.caster)
 			active.remove(this.caster)
+			this.caster.clearChanneling(NAGATO_SHINRA_TENSEI)
 		if this.affected != null
 			destroy this.affected
 			this.affected = null
@@ -162,11 +171,14 @@ class ShinraTensei
 		this.shinraTenseiBlast = releaseEffect(this.shinraTenseiBlast)
 		destroy this
 
-function onCast()
+function onChannel()
 	if GetSpellAbilityId() == NAGATO_SHINRA_TENSEI
 		let caster = GetTriggerUnit()
 		if caster == null
 			return
+		if active.has(caster)
+			active.get(caster).stop()
+		caster.startChanneling(NAGATO_SHINRA_TENSEI, SHINRA_TENSEI_DURATION)
 		let inst = new ShinraTensei(caster)
 		active.put(caster, inst)
 		nullTimer() ->
@@ -179,8 +191,9 @@ function onStop()
 		let caster = GetTriggerUnit()
 		if caster != null and active.has(caster)
 			active.get(caster).stop()
+		else if caster != null
+			caster.clearChanneling(NAGATO_SHINRA_TENSEI)
 
 init
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, () -> onStop())
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, () -> onStop())
