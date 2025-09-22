@@ -61,22 +61,28 @@ public function player.showTimeStopOverlay()
 	timeStopOverlayFrame
 	..show(this)
 	..setFocus(this, true)
+	..enable()
 
 	timeStopOverlayInput
 	..show(this)
-	..setText(this, "")
 	..setFocus(this, true)
+	..enable()
 
 public function player.hideTimeStopOverlay()
 	if timeStopOverlayFrame == null
 		return
 
-	timeStopOverlayFrame.hide(this)
-
 	timeStopOverlayInput
-	..setFocus(this, false)
-	..setText(this, "")
+	..unfocus(this)
+	..setFocus(false)
 	..hide(this)
+	..disable()
+
+	timeStopOverlayFrame
+	..unfocus(this)
+	..setFocus(false)
+	..hide(this)
+	..disable()
 
 public function showTimeStopOverlayForAll()
 	if timeStopOverlayFrame == null
@@ -85,21 +91,27 @@ public function showTimeStopOverlayForAll()
 	timeStopOverlayFrame
 	..show()
 	..setFocus(true)
+	..enable()
 
 	timeStopOverlayInput
 	..show()
-	..setText("")
 	..setFocus(true)
+	..enable()
 
 public function hideTimeStopOverlayForAll()
 	if timeStopOverlayFrame == null
 		return
 
-	timeStopOverlayFrame.hide()
-
 	timeStopOverlayInput
+	..unfocus()
 	..setFocus(false)
-	..setText("")
+	..disable()
+	..hide()
+
+	timeStopOverlayFrame
+	..unfocus()
+	..setFocus(false)
+	..disable()
 	..hide()
 
 public function showTimeStopOverlayForPid(int pid)
