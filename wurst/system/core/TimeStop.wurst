@@ -87,7 +87,8 @@ class TimeStopState
 			owner = target.getOwner()
 		else
 			owner = null
-		addPlayerControl(owner)
+		if Unit.getHero(owner.getId()) == target
+			addPlayerControl(owner)
 		stored = true
 
 	function decrease()
