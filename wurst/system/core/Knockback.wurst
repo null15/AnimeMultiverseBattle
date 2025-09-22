@@ -34,6 +34,7 @@ import Objects
 import EntitySystem
 import EffectsSystem
 import Utility
+import TimeStop
 
 /** A vec3 -> real function. */
 public interface TerrainZProvider
@@ -139,7 +140,7 @@ public class Knockback3
 		let v = ZERO3.polarProject(instVel, groundAngle, airAngle)
 		if unitNodes.has(u)
 			let knockback = unitNodes.get(u)
-			if u.isAbsolutePausedTimed()
+			if u.isAbsolutePausedTimed() or u.isTimeStopped()
 				knockback.del = v
 			else
 				knockback.del += v
@@ -283,7 +284,7 @@ public class Knockback3
 
 	private static function tick()
 		for knockback from staticItr()
-			if not knockback.u.isAbsolutePausedTimed()
+			if not knockback.u.isAbsolutePausedTimed() and not knockback.u.isTimeStopped()
 				let pos3 = knockback.u.getPos3Fly()
 				var newPos3 = pos3 + knockback.del
 

@@ -5,8 +5,101 @@ import Missiles
 import EntityManagement
 import EntitySystem
 import EffectsSystem
+import TimeStop
+import ClosureTimers
 
-constant HashMap<unit, EffectsEntity> anchorVisuals = new HashMap<unit, EffectsEntity>()
+constant real ANCHOR_VISUAL_UPDATE_PERIOD = 0.03125
+
+class AnchorVisualState
+	unit anchor
+	EffectsEntity entity
+	boolean effectTimeStopped = false
+
+	construct(unit anchor, EffectsEntity entity)
+		this.anchor = anchor
+		this.entity = entity
+
+	function isValid() returns boolean
+		return this.anchor != null and this.entity != null
+
+	function startTimeStop()
+		if this.entity == null
+			return
+		let fx = this.entity.getActor()
+		if fx != null
+			fx.startTimeStop()
+
+	function stopTimeStop()
+		if this.entity == null
+			return
+		let fx = this.entity.getActor()
+		if fx != null
+			fx.stopTimeStop()
+
+	function updateTimeStop()
+		if not this.isValid()
+			return
+		let active = this.anchor.isTimeStopped()
+		if active
+			if not this.effectTimeStopped
+				this.effectTimeStopped = true
+				this.startTimeStop()
+		else if this.effectTimeStopped
+			this.effectTimeStopped = false
+			this.stopTimeStop()
+
+	function applyInitialState()
+		if not this.isValid()
+			return
+		if this.anchor.isTimeStopped()
+			this.effectTimeStopped = true
+			this.startTimeStop()
+		else if this.effectTimeStopped
+			this.effectTimeStopped = false
+			this.stopTimeStop()
+
+	function destroyVisual()
+		if this.entity != null
+			this.entity = destroyEffectEntity(this.entity)
+		this.anchor = null
+		this.effectTimeStopped = false
+
+constant HashMap<unit, AnchorVisualState> anchorVisuals = new HashMap<unit, AnchorVisualState>()
+constant LinkedList<AnchorVisualState> anchorVisualStates = new LinkedList<AnchorVisualState>()
+CallbackPeriodic anchorVisualTimer = null
+
+function ensureAnchorVisualTimer()
+	if anchorVisualTimer == null
+		anchorVisualTimer = doPeriodically(ANCHOR_VISUAL_UPDATE_PERIOD) (CallbackPeriodic c) ->
+			updateAnchorVisualStates()
+
+function updateAnchorVisualStates()
+	if anchorVisualStates.isEmpty()
+		if anchorVisualTimer != null
+			destroy anchorVisualTimer
+			anchorVisualTimer = null
+		return
+	LinkedList<AnchorVisualState> toRemove = null
+	for state in anchorVisualStates
+		if state == null or not state.isValid()
+			if toRemove == null
+				toRemove = new LinkedList<AnchorVisualState>()
+			toRemove.add(state)
+		else
+			state.updateTimeStop()
+	if toRemove != null
+		for state in toRemove
+			anchorVisualStates.remove(state)
+			if state != null
+				if state.anchor != null and anchorVisuals.has(state.anchor) and anchorVisuals.get(state.anchor) == state
+					anchorVisuals.remove(state.anchor)
+				state.destroyVisual()
+				destroy state
+		destroy toRemove
+	if anchorVisualStates.isEmpty()
+		if anchorVisualTimer != null
+			destroy anchorVisualTimer
+			anchorVisualTimer = null
 
 public interface BindingImpactHandler
 	function apply(BindingProjectile projectile, unit victim) returns bool
@@ -315,16 +408,27 @@ public function setAnchorVisual(unit anchor, string modelPath, real heightOffset
 		let fx = entity.getActor()
 		if fx != null
 			fx.setOrientation(yaw, pitch, roll)
-		anchorVisuals.put(anchor, entity)
+		let state = new AnchorVisualState(anchor, entity)
+		anchorVisuals.put(anchor, state)
+		anchorVisualStates.add(state)
+		ensureAnchorVisualTimer()
+		state.applyInitialState()
 	return entity
 
 public function clearAnchorVisual(unit anchor)
 	if anchor == null
 		return
 	if anchorVisuals.has(anchor)
-		let fx = anchorVisuals.get(anchor)
-		destroyEffectEntity(fx)
+		let state = anchorVisuals.get(anchor)
 		anchorVisuals.remove(anchor)
+		if state != null
+			anchorVisualStates.remove(state)
+			state.destroyVisual()
+			destroy state
+	if anchorVisualStates.isEmpty()
+		if anchorVisualTimer != null
+			destroy anchorVisualTimer
+			anchorVisualTimer = null
 
 function onAnchorRemoved()
 	let u = getIndexingUnit()

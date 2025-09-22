@@ -31,6 +31,7 @@ class BanshoTenin
 	EffectsEntity dirtFx
 	real elapsed
 	boolean finished
+	boolean dirtFxTimeStopped
 
 	construct(unit caster, unit target)
 		this.caster = caster
@@ -48,6 +49,7 @@ class BanshoTenin
 		else
 			playSound(snd_BanshoTenin, this.caster.getPos3Real(), 700)
 		this.dirtFx = addEffectEntity(BANSHO_DIRT_FX, target.getPos3Real())
+		this.updateDirtEffectTimeStop(this.isEffectTimeStopActive())
 		this.updateDirtEffect(this.caster.getPos(), this.target.getPos())
 		this.cb = doPeriodically(BANSHO_PERIOD) (CallbackPeriodic c) ->
 			this.update()
@@ -63,6 +65,11 @@ class BanshoTenin
 			return
 		if this.target == null or not this.target.isAlive()
 			this.stop(true)
+			return
+		let casterTimeStopped = this.caster.isTimeStopped()
+		let targetTimeStopped = this.target.isTimeStopped()
+		this.updateDirtEffectTimeStop(casterTimeStopped or targetTimeStopped)
+		if casterTimeStopped
 			return
 		let casterPos = this.caster.getPos()
 		let targetPos = this.target.getPos()
@@ -107,6 +114,8 @@ class BanshoTenin
 			this.cb = null
 		if this.target != null
 			Pull.stopActive(this.target)
+		if this.dirtFxTimeStopped
+			this.updateDirtEffectTimeStop(false)
 		if this.dirtFx != null
 			this.dirtFx = destroyEffectEntity(this.dirtFx)
 		if this.caster != null and active.has(this.caster)
@@ -125,6 +134,36 @@ class BanshoTenin
 		let actor = this.dirtFx.getActor()
 		if actor != null
 			actor.setOrientation(yaw + BANSHO_DIRT_YAW_OFFSET, BANSHO_DIRT_PITCH, BANSHO_DIRT_ROLL)
+
+	function isEffectTimeStopActive() returns boolean
+		if this.caster != null and this.caster.isTimeStopped()
+			return true
+		if this.target != null and this.target.isTimeStopped()
+			return true
+		return false
+
+	function startDirtEffectTimeStop()
+		if this.dirtFx == null
+			return
+		let fx = this.dirtFx.getActor()
+		if fx != null
+			fx.startTimeStop()
+
+	function stopDirtEffectTimeStop()
+		if this.dirtFx == null
+			return
+		let fx = this.dirtFx.getActor()
+		if fx != null
+			fx.stopTimeStop()
+
+	function updateDirtEffectTimeStop(boolean active)
+		if active
+			if not this.dirtFxTimeStopped
+				this.dirtFxTimeStopped = true
+				this.startDirtEffectTimeStop()
+		else if this.dirtFxTimeStopped
+			this.dirtFxTimeStopped = false
+			this.stopDirtEffectTimeStop()
 
 	ondestroy
 		this.cb = null

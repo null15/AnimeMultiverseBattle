@@ -9,6 +9,7 @@ import EntitySystem
 import EffectsSystem
 import SoundUtils
 import SoundSystem
+import TimeStop
 
 constant real SUMMON_CHANNEL_TIME = 3.
 constant real ANIMAL_PATH_TELEPORT_RADIUS = 600.
@@ -21,6 +22,7 @@ constant real CASTER_FINISH_ANIMATION_TIME_SCALE = 1.
 constant real ANIMAL_PATH_CHANNEL_WIND_PERIOD = 0.3
 constant real ANIMAL_PATH_TELEPORT_WIND_RELEASE_DELAY = 1.5
 constant angle ANIMAL_PATH_SOUTH_FACING = (270.).fromDeg()
+constant real KUCHIYOSE_TIME_STOP_UPDATE_PERIOD = 0.03125
 constant string KUCHIYOSE_SCRIBBLE_MODEL_PATH = "Nagato\\Kuchiyose\\kuchiyose.mdx"
 constant string KUCHIYOSE_TELEPORT_WIND_MODEL_PATH = "Nagato\\Kuchiyose\\KuchiyoseWind.mdx"
 constant real KUCHIYOSE_TELEPORT_WIND_TIME_SCALE = 2.
@@ -55,6 +57,8 @@ class SummonAnimalPath
 	CallbackPeriodic handSignSoundTimer
 	int handSignSoundPlaysRemaining
 	CallbackSingle chantSoundTimer
+	CallbackPeriodic timeStopTimer
+	boolean effectsTimeStopped
 
 	construct(unit caster, vec2 targetPos)
 		this.caster = caster
@@ -66,6 +70,7 @@ class SummonAnimalPath
 		this.startChannelWindEffects()
 		this.startHandSignSound()
 		this.startChantSound()
+		this.startTimeStopUpdates()
 
 	function createVisuals()
 		let casterPos = this.getCasterEffectPos()
@@ -84,6 +89,66 @@ class SummonAnimalPath
 		if this.animalPath != null
 			this.animalPath.setFacing(ANIMAL_PATH_SOUTH_FACING)
 			this.animalPath..setAnimation(ANIMATION_CHANNEL)..setTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
+
+	function startEffectTimeStop(EffectsEntity entity)
+		if entity == null
+			return
+		let fx = entity.getActor()
+		if fx != null
+			fx.startTimeStop()
+
+	function stopEffectTimeStop(EffectsEntity entity)
+		if entity == null
+			return
+		let fx = entity.getActor()
+		if fx != null
+			fx.stopTimeStop()
+
+	function startEffectsTimeStop()
+		this.startEffectTimeStop(this.scribble1)
+		this.startEffectTimeStop(this.scribble2)
+		if this.channelWindEffects != null
+			for fx in this.channelWindEffects
+				this.startEffectTimeStop(fx)
+
+	function stopEffectsTimeStop()
+		this.stopEffectTimeStop(this.scribble1)
+		this.stopEffectTimeStop(this.scribble2)
+		if this.channelWindEffects != null
+			for fx in this.channelWindEffects
+				this.stopEffectTimeStop(fx)
+		this.effectsTimeStopped = false
+
+	function updateEffectsTimeStop(boolean active)
+		if active
+			if not this.effectsTimeStopped
+				this.effectsTimeStopped = true
+				this.startEffectsTimeStop()
+		else if this.effectsTimeStopped
+			this.effectsTimeStopped = false
+			this.stopEffectsTimeStop()
+
+	function isTimeStopActive() returns boolean
+		if this.caster != null and this.caster.isTimeStopped()
+			return true
+		if this.animalPath != null and this.animalPath.isTimeStopped()
+			return true
+		return false
+
+	function updateTimeStopState()
+		this.updateEffectsTimeStop(this.isTimeStopActive())
+
+	function startTimeStopUpdates()
+		if this.timeStopTimer != null
+			return
+		this.timeStopTimer = doPeriodically(KUCHIYOSE_TIME_STOP_UPDATE_PERIOD) (CallbackPeriodic c) ->
+			this.updateTimeStopState()
+		this.updateTimeStopState()
+
+	function stopTimeStopUpdates()
+		if this.timeStopTimer != null
+			destroy this.timeStopTimer
+			this.timeStopTimer = null
 
 	function getCasterEffectPos() returns vec3
 		if this.caster == null
@@ -121,8 +186,12 @@ class SummonAnimalPath
 		let effectInstance1 = this.createChannelWindEffect(modelPath, casterPos)
 		let effectInstance2 = this.createChannelWindEffect(modelPath, animalPathPos)
 		if effectInstance1 != null
+			if this.effectsTimeStopped
+				this.startEffectTimeStop(effectInstance1)
 			this.channelWindEffects.add(effectInstance1)
 		if effectInstance2 != null
+			if this.effectsTimeStopped
+				this.startEffectTimeStop(effectInstance2)
 			this.channelWindEffects.add(effectInstance2)
 
 	function createChannelWindEffect(string modelPath, vec3 pos) returns EffectsEntity
@@ -208,6 +277,9 @@ class SummonAnimalPath
 		if this.finished
 			return
 		this.finished = true
+		this.stopTimeStopUpdates()
+		if this.effectsTimeStopped
+			this.stopEffectsTimeStop()
 		this.stopChannelWindEffects()
 		this.stopHandSignSound()
 		this.stopChantSound()
@@ -267,6 +339,8 @@ class SummonAnimalPath
 			let actor = entity.getActor()
 			if actor != null
 				actor.playAnimation(ANIM_TYPE_BIRTH)
+			if this.effectsTimeStopped
+				this.startEffectTimeStop(entity)
 			doAfter(ANIMAL_PATH_TELEPORT_WIND_RELEASE_DELAY) ->
 				releaseEffect(entity)
 
@@ -317,9 +391,13 @@ class SummonAnimalPath
 		this.scribble2 = releaseEffect(this.scribble2)
 
 	ondestroy
+		if this.effectsTimeStopped
+			this.stopEffectsTimeStop()
 		this.stopChannelWindEffects()
 		this.stopHandSignSound()
 		this.stopChantSound()
+		this.stopTimeStopUpdates()
+		this.effectsTimeStopped = false
 		this.animalPath = null
 		this.scribble1 = null
 		this.scribble2 = null

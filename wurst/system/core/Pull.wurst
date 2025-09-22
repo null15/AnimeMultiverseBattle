@@ -5,6 +5,7 @@ import HashMap
 import EntitySystem
 import EntityManagement
 import Utility
+import TimeStop
 
 public interface UnitFilter
 	function get(unit which) returns bool
@@ -40,11 +41,13 @@ public class Pull
 		if this.actor == null or not this.actor.isAliveTrick()
 			stop()
 			return
-		if this.actor.isAbsolutePausedTimed()
+		if this.actor.isAbsolutePausedTimed() or this.actor.isTimeStopped()
 			return
 		if this.destinationUnit != null
 			if not this.destinationUnit.isAlive()
 				stop()
+				return
+			if this.destinationUnit.isTimeStopped()
 				return
 			this.destination = this.destinationUnit.getPos()
 		let currentPos = this.actor.getPos()

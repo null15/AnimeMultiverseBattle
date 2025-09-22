@@ -2,6 +2,7 @@ package Tether
 
 import HashMap
 import ClosureTimers
+import TimeStop
 
 public class Tether
 	static HashMap<unit, Tether> active = new HashMap<unit, Tether>()
@@ -37,6 +38,10 @@ public class Tether
 			return
 		if this.anchor == null or not this.anchor.isAlive()
 			stop()
+			return
+		if this.target.isTimeStopped()
+			return
+		if this.anchor.isTimeStopped()
 			return
 		let diff = this.target.getPos() - this.anchor.getPos()
 		let dist = diff.length()
