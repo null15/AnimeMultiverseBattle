@@ -7,6 +7,26 @@ import Utility
 
 let unitPauseTimers = new HashMap<unit, LinkedList<CallbackSingle>>()
 let effectEntities = new HashMap<effect, EffectsEntity>()
+let timeStopChannelExclusions = new HashMap<int, boolean>()
+
+function channelIgnoresCasterTimeStop(int abilityId) returns boolean
+	if abilityId == 0
+		return false
+	return timeStopChannelExclusions.has(abilityId)
+
+public function registerTimeStopChannelExclusion(int abilityId)
+	if abilityId == 0
+		return
+	timeStopChannelExclusions.put(abilityId, true)
+
+public function unregisterTimeStopChannelExclusion(int abilityId)
+	if abilityId == 0
+		return
+	if timeStopChannelExclusions.has(abilityId)
+		timeStopChannelExclusions.remove(abilityId)
+
+public function isChannelTimeStopExcluded(int abilityId) returns boolean
+	return channelIgnoresCasterTimeStop(abilityId)
 
 public class EffectsEntity
 	effect actor
@@ -200,7 +220,7 @@ class ChannelTracker
 		if caster == null or not caster.isAlive()
 			reset()
 			return 0.
-		if owner.isTimeStopActive()
+		if owner.isTimeStopActive() and not channelIgnoresCasterTimeStop(abilityId)
 			return 0.
 		if remaining <= 0.
 			return 0.
@@ -362,7 +382,9 @@ public class UnitsEntity extends UnitEntity
 			return channelTracker.consume(abilityId, delta)
 		if delta <= 0.
 			return 0.
-		return isTimeStopActive() ? 0. : delta
+		if isTimeStopActive() and not channelIgnoresCasterTimeStop(abilityId)
+			return 0.
+		return delta
 
 	function finishChanneling(int abilityId)
 		if channelTracker != null

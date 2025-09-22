@@ -159,7 +159,7 @@ class SummonAnimalPath
 			else
 				this.finish(false)
 			return
-		if casterUnit.isTimeStopped()
+		if this.shouldPauseChannelDueToTimeStop()
 			return
 		casterUnit.consumeChannelTime(NAGATO_SUMMON_ANIMAL_PATH, KUCHIYOSE_TIME_STOP_UPDATE_PERIOD)
 		if not this.channelCompleted and casterUnit.getChannelRemaining(NAGATO_SUMMON_ANIMAL_PATH) <= 0.
@@ -169,6 +169,11 @@ class SummonAnimalPath
 	function onPeriodicUpdate()
 		this.updateTimeStopState()
 		this.updateChannelProgress()
+
+	function shouldPauseChannelDueToTimeStop() returns boolean
+		if this.animalPath != null and this.animalPath.isTimeStopped()
+			return true
+		return false
 
 	function startTimeStopUpdates()
 		if this.timeStopTimer != null
@@ -367,7 +372,7 @@ class SummonAnimalPath
 		let casterUnit = this.caster
 		if casterUnit != null
 			nullTimer() ->
-				if casterUnit != null and casterUnit.isAlive()
+				if casterUnit != null and casterUnit.isAlive() and not casterUnit.isTimeStopped()
 					casterUnit..setAnimation(ANIMATION_END)..setTimeScale(CASTER_FINISH_ANIMATION_TIME_SCALE)
 
 	function spawnTeleportWindAt(vec2 pos)
@@ -474,5 +479,6 @@ function onEnd()
 				inst.finish(inst.hasCompletedChannel())
 
 init
+	registerTimeStopChannelExclusion(NAGATO_SUMMON_ANIMAL_PATH)
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, () -> onEnd())
