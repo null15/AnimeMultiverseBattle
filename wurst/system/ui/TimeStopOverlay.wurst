@@ -1,7 +1,7 @@
 package TimeStopOverlay
 
 /*
- * Fullscreen overlay that blocks mouse clicks.
+ * Fullscreen overlay that blocks mouse clicks and keyboard inputs.
  *
  * The frame is created once at map init so it can be shown
  * or hidden for any player when time stop effects are active.
@@ -10,124 +10,43 @@ package TimeStopOverlay
 import FramehandleNames
 import ClosureTimers
 
-public framehandle timeStopOverlayFrame = null
-framehandle timeStopOverlayBackdrop = null
-framehandle timeStopOverlayInput = null
+public framehandle CONTROL_BLOCKER_FRAME = null
 
-constant string TIME_STOP_OVERLAY_BUTTON = "TimeStopOverlayButton"
-constant string TIME_STOP_OVERLAY_BACKDROP = "TimeStopOverlayBackdrop"
-constant string TIME_STOP_OVERLAY_TEXTURE = "ReplaceableTextures\\CameraMasks\\Black_mask.blp"
-constant string TIME_STOP_OVERLAY_BUTTON_TYPE = "SIMPLEBUTTON"
-constant string TIME_STOP_OVERLAY_INPUT = "TimeStopOverlayInput"
-constant string TIME_STOP_OVERLAY_INPUT_TEMPLATE = "EscMenuEditBoxTemplate"
-constant int TIME_STOP_OVERLAY_LEVEL = 1
-constant int TIME_STOP_OVERLAY_ALPHA = 100
-
-function createOverlayFrames()
-	if timeStopOverlayFrame != null
+function createControlBlockerFrame()
+	if CONTROL_BLOCKER_FRAME != null
 		return
 
-	timeStopOverlayFrame = createFrame(TIME_STOP_OVERLAY_BUTTON_TYPE, TIME_STOP_OVERLAY_BUTTON, WORLD_UI, "", 0)
+	CONTROL_BLOCKER_FRAME = createFrame(FramehandleTypeNames.editbox, "ControlBlocker", getFrame("ConsoleUIBackdrop", 0), FramehandleNames.iconButtonTemplate, 2)
 	..clearAllPoints()
 	..setAbsPoint(FRAMEPOINT_TOPLEFT, WHOLE_SCREEN_TOPLEFT)
 	..setAbsPoint(FRAMEPOINT_BOTTOMRIGHT, WHOLE_SCREEN_BOTTOMRIGHT)
-	..setLevel(TIME_STOP_OVERLAY_LEVEL)
+	..setLevel(1)
 	..setAlpha(0)
-	..setFocus(true)
-
-	timeStopOverlayBackdrop = createFrame(FramehandleTypeNames.backdrop, TIME_STOP_OVERLAY_BACKDROP, timeStopOverlayFrame, "", 0)
-	..setAllPoints(timeStopOverlayFrame)
-	..setLevel(TIME_STOP_OVERLAY_LEVEL)
-	..setTexture(TIME_STOP_OVERLAY_TEXTURE, 0, true)
-	..setAlpha(TIME_STOP_OVERLAY_ALPHA)
-	..setFocus(true)
-
-	timeStopOverlayInput = createFrame(FramehandleTypeNames.editbox, TIME_STOP_OVERLAY_INPUT, timeStopOverlayFrame, TIME_STOP_OVERLAY_INPUT_TEMPLATE, 0)
-	..clearAllPoints()
-	..setPoint(FRAMEPOINT_CENTER, timeStopOverlayFrame, FRAMEPOINT_CENTER)
-	..setSize(0.0001, 0.0001)
-	..setLevel(TIME_STOP_OVERLAY_LEVEL)
-	..setAlpha(0)
-	..setText("")
-	..setFocus(false)
-	..hide()
-
-	timeStopOverlayFrame.hide()
-
-public function player.showTimeStopOverlay()
-	if timeStopOverlayFrame == null
-		createOverlayFrames()
-
-	timeStopOverlayFrame
-	..show(this)
-	..enable(this)
-	..setFocus(this, true)
-
-	timeStopOverlayInput
-	..show(this)
-	..enable(this)
-	..setFocus(this, true)
-	..setText(this, "")
-
-public function player.hideTimeStopOverlay()
-	if timeStopOverlayFrame == null
-		return
-
-	timeStopOverlayInput
-	..setFocus(this, false)
-	..unfocus(this)
-	..setText(this, "")
-	..disable(this)
-	..hide(this)
-
-	timeStopOverlayFrame
-	..setFocus(this, false)
-	..unfocus(this)
-	..disable(this)
-	..hide(this)
-
-public function showTimeStopOverlayForAll()
-	if timeStopOverlayFrame == null
-		createOverlayFrames()
-
-	timeStopOverlayFrame
-	..show()
-	..setFocus(true)
-	..enable()
-
-	timeStopOverlayInput
-	..show()
-	..setFocus(true)
-	..enable()
-
-public function hideTimeStopOverlayForAll()
-	if timeStopOverlayFrame == null
-		return
-
-	timeStopOverlayInput
 	..unfocus()
 	..setFocus(false)
-	..disable()
 	..hide()
 
-	timeStopOverlayFrame
-	..unfocus()
-	..setFocus(false)
-	..disable()
-	..hide()
-
-public function showTimeStopOverlayForPid(int pid)
-	if pid < 0 or pid >= bj_MAX_PLAYERS
+public function player.disableControl()
+	if CONTROL_BLOCKER_FRAME == null
+		createControlBlockerFrame()
+	if CONTROL_BLOCKER_FRAME.isVisible(this)
 		return
+	if GetLocalPlayer() == this
+		CONTROL_BLOCKER_FRAME
+		..setEnabled(true)
+		..show(this)
+		..setFocus(this, true)
 
-	players[pid].showTimeStopOverlay()
-
-public function hideTimeStopOverlayForPid(int pid)
-	if pid < 0 or pid >= bj_MAX_PLAYERS
+public function player.enableControl()
+	if CONTROL_BLOCKER_FRAME == null
 		return
-
-	players[pid].hideTimeStopOverlay()
+	if CONTROL_BLOCKER_FRAME.isVisible(this) and GetLocalPlayer() == this
+		CONTROL_BLOCKER_FRAME
+		..setEnabled(false)
+		..setFocus(this, false)
+		..unfocus()
+		..hide()
 
 init
-	doAfter(1) ->
-		createOverlayFrames()
+	nullTimer() ->
+		createControlBlockerFrame()
