@@ -22,6 +22,9 @@ public class EffectsEntity
 		if actor != null
 			this.position = actor.getPos3()
 
+	function getActor() returns effect
+		return actor
+
 	function setScale(real scale)
 		uniformScale = scale
 		useMatrixScale = false

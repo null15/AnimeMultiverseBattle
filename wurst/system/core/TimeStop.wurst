@@ -130,7 +130,14 @@ class TimeStopState
 				time.cancel()
 				destroy time
 		count = 0
+		let wasStored = stored
 		deactivate()
+		if wasStored and target != null
+			let entity = target.getEntity() castTo UnitsEntity
+			if entity != null
+				entity.clearTimeStop()
+			else
+				target.setTimeScale(originalTimeScale)
 
 	function onUnitRemoved()
 		target = null
@@ -216,7 +223,14 @@ class EffectTimeStopState
 				time.cancel()
 				destroy time
 		count = 0
+		let wasStored = stored
 		deactivate()
+		if wasStored and tracked != null
+			let entity = tracked.getEntity()
+			if entity != null
+				entity.clearTimeStop()
+			else
+				BlzSetSpecialEffectTimeScale(tracked, 1.)
 
 	function onEffectRemoved()
 		tracked = null

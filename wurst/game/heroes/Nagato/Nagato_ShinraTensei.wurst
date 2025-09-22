@@ -40,21 +40,25 @@ constant int CASTER_ANIMATION_INDEX						= 12
 constant real CASTER_ANIMATION_SPEED					= 0.5
 constant HashMap<unit, ShinraTensei> active				= new HashMap<unit, ShinraTensei>()
 
-function releaseEffect(effect fx) returns effect
-	if fx != null
-		fx.clearTimeStop()
-		fx.setEntityPos(vec2(-99999, -99999))
-		fx.destroyEntityEffect()
+function releaseEffect(EffectsEntity entity) returns EffectsEntity
+	if entity != null
+		let fx = entity.getActor()
+		if fx != null
+			fx.clearTimeStop()
+		entity.clearTimeStop()
+		entity.setPosition(vec2(-99999, -99999))
+		if fx != null
+			fx.destroyEntityEffect()
 	return null
 
 class ShinraTensei
 	unit caster
 	CallbackPeriodic cb
 	HashSet<unit> affected
-	effect shinraTensei
-	effect shinraTenseiDirt
-	effect dustWave
-	effect shinraTenseiBlast
+	EffectsEntity shinraTensei
+	EffectsEntity shinraTenseiDirt
+	EffectsEntity dustWave
+	EffectsEntity shinraTenseiBlast
 	boolean effectsTimeStopped = false
 
 	construct(unit caster)
@@ -67,10 +71,29 @@ class ShinraTensei
 
 	function createEffects()
 		let casterPos = this.getCasterEffectPos()
-		this.shinraTensei = addEffect(SHINRA_TENSEI_FX, casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))..setEntityScale(SHINRA_TENSEI_MAIN_SCALE)
-		this.shinraTenseiDirt = addEffect(SHINRA_TENSEI_DIRT_FX, casterPos)..setEntityScale(SHINRA_TENSEI_DIRT_SCALE)..setEntityTimeScale(SHINRA_TENSEI_DIRT_TIME_SCALE)..playAnimation(ANIM_TYPE_BIRTH)
-		this.dustWave = addEffect(SHINRA_TENSEI_DUST_FX, casterPos)..playAnimation(ANIM_TYPE_BIRTH)..setEntityScale(SHINRA_TENSEI_DUST_SCALE)
-		this.shinraTenseiBlast = addEffect(SHINRA_TENSEI_BLAST_FX, casterPos)..playAnimation(ANIM_TYPE_STAND)..setEntityScale(SHINRA_TENSEI_BLAST_SCALE)
+		let mainFx = addEffect(SHINRA_TENSEI_FX, casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))
+		this.shinraTensei = mainFx.ensureEntity()
+		if this.shinraTensei != null
+			this.shinraTensei.setScale(SHINRA_TENSEI_MAIN_SCALE)
+		let dirtFx = addEffect(SHINRA_TENSEI_DIRT_FX, casterPos)
+		this.shinraTenseiDirt = dirtFx.ensureEntity()
+		if this.shinraTenseiDirt != null
+			this.shinraTenseiDirt.setScale(SHINRA_TENSEI_DIRT_SCALE)
+			this.shinraTenseiDirt.setTimeScale(SHINRA_TENSEI_DIRT_TIME_SCALE)
+		if dirtFx != null
+			dirtFx.playAnimation(ANIM_TYPE_BIRTH)
+		let dustFx = addEffect(SHINRA_TENSEI_DUST_FX, casterPos)
+		this.dustWave = dustFx.ensureEntity()
+		if this.dustWave != null
+			this.dustWave.setScale(SHINRA_TENSEI_DUST_SCALE)
+		if dustFx != null
+			dustFx.playAnimation(ANIM_TYPE_BIRTH)
+		let blastFx = addEffect(SHINRA_TENSEI_BLAST_FX, casterPos)
+		this.shinraTenseiBlast = blastFx.ensureEntity()
+		if this.shinraTenseiBlast != null
+			this.shinraTenseiBlast.setScale(SHINRA_TENSEI_BLAST_SCALE)
+		if blastFx != null
+			blastFx.playAnimation(ANIM_TYPE_STAND)
 
 	function tick()
 		if this.caster == null or not this.caster.isAlive()
@@ -104,33 +127,39 @@ class ShinraTensei
 
 	function updateEffects(vec3 casterPos)
 		if this.shinraTensei != null
-			this.shinraTensei.setEntityPos(casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))
+			this.shinraTensei.setPosition(casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))
 		if this.shinraTenseiDirt != null
-			this.shinraTenseiDirt.setEntityPos(casterPos)
+			this.shinraTenseiDirt.setPosition(casterPos)
 		if this.dustWave != null
-			this.dustWave.setEntityPos(casterPos)
+			this.dustWave.setPosition(casterPos)
 		if this.shinraTenseiBlast != null
-			this.shinraTenseiBlast.setEntityPos(casterPos)
+			this.shinraTenseiBlast.setPosition(casterPos)
+
+	function startEffectTimeStop(EffectsEntity entity)
+		if entity == null
+			return
+		let fx = entity.getActor()
+		if fx != null
+			fx.startTimeStop()
+
+	function stopEffectTimeStop(EffectsEntity entity)
+		if entity == null
+			return
+		let fx = entity.getActor()
+		if fx != null
+			fx.stopTimeStop()
 
 	function startEffectsTimeStop()
-		if this.shinraTensei != null
-			this.shinraTensei.startTimeStop()
-		if this.shinraTenseiDirt != null
-			this.shinraTenseiDirt.startTimeStop()
-		if this.dustWave != null
-			this.dustWave.startTimeStop()
-		if this.shinraTenseiBlast != null
-			this.shinraTenseiBlast.startTimeStop()
+		this.startEffectTimeStop(this.shinraTensei)
+		this.startEffectTimeStop(this.shinraTenseiDirt)
+		this.startEffectTimeStop(this.dustWave)
+		this.startEffectTimeStop(this.shinraTenseiBlast)
 
 	function stopEffectsTimeStop()
-		if this.shinraTensei != null
-			this.shinraTensei.stopTimeStop()
-		if this.shinraTenseiDirt != null
-			this.shinraTenseiDirt.stopTimeStop()
-		if this.dustWave != null
-			this.dustWave.stopTimeStop()
-		if this.shinraTenseiBlast != null
-			this.shinraTenseiBlast.stopTimeStop()
+		this.stopEffectTimeStop(this.shinraTensei)
+		this.stopEffectTimeStop(this.shinraTenseiDirt)
+		this.stopEffectTimeStop(this.dustWave)
+		this.stopEffectTimeStop(this.shinraTenseiBlast)
 
 	function updateEffectsTimeStop(boolean active)
 		if active
