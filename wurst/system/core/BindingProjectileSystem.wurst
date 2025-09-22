@@ -4,7 +4,7 @@ import HashMap
 import Missiles
 import EntityManagement
 import EntitySystem
-import EffectsEntityManager
+import EffectsSystem
 
 constant HashMap<unit, EffectsEntity> anchorVisuals = new HashMap<unit, EffectsEntity>()
 

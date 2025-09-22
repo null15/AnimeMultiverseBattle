@@ -32,7 +32,7 @@ import LinkedListModule
 import HashMap
 import Objects
 import EntitySystem
-import EffectsEntityManager
+import EffectsSystem
 import Utility
 
 /** A vec3 -> real function. */

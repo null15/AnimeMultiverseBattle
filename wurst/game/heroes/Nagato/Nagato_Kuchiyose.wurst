@@ -6,7 +6,7 @@ import Teleport
 import ClosureTimers
 import EntityManagement
 import EntitySystem
-import EffectsEntityManager
+import EffectsSystem
 import SoundUtils
 import SoundSystem
 

@@ -4,7 +4,7 @@ import EntityManagement
 import EntitySystem
 import objectIDs
 import BindingProjectileSystem
-import EffectsEntityManager
+import EffectsSystem
 import Tether
 import ClosureTimers
 

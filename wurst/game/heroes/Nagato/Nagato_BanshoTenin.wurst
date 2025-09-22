@@ -5,7 +5,7 @@ import Pull
 import ClosureTimers
 import HashMap
 import EntitySystem
-import EffectsEntityManager
+import EffectsSystem
 import TimeStop
 import ClosureEvents
 import SoundUtils

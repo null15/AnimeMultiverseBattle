@@ -9,7 +9,7 @@ import HashMap
 import HashSet
 import EntityManagement
 import EntitySystem
-import EffectsEntityManager
+import EffectsSystem
 import SoundUtils
 import SoundSystem
 import TimeStop

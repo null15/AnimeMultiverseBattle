@@ -2,7 +2,7 @@ package Nagato_Misc
 
 import UnitIndexer
 import objectIDs
-import EffectsEntityManager
+import EffectsSystem
 
 init
 	onUnitIndex() ->
