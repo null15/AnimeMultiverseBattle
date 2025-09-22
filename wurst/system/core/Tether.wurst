@@ -4,6 +4,8 @@ import HashMap
 import ClosureTimers
 import TimeStop
 
+constant real TETHER_UPDATE_PERIOD = 0.03125
+
 public class Tether
 	static HashMap<unit, Tether> active = new HashMap<unit, Tether>()
 
@@ -11,8 +13,9 @@ public class Tether
 	unit anchor
 	real maxDistance
 	CallbackPeriodic cb
-	CallbackSingle timeout
 	bool finished
+	bool hasDuration
+	real remainingDuration
 
 	construct(unit target, unit anchor, real maxDistance, real duration)
 		if active.has(target)
@@ -21,14 +24,11 @@ public class Tether
 		this.anchor = anchor
 		this.maxDistance = maxDistance
 		this.finished = false
-		this.cb = doPeriodically(0.03125) (CallbackPeriodic c) ->
+		this.hasDuration = duration > 0
+		this.remainingDuration = this.hasDuration ? duration : 0.
+		this.cb = doPeriodically(TETHER_UPDATE_PERIOD) (CallbackPeriodic c) ->
 			this.update()
 		active.put(target, this)
-		if duration > 0
-			let cbTimeout = doAfter(duration) ->
-				this.timeout = null
-				this.stop()
-			this.timeout = cbTimeout
 
 	function update()
 		if this.finished
@@ -43,6 +43,11 @@ public class Tether
 			return
 		if this.anchor.isTimeStopped()
 			return
+		if this.hasDuration
+			this.remainingDuration -= TETHER_UPDATE_PERIOD
+			if this.remainingDuration <= 0.
+				this.stop()
+				return
 		let diff = this.target.getPos() - this.anchor.getPos()
 		let dist = diff.length()
 		if dist > this.maxDistance
@@ -55,9 +60,6 @@ public class Tether
 		if this.cb != null
 			destroy this.cb
 			this.cb = null
-		if this.timeout != null
-			destroy this.timeout
-			this.timeout = null
 		this.anchor.remove()
 		active.remove(this.target)
 		destroy this
@@ -76,4 +78,3 @@ public class Tether
 		this.target = null
 		this.anchor = null
 		this.cb = null
-		this.timeout = null

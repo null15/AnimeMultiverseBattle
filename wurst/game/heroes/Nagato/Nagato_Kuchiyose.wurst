@@ -59,11 +59,13 @@ class SummonAnimalPath
 	CallbackSingle chantSoundTimer
 	CallbackPeriodic timeStopTimer
 	boolean effectsTimeStopped
+	boolean channelCompleted
 
 	construct(unit caster, vec2 targetPos)
 		this.caster = caster
 		this.targetPos = targetPos
 		this.finished = false
+		this.channelCompleted = false
 		this.channelWindEffects = new LinkedList<EffectsEntity>
 		this.handSignSoundPlaysRemaining = KUCHIYOSE_HANDSIGN_SOUND_LIMIT
 		this.createVisuals()
@@ -71,6 +73,9 @@ class SummonAnimalPath
 		this.startHandSignSound()
 		this.startChantSound()
 		this.startTimeStopUpdates()
+
+	function hasCompletedChannel() returns boolean
+		return this.channelCompleted
 
 	function createVisuals()
 		let casterPos = this.getCasterEffectPos()
@@ -138,12 +143,40 @@ class SummonAnimalPath
 	function updateTimeStopState()
 		this.updateEffectsTimeStop(this.isTimeStopActive())
 
+	function updateChannelProgress()
+		if this.finished
+			return
+		let casterUnit = this.caster
+		if casterUnit == null
+			this.finish(false)
+			return
+		if not casterUnit.isAlive()
+			this.finish(false)
+			return
+		if not casterUnit.isChannelingAbility(NAGATO_SUMMON_ANIMAL_PATH)
+			if this.channelCompleted
+				this.finish(true)
+			else
+				this.finish(false)
+			return
+		if casterUnit.isTimeStopped()
+			return
+		casterUnit.consumeChannelTime(NAGATO_SUMMON_ANIMAL_PATH, KUCHIYOSE_TIME_STOP_UPDATE_PERIOD)
+		if not this.channelCompleted and casterUnit.getChannelRemaining(NAGATO_SUMMON_ANIMAL_PATH) <= 0.
+			this.channelCompleted = true
+			this.finish(true)
+
+	function onPeriodicUpdate()
+		this.updateTimeStopState()
+		this.updateChannelProgress()
+
 	function startTimeStopUpdates()
 		if this.timeStopTimer != null
 			return
+		let inst = this
 		this.timeStopTimer = doPeriodically(KUCHIYOSE_TIME_STOP_UPDATE_PERIOD) (CallbackPeriodic c) ->
-			this.updateTimeStopState()
-		this.updateTimeStopState()
+			inst.onPeriodicUpdate()
+		this.onPeriodicUpdate()
 
 	function stopTimeStopUpdates()
 		if this.timeStopTimer != null
@@ -283,8 +316,13 @@ class SummonAnimalPath
 		this.stopChannelWindEffects()
 		this.stopHandSignSound()
 		this.stopChantSound()
-		if this.caster != null and active.has(this.caster)
-			active.remove(this.caster)
+		if this.caster != null
+			if active.has(this.caster)
+				active.remove(this.caster)
+			if success
+				this.caster.finishChanneling(NAGATO_SUMMON_ANIMAL_PATH)
+			else
+				this.caster.clearChanneling(NAGATO_SUMMON_ANIMAL_PATH)
 		if success
 			this.startSuccessfulFinish()
 		else
@@ -420,6 +458,7 @@ function onChannel()
 			return
 		if active.has(caster)
 			active.get(caster).finish(false)
+		caster.startChanneling(NAGATO_SUMMON_ANIMAL_PATH, SUMMON_CHANNEL_TIME)
 		let inst = new SummonAnimalPath(caster, targetPos)
 		active.put(caster, inst)
 		nullTimer() ->
@@ -430,7 +469,9 @@ function onEnd()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
 		let caster = GetTriggerUnit()
 		if caster != null and active.has(caster)
-			active.get(caster).finish(true) // <-- instead of true, we have false for failed channel
+			let inst = active.get(caster)
+			if inst != null
+				inst.finish(inst.hasCompletedChannel())
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())
