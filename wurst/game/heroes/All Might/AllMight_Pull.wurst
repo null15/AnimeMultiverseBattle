@@ -4,6 +4,8 @@ import objectIDs
 import Pull
 import ClosureForGroups
 import RegisterEvents
+import ClosureTimers
+import TimeStopOverlay
 
 function onCast()
 	if GetSpellAbilityId() == ALL_MIGHT_PULL1
@@ -18,5 +20,27 @@ function onCast()
 			if caster.isEnemyOf(u)
 				Pull.toPoint(u, center, 128., 800.)
 
+
+function prop()
+	if GetSpellAbilityId() == 'root'
+		print("Testing")
+		// let u = GetTriggerUnit()
+		let t = GetSpellTargetUnit()
+		let tOwner = t.getOwner()
+		let d1 = t.getPropWindow()
+		let d2 = t.getField(UNIT_RF_TURN_RATE)
+		t.setPropWindow(angle(0))
+		t.setField(UNIT_RF_TURN_RATE, 0)
+		t.disableAttack(true, false)
+		t.setTimeScale(0)
+		tOwner.showTimeStopOverlay()
+		doAfter(2) -> 
+			t.setPropWindow(angle(d1.radians()))
+			t.setField(UNIT_RF_TURN_RATE, d2)
+			t.disableAttack(false, false)
+			t.setTimeScale(0)
+			tOwner.hideTimeStopOverlay()
+
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> onCast())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, () -> prop())

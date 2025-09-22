@@ -1,0 +1,50 @@
+package TimeStopOverlay
+
+import FramehandleNames
+import ClosureTimers
+
+public framehandle timeStopOverlay = null
+framehandle timeStopOverlayParent = null
+
+function setupTimeStopOverlay()
+	if timeStopOverlay != null
+		return
+	let consoleBackdrop = getFrame("ConsoleUIBackdrop", 0)
+	let parent = createFrame("FRAME", "TimeStopOverlayParent", consoleBackdrop, "", 0)
+	parent.setAllPoints(consoleBackdrop)
+	timeStopOverlayParent = parent
+	let blocker = createFrame(FramehandleTypeNames.simpleframe, "TimeStopOverlay", parent, "", 0)
+	blocker.setAllPoints(parent)
+	blocker.setAlpha(0)
+	blocker.setLevel(10)
+	blocker.hide()
+	timeStopOverlay = blocker
+
+public function showTimeStopOverlay()
+	if timeStopOverlay == null
+		setupTimeStopOverlay()
+	timeStopOverlay.show()
+
+public function hideTimeStopOverlay()
+	if timeStopOverlay != null
+		timeStopOverlay.hide()
+
+public function player.showTimeStopOverlay()
+	if timeStopOverlay == null
+		setupTimeStopOverlay()
+	timeStopOverlay.show(this)
+
+public function player.hideTimeStopOverlay()
+	if timeStopOverlay != null
+		timeStopOverlay.hide(this)
+
+public function showTimeStopOverlayForPid(int pid)
+	players[pid].showTimeStopOverlay()
+
+public function hideTimeStopOverlayForPid(int pid)
+	players[pid].hideTimeStopOverlay()
+
+init
+	doAfter(1) -> 
+		
+		setupTimeStopOverlay()
