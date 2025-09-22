@@ -2,7 +2,6 @@ package TimeStop
 
 import HashMap
 import ClosureTimers
-import TimeStopOverlay
 import EntitySystem
 import EntityManagement
 
@@ -15,7 +14,7 @@ function addPlayerControl(player p)
 		return
 	let current = playerStopCounts.has(p) ? playerStopCounts.get(p) : 0
 	if current == 0
-		p.disableControl()
+		p.disableUserControl()
 	playerStopCounts.put(p, current + 1)
 
 function releasePlayerControl(player p)
@@ -26,7 +25,7 @@ function releasePlayerControl(player p)
 	let current = playerStopCounts.get(p)
 	if current <= 1
 		playerStopCounts.remove(p)
-		p.enableControl()
+		p.enableUserControl()
 	else
 		playerStopCounts.put(p, current - 1)
 

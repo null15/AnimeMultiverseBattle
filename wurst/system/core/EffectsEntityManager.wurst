@@ -1,0 +1,109 @@
+package EffectsEntityManager
+
+import EntitySystem
+import TimeStop
+
+function wrapEffect(effect fx) returns EffectsEntity
+	if fx == null
+		return null
+	return fx.ensureEntity()
+
+public function addEffectEntity(string path, vec2 pos) returns EffectsEntity
+	let entity = wrapEffect(addEffect(path, pos))
+	if entity != null
+		entity.setPosition(pos)
+	return entity
+
+public function addEffectEntity(string path, vec3 pos) returns EffectsEntity
+	let entity = wrapEffect(addEffect(path, pos))
+	if entity != null
+		entity.setPosition(pos)
+	return entity
+
+public function addEffectEntity(string path, widget target, string attachPointName) returns EffectsEntity
+	return wrapEffect(addEffect(path, target, attachPointName))
+
+public function addEffectEntity(int abilityId, effecttype effType, vec2 pos) returns EffectsEntity
+	let entity = wrapEffect(addEffect(abilityId, effType, pos))
+	if entity != null
+		entity.setPosition(pos)
+	return entity
+
+public function addEffectEntity(int abilityId, effecttype effType, vec3 pos) returns EffectsEntity
+	let entity = wrapEffect(addEffect(abilityId, effType, pos))
+	if entity != null
+		entity.setPosition(pos)
+	return entity
+
+public function addEffectEntity(int abilityId, effecttype effType, widget target, string attachPointName) returns EffectsEntity
+	return wrapEffect(addEffect(abilityId, effType, target, attachPointName))
+
+public function destroyEffectEntity(EffectsEntity entity) returns EffectsEntity
+	if entity == null
+		return null
+	let fx = entity.getActor()
+	if fx != null
+		fx.clearTimeStop()
+	entity.clearTimeStop()
+	entity.setPosition(vec2(-99999, -99999))
+	if fx != null
+		fx.destroyEntityEffect()
+	else
+		destroy entity
+	return null
+
+public function flashEffectEntity(string path, vec3 pos)
+	flashEffectEntity(path, pos, 1.0)
+
+public function flashEffectEntity(string path, vec2 pos)
+	flashEffectEntity(path, pos, 1.0, GetRandomReal(0, 359).fromDeg())
+
+public function flashEffectEntity(string path, vec2 pos, real scale)
+	flashEffectEntity(path, pos, scale, GetRandomReal(0, 359).fromDeg())
+
+public function flashEffectEntity(string path, vec3 pos, real scale)
+	flashEffectEntity(path, pos, scale, GetRandomReal(0, 359).fromDeg())
+
+public function flashEffectEntity(string path, vec2 pos, real scale, angle yaw)
+	let entity = addEffectEntity(path, pos)
+	if entity == null
+		return
+	entity.setScale(scale)
+	let fx = entity.getActor()
+	if fx != null
+		fx.setYaw(yaw)
+	destroyEffectEntity(entity)
+
+public function flashEffectEntity(string path, vec3 pos, real scale, angle yaw)
+	let entity = addEffectEntity(path, pos)
+	if entity == null
+		return
+	entity.setScale(scale)
+	let fx = entity.getActor()
+	if fx != null
+		fx.setYaw(yaw)
+	destroyEffectEntity(entity)
+
+public function flashEffectEntity(string path, widget target, string attachPointName)
+	let entity = addEffectEntity(path, target, attachPointName)
+	if entity == null
+		return
+	destroyEffectEntity(entity)
+
+public function flashEffectEntity(int abilityId, effecttype effType, vec3 pos)
+	let entity = addEffectEntity(abilityId, effType, pos)
+	if entity == null
+		return
+	destroyEffectEntity(entity)
+
+public function flashEffectEntity(int abilityId, effecttype effType, vec2 pos)
+	let entity = addEffectEntity(abilityId, effType, pos)
+	if entity == null
+		return
+	destroyEffectEntity(entity)
+
+public function flashEffectEntity(int abilityId, effecttype effType, widget target, string attachPointName)
+	let entity = addEffectEntity(abilityId, effType, target, attachPointName)
+	if entity == null
+		return
+	destroyEffectEntity(entity)

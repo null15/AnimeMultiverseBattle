@@ -32,6 +32,7 @@ import LinkedListModule
 import HashMap
 import Objects
 import EntitySystem
+import EffectsEntityManager
 import Utility
 
 /** A vec3 -> real function. */
@@ -216,8 +217,8 @@ public class Knockback3
 			if knockback.del.z <= isAirborneThreshold
 				knockback.del *= (1. - frictionCoefficientGround)
 
-				if velXySquared > frictionFxThreshold * frictionFxThreshold * ANIMATION_PERIOD
-					addEffect(frictionFxPath, pos3).destroyEntityEffect()
+			if velXySquared > frictionFxThreshold * frictionFxThreshold * ANIMATION_PERIOD
+				destroyEffectEntity(addEffectEntity(frictionFxPath, pos3))
 
 			if USE_MOVE_SPEED_MODIFIERS
 				knockback.u.setMoveSpeed(knockback.u.getDefaultMovespeed())

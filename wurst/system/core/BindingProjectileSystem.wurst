@@ -4,9 +4,9 @@ import HashMap
 import Missiles
 import EntityManagement
 import EntitySystem
-import TimeStop
+import EffectsEntityManager
 
-constant HashMap<unit, effect> anchorVisuals = new HashMap<unit, effect>()
+constant HashMap<unit, EffectsEntity> anchorVisuals = new HashMap<unit, EffectsEntity>()
 
 public interface BindingImpactHandler
 	function apply(BindingProjectile projectile, unit victim) returns bool
@@ -272,7 +272,7 @@ public class BindingProjectile
 		this.missile = null
 		destroy this
 
-	function applyAnchorVisual(unit anchor, unit target, AnchorVisualSetup setup) returns effect
+	function applyAnchorVisual(unit anchor, unit target, AnchorVisualSetup setup) returns EffectsEntity
 		if anchor == null or setup == null
 			return null
 		let fallback = this.getFacingYaw(target)
@@ -304,26 +304,26 @@ public function launchBindingProjectile(unit caster, unit target, BindingProject
 		return null
 	return new BindingProjectile(caster, target, config)
 
-public function setAnchorVisual(unit anchor, string modelPath, real heightOffset, real scale, angle yaw, angle pitch, angle roll) returns effect
+public function setAnchorVisual(unit anchor, string modelPath, real heightOffset, real scale, angle yaw, angle pitch, angle roll) returns EffectsEntity
 	clearAnchorVisual(anchor)
 	if anchor == null or modelPath.length() == 0
 		return null
 	let pos = anchor.getPos3Real().add(0, 0, heightOffset)
-	let fx = addEffect(modelPath, pos)
-	if fx != null
-		fx..setEntityScale(scale)..setOrientation(yaw, pitch, roll)
-		anchorVisuals.put(anchor, fx)
-	return fx
+	let entity = addEffectEntity(modelPath, pos)
+	if entity != null
+		entity.setScale(scale)
+		let fx = entity.getActor()
+		if fx != null
+			fx.setOrientation(yaw, pitch, roll)
+		anchorVisuals.put(anchor, entity)
+	return entity
 
 public function clearAnchorVisual(unit anchor)
 	if anchor == null
 		return
 	if anchorVisuals.has(anchor)
 		let fx = anchorVisuals.get(anchor)
-		if fx != null
-			fx.clearTimeStop()
-			fx.setEntityPos(vec2(-99999, -99999))
-			fx.destroyEntityEffect()
+		destroyEffectEntity(fx)
 		anchorVisuals.remove(anchor)
 
 function onAnchorRemoved()

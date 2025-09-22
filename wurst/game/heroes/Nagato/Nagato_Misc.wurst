@@ -2,10 +2,11 @@ package Nagato_Misc
 
 import UnitIndexer
 import objectIDs
+import EffectsEntityManager
 
 init
-    onUnitIndex() ->
-        if getIndexingUnit().getTypeId() == NAGATO_UZUMAKI
-            getIndexingUnit().addEffect("Nagato\\Nagato\\PainHead.mdx", "head")
-        else if getIndexingUnit().getTypeId() == NAGATO_ANIMAL_PATH_SUMMON
-            getIndexingUnit().addEffect("Nagato\\Kuchiyose\\AnimalPathHead.mdx", "head")
+	onUnitIndex() ->
+		if getIndexingUnit().getTypeId() == NAGATO_UZUMAKI
+			addEffectEntity("Nagato\\Nagato\\PainHead.mdx", getIndexingUnit(), "head")
+		else if getIndexingUnit().getTypeId() == NAGATO_ANIMAL_PATH_SUMMON
+			addEffectEntity("Nagato\\Kuchiyose\\AnimalPathHead.mdx", getIndexingUnit(), "head")

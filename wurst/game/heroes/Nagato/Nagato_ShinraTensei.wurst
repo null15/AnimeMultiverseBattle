@@ -9,6 +9,7 @@ import HashMap
 import HashSet
 import EntityManagement
 import EntitySystem
+import EffectsEntityManager
 import SoundUtils
 import SoundSystem
 import TimeStop
@@ -41,15 +42,7 @@ constant real CASTER_ANIMATION_SPEED					= 0.5
 constant HashMap<unit, ShinraTensei> active				= new HashMap<unit, ShinraTensei>()
 
 function releaseEffect(EffectsEntity entity) returns EffectsEntity
-	if entity != null
-		let fx = entity.getActor()
-		if fx != null
-			fx.clearTimeStop()
-		entity.clearTimeStop()
-		entity.setPosition(vec2(-99999, -99999))
-		if fx != null
-			fx.destroyEntityEffect()
-	return null
+	return destroyEffectEntity(entity)
 
 class ShinraTensei
 	unit caster
@@ -71,29 +64,28 @@ class ShinraTensei
 
 	function createEffects()
 		let casterPos = this.getCasterEffectPos()
-		let mainFx = addEffect(SHINRA_TENSEI_FX, casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))
-		this.shinraTensei = mainFx.ensureEntity()
+		this.shinraTensei = addEffectEntity(SHINRA_TENSEI_FX, casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))
 		if this.shinraTensei != null
 			this.shinraTensei.setScale(SHINRA_TENSEI_MAIN_SCALE)
-		let dirtFx = addEffect(SHINRA_TENSEI_DIRT_FX, casterPos)
-		this.shinraTenseiDirt = dirtFx.ensureEntity()
+		this.shinraTenseiDirt = addEffectEntity(SHINRA_TENSEI_DIRT_FX, casterPos)
 		if this.shinraTenseiDirt != null
 			this.shinraTenseiDirt.setScale(SHINRA_TENSEI_DIRT_SCALE)
 			this.shinraTenseiDirt.setTimeScale(SHINRA_TENSEI_DIRT_TIME_SCALE)
-		if dirtFx != null
-			dirtFx.playAnimation(ANIM_TYPE_BIRTH)
-		let dustFx = addEffect(SHINRA_TENSEI_DUST_FX, casterPos)
-		this.dustWave = dustFx.ensureEntity()
+			let dirtActor = this.shinraTenseiDirt.getActor()
+			if dirtActor != null
+				dirtActor.playAnimation(ANIM_TYPE_BIRTH)
+		this.dustWave = addEffectEntity(SHINRA_TENSEI_DUST_FX, casterPos)
 		if this.dustWave != null
 			this.dustWave.setScale(SHINRA_TENSEI_DUST_SCALE)
-		if dustFx != null
-			dustFx.playAnimation(ANIM_TYPE_BIRTH)
-		let blastFx = addEffect(SHINRA_TENSEI_BLAST_FX, casterPos)
-		this.shinraTenseiBlast = blastFx.ensureEntity()
+			let dustActor = this.dustWave.getActor()
+			if dustActor != null
+				dustActor.playAnimation(ANIM_TYPE_BIRTH)
+		this.shinraTenseiBlast = addEffectEntity(SHINRA_TENSEI_BLAST_FX, casterPos)
 		if this.shinraTenseiBlast != null
 			this.shinraTenseiBlast.setScale(SHINRA_TENSEI_BLAST_SCALE)
-		if blastFx != null
-			blastFx.playAnimation(ANIM_TYPE_STAND)
+			let blastActor = this.shinraTenseiBlast.getActor()
+			if blastActor != null
+				blastActor.playAnimation(ANIM_TYPE_STAND)
 
 	function tick()
 		if this.caster == null or not this.caster.isAlive()

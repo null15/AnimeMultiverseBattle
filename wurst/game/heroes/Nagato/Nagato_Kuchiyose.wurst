@@ -6,9 +6,9 @@ import Teleport
 import ClosureTimers
 import EntityManagement
 import EntitySystem
+import EffectsEntityManager
 import SoundUtils
 import SoundSystem
-import TimeStop
 
 constant real SUMMON_CHANNEL_TIME = 3.
 constant real ANIMAL_PATH_TELEPORT_RADIUS = 600.
@@ -39,21 +39,17 @@ constant int ANIMATION_CHANNEL = 8
 constant int ANIMATION_END = 17
 constant HashMap<unit, SummonAnimalPath> active = new HashMap<unit, SummonAnimalPath>()
 
-function releaseEffect(effect fx) returns effect
-	if fx != null
-		fx.clearTimeStop()
-		fx.setEntityPos(vec2(-99999, -99999))
-		fx.destroyEntityEffect()
-	return null
+function releaseEffect(EffectsEntity entity) returns EffectsEntity
+	return destroyEffectEntity(entity)
 
 class SummonAnimalPath
 	unit caster
 	vec2 targetPos
-	effect scribble1
-	effect scribble2
+	EffectsEntity scribble1
+	EffectsEntity scribble2
 	unit animalPath
 	boolean finished
-	LinkedList<effect> channelWindEffects
+	LinkedList<EffectsEntity> channelWindEffects
 	CallbackPeriodic channelWindTimer
 	boolean nextChannelWindIsFirst
 	CallbackPeriodic handSignSoundTimer
@@ -64,7 +60,7 @@ class SummonAnimalPath
 		this.caster = caster
 		this.targetPos = targetPos
 		this.finished = false
-		this.channelWindEffects = new LinkedList<effect>
+		this.channelWindEffects = new LinkedList<EffectsEntity>
 		this.handSignSoundPlaysRemaining = KUCHIYOSE_HANDSIGN_SOUND_LIMIT
 		this.createVisuals()
 		this.startChannelWindEffects()
@@ -75,8 +71,16 @@ class SummonAnimalPath
 		let casterPos = this.getCasterEffectPos()
 		this.animalPath = Unit.create(this.caster.getOwner(), NAGATO_ANIMAL_PATH_SUMMON, this.targetPos)..setScale(0.7)
 		let animalPathPos = this.getAnimalPathEffectPos()
-		this.scribble1 = addEffect(KUCHIYOSE_SCRIBBLE_MODEL_PATH, casterPos)..playAnimation(ANIM_TYPE_STAND)
-		this.scribble2 = addEffect(KUCHIYOSE_SCRIBBLE_MODEL_PATH, animalPathPos)..playAnimation(ANIM_TYPE_STAND)
+		this.scribble1 = addEffectEntity(KUCHIYOSE_SCRIBBLE_MODEL_PATH, casterPos)
+		if this.scribble1 != null
+			let scribbleActor1 = this.scribble1.getActor()
+			if scribbleActor1 != null
+				scribbleActor1.playAnimation(ANIM_TYPE_STAND)
+		this.scribble2 = addEffectEntity(KUCHIYOSE_SCRIBBLE_MODEL_PATH, animalPathPos)
+		if this.scribble2 != null
+			let scribbleActor2 = this.scribble2.getActor()
+			if scribbleActor2 != null
+				scribbleActor2.playAnimation(ANIM_TYPE_STAND)
 		if this.animalPath != null
 			this.animalPath.setFacing(ANIMAL_PATH_SOUTH_FACING)
 			this.animalPath..setAnimation(ANIMATION_CHANNEL)..setTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
@@ -121,12 +125,14 @@ class SummonAnimalPath
 		if effectInstance2 != null
 			this.channelWindEffects.add(effectInstance2)
 
-	function createChannelWindEffect(string modelPath, vec3 pos) returns effect
-		let eff = addEffect(modelPath, pos)
-		if eff != null
-			eff.setTime(0.)
-			eff.playAnimation(ANIM_TYPE_BIRTH)
-		return eff
+	function createChannelWindEffect(string modelPath, vec3 pos) returns EffectsEntity
+		let entity = addEffectEntity(modelPath, pos)
+		if entity != null
+			let actor = entity.getActor()
+			if actor != null
+				actor.setTime(0.)
+				actor.playAnimation(ANIM_TYPE_BIRTH)
+		return entity
 
 	function stopChannelWindEffects()
 		if this.channelWindTimer != null
@@ -255,11 +261,14 @@ class SummonAnimalPath
 					casterUnit..setAnimation(ANIMATION_END)..setTimeScale(CASTER_FINISH_ANIMATION_TIME_SCALE)
 
 	function spawnTeleportWindAt(vec2 pos)
-		let fx = addEffect(KUCHIYOSE_TELEPORT_WIND_MODEL_PATH, pos.toVec3())
-		if fx != null
-			fx..setTimeScale(KUCHIYOSE_TELEPORT_WIND_TIME_SCALE)..playAnimation(ANIM_TYPE_BIRTH)
+		let entity = addEffectEntity(KUCHIYOSE_TELEPORT_WIND_MODEL_PATH, pos.toVec3())
+		if entity != null
+			entity.setTimeScale(KUCHIYOSE_TELEPORT_WIND_TIME_SCALE)
+			let actor = entity.getActor()
+			if actor != null
+				actor.playAnimation(ANIM_TYPE_BIRTH)
 			doAfter(ANIMAL_PATH_TELEPORT_WIND_RELEASE_DELAY) ->
-				releaseEffect(fx)
+				releaseEffect(entity)
 
 	function teleportAllies()
 		if this.caster == null or not this.caster.isAlive()

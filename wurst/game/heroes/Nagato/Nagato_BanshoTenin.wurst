@@ -5,6 +5,7 @@ import Pull
 import ClosureTimers
 import HashMap
 import EntitySystem
+import EffectsEntityManager
 import TimeStop
 import ClosureEvents
 import SoundUtils
@@ -27,7 +28,7 @@ class BanshoTenin
 	unit caster
 	unit target
 	CallbackPeriodic cb
-	effect dirtFx
+	EffectsEntity dirtFx
 	real elapsed
 	boolean finished
 
@@ -46,10 +47,10 @@ class BanshoTenin
 				this.caster.issueImmediateOrder("stop")
 		else
 			playSound(snd_BanshoTenin, this.caster.getPos3Real(), 700)
-			this.dirtFx = addEffect(BANSHO_DIRT_FX, target.getPos3Real())
-			this.updateDirtEffect(this.caster.getPos(), this.target.getPos())
-			this.cb = doPeriodically(BANSHO_PERIOD) (CallbackPeriodic c) ->
-				this.update()
+		this.dirtFx = addEffectEntity(BANSHO_DIRT_FX, target.getPos3Real())
+		this.updateDirtEffect(this.caster.getPos(), this.target.getPos())
+		this.cb = doPeriodically(BANSHO_PERIOD) (CallbackPeriodic c) ->
+			this.update()
 
 	function isActive() returns boolean
 		return not this.finished
@@ -107,10 +108,7 @@ class BanshoTenin
 		if this.target != null
 			Pull.stopActive(this.target)
 		if this.dirtFx != null
-			this.dirtFx.clearTimeStop()
-			this.dirtFx.setEntityPos(vec2(-99999, -99999))
-			this.dirtFx.destroyEntityEffect()
-			this.dirtFx = null
+			this.dirtFx = destroyEffectEntity(this.dirtFx)
 		if this.caster != null and active.has(this.caster)
 			active.remove(this.caster)
 		this.caster = null
@@ -123,9 +121,10 @@ class BanshoTenin
 		let yaw = casterPos.angleTo(targetPos)
 		let behindPos = casterPos.distanceToSq(targetPos) > 0. ? targetPos + yaw.toVec(BANSHO_FX_OFFSET) : targetPos
 		let groundPos = this.target.getPos3Real()
-		this.dirtFx
-		..setEntityPos(vec3(behindPos.x, behindPos.y, groundPos.z))
-		..setOrientation(yaw + BANSHO_DIRT_YAW_OFFSET, BANSHO_DIRT_PITCH, BANSHO_DIRT_ROLL)
+		this.dirtFx.setPosition(vec3(behindPos.x, behindPos.y, groundPos.z))
+		let actor = this.dirtFx.getActor()
+		if actor != null
+			actor.setOrientation(yaw + BANSHO_DIRT_YAW_OFFSET, BANSHO_DIRT_PITCH, BANSHO_DIRT_ROLL)
 
 	ondestroy
 		this.cb = null
