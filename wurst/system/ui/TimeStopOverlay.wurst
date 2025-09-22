@@ -60,29 +60,31 @@ public function player.showTimeStopOverlay()
 
 	timeStopOverlayFrame
 	..show(this)
+	..enable(this)
 	..setFocus(this, true)
-	..enable()
 
 	timeStopOverlayInput
 	..show(this)
+	..enable(this)
 	..setFocus(this, true)
-	..enable()
+	..setText(this, "")
 
 public function player.hideTimeStopOverlay()
 	if timeStopOverlayFrame == null
 		return
 
 	timeStopOverlayInput
+	..setFocus(this, false)
 	..unfocus(this)
-	..setFocus(false)
+	..setText(this, "")
+	..disable(this)
 	..hide(this)
-	..disable()
 
 	timeStopOverlayFrame
+	..setFocus(this, false)
 	..unfocus(this)
-	..setFocus(false)
+	..disable(this)
 	..hide(this)
-	..disable()
 
 public function showTimeStopOverlayForAll()
 	if timeStopOverlayFrame == null
