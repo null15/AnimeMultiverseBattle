@@ -7,6 +7,7 @@ package TimeStopOverlay
  * or hidden for any player when time stop effects are active.
  */
 
+import Framehandle
 import FramehandleNames
 import ClosureTimers
 
@@ -16,24 +17,26 @@ framehandle timeStopOverlayBackdrop = null
 constant string TIME_STOP_OVERLAY_BUTTON = "TimeStopOverlayButton"
 constant string TIME_STOP_OVERLAY_BACKDROP = "TimeStopOverlayBackdrop"
 constant string TIME_STOP_OVERLAY_TEXTURE = "ReplaceableTextures\\CameraMasks\\Black_mask.blp"
-constant int TIME_STOP_OVERLAY_LEVEL = 50
-constant int TIME_STOP_OVERLAY_ALPHA = 150
+constant string TIME_STOP_OVERLAY_BUTTON_TYPE = "SIMPLEBUTTON"
+constant int TIME_STOP_OVERLAY_LEVEL = 1
+constant int TIME_STOP_OVERLAY_ALPHA = 100
 
 function createOverlayFrames()
 	if timeStopOverlayFrame != null
 		return
 
-	let parent = getFrame("ConsoleUIBackdrop", 0)
-
-	timeStopOverlayFrame = createFrame(FramehandleTypeNames.gluebutton, TIME_STOP_OVERLAY_BUTTON, parent, "", 0)
-		..setAllPoints(parent)
-		..setLevel(TIME_STOP_OVERLAY_LEVEL)
-		..setAlpha(0)
+	timeStopOverlayFrame = createFrame(TIME_STOP_OVERLAY_BUTTON_TYPE, TIME_STOP_OVERLAY_BUTTON, WORLD_UI, "", 0)
+	..clearAllPoints()
+	..setAbsPoint(FRAMEPOINT_TOPLEFT, WHOLE_SCREEN_TOPLEFT)
+	..setAbsPoint(FRAMEPOINT_BOTTOMRIGHT, WHOLE_SCREEN_BOTTOMRIGHT)
+	..setLevel(TIME_STOP_OVERLAY_LEVEL)
+	..setAlpha(0)
 
 	timeStopOverlayBackdrop = createFrame(FramehandleTypeNames.backdrop, TIME_STOP_OVERLAY_BACKDROP, timeStopOverlayFrame, "", 0)
-		..setAllPoints(timeStopOverlayFrame)
-		..setTexture(TIME_STOP_OVERLAY_TEXTURE, 0, true)
-		..setAlpha(TIME_STOP_OVERLAY_ALPHA)
+	..setAllPoints(timeStopOverlayFrame)
+	..setLevel(TIME_STOP_OVERLAY_LEVEL)
+	..setTexture(TIME_STOP_OVERLAY_TEXTURE, 0, true)
+	..setAlpha(TIME_STOP_OVERLAY_ALPHA)
 
 	timeStopOverlayFrame.hide()
 
