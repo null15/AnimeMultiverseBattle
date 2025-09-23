@@ -13,8 +13,8 @@ import EffectsSystem
 import SoundSystem
 import TimeStop
 
-constant SoundProfile snd_ShinraTensei					= new SoundProfile("Nagato\\Shinra Tensei\\ShinraTensei.mp3", false, true)
 constant string SOUND_LABEL_SHINRA_TENSEI               = "NagatoShinraTensei"
+constant SoundProfile snd_ShinraTensei					= new SoundProfile("Nagato\\Shinra Tensei\\ShinraTensei.mp3", SOUND_LABEL_SHINRA_TENSEI, false, true)
 constant string SHINRA_TENSEI_FX						= "Nagato\\Shinra Tensei\\ShinraTensei.mdx"
 constant string SHINRA_TENSEI_DIRT_FX					= "Nagato\\Shinra Tensei\\ShinraTenseiDirt.mdx"
 constant string SHINRA_TENSEI_DUST_FX					= "Nagato\\Shinra Tensei\\DustWaveVersion2.mdx"
@@ -58,12 +58,13 @@ class ShinraTensei
 		this.caster = caster
 		this.affected = new HashSet<unit>
 		this.createEffects()
-		playSound(snd_ShinraTensei, this.getCasterEffectPos(), SHINRA_TENSEI_SOUND_RADIUS, SOUND_LABEL_SHINRA_TENSEI)
+		snd_ShinraTensei.playAt(this.getPos(), SHINRA_TENSEI_SOUND_RADIUS)
 		this.cb = doPeriodically(SHINRA_TENSEI_PERIOD) (CallbackPeriodic c) ->
 			this.tick()
+			print(snd_ShinraTensei.getPlayback().getPlayback().getPlayedMilliseconds())
 
 	function createEffects()
-		let casterPos = this.getCasterEffectPos()
+		let casterPos = this.getPos()
 		this.shinraTensei = addEffectEntity(SHINRA_TENSEI_FX, casterPos.add(0, 0, SHINRA_TENSEI_MAIN_Z_OFFSET))
 		if this.shinraTensei != null
 			this.shinraTensei.setScale(SHINRA_TENSEI_MAIN_SCALE)
@@ -105,13 +106,13 @@ class ShinraTensei
 			this.caster.finishChanneling(NAGATO_SHINRA_TENSEI)
 			this.stop()
 			return
-		let casterPos = this.getCasterEffectPos()
+		let casterPos = this.getPos()
 		this.updateEffects(casterPos)
 		let center = casterPos.toVec2()
 		this.affectUnits(center)
 		this.deflectMissiles(center)
 
-	function getCasterEffectPos() returns vec3
+	function getPos() returns vec3
 		if this.caster == null
 			return vec3(0, 0, 0)
 		let casterEntity = this.caster.getEntity()

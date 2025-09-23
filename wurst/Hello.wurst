@@ -71,10 +71,12 @@ init
 			let snd = CreateSoundFromLabel("Warning",false,false,false,10,10)
 			StartSound(snd)
 		else if EventData.getChatMessage() == "k"
-			let managedSound = getSoundsWithLabel("NagatoShinraTensei").getFirst()
-			managedSound.getSound().getDuration()
-			// managedSound.getSound().playPosition(millisecs)
-			// let snd = managedSound.get
+			let playback = getPlaybackForLabel("NagatoShinraTensei")
+			let managedSound = playback.getPlayback()
+			if managedSound != null
+				let elapsedMs = managedSound.getPlayedMilliseconds()
+				let durationMs = managedSound.getNativeDurationMs()
+				DisplayTimedTextToPlayer(players[0],0.52,0.96,2,"Elapsed: " + elapsedMs.toString() + " / " + durationMs.toString() + " ms")
 
 			// stopAllSounds()
 			// stopAllSounds(true, true)

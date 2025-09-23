@@ -27,14 +27,14 @@ constant string KUCHIYOSE_TELEPORT_WIND_MODEL_PATH = "Nagato\\Kuchiyose\\Kuchiyo
 constant real KUCHIYOSE_TELEPORT_WIND_TIME_SCALE = 2.
 constant string KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_1 = "Nagato\\Kuchiyose\\WindChannel1.mdx"
 constant string KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_2 = "Nagato\\Kuchiyose\\WindChannel2.mdx"
-constant SoundProfile snd_KuchiyoseHandSign = new SoundProfile("Nagato\\Kuchiyose\\HandSign.mp3", false, true)
 constant string SOUND_LABEL_KUCHIYOSE_HANDSIGN = "NagatoKuchiyoseHandSign"
-constant SoundProfile snd_KuchiyoseSummoning = new SoundProfile("Nagato\\Kuchiyose\\SummoningSoundEffect.mp3", false, true)
+constant SoundProfile snd_KuchiyoseHandSign = new SoundProfile("Nagato\\Kuchiyose\\HandSign.mp3", SOUND_LABEL_KUCHIYOSE_HANDSIGN, false, true)
 constant string SOUND_LABEL_KUCHIYOSE_SUMMONING = "NagatoKuchiyoseSummoning"
-constant SoundProfile snd_KuchiyosePoof = new SoundProfile("Nagato\\Kuchiyose\\Poof.mp3", false, true)
+constant SoundProfile snd_KuchiyoseSummoning = new SoundProfile("Nagato\\Kuchiyose\\SummoningSoundEffect.mp3", SOUND_LABEL_KUCHIYOSE_SUMMONING, false, true)
 constant string SOUND_LABEL_KUCHIYOSE_POOF = "NagatoKuchiyosePoof"
-constant SoundProfile snd_KuchiyoseChant = new SoundProfile("Nagato\\Kuchiyose\\AnimalPathChant.mp3", false, true)
+constant SoundProfile snd_KuchiyosePoof = new SoundProfile("Nagato\\Kuchiyose\\Poof.mp3", SOUND_LABEL_KUCHIYOSE_POOF, false, true)
 constant string SOUND_LABEL_KUCHIYOSE_CHANT = "NagatoKuchiyoseChant"
+constant SoundProfile snd_KuchiyoseChant = new SoundProfile("Nagato\\Kuchiyose\\AnimalPathChant.mp3", SOUND_LABEL_KUCHIYOSE_CHANT, false, true)
 constant real KUCHIYOSE_CHANT_DELAY = 2.75
 constant real KUCHIYOSE_SOUND_RADIUS = 700.
 constant real KUCHIYOSE_HANDSIGN_SOUND_PERIOD = 0.425
@@ -316,7 +316,7 @@ class SummonAnimalPath
 		return true
 
 	function playHandSignSound()
-		playSound(snd_KuchiyoseHandSign, this.getCasterEffectPos(), KUCHIYOSE_SOUND_RADIUS, SOUND_LABEL_KUCHIYOSE_HANDSIGN)
+		snd_KuchiyoseHandSign.playAt(this.getCasterEffectPos(), KUCHIYOSE_SOUND_RADIUS)
 		if KUCHIYOSE_HANDSIGN_SOUND_LIMIT > 0
 			this.handSignSoundPlaysRemaining -= 1
 
@@ -339,7 +339,7 @@ class SummonAnimalPath
 			return
 		if this.caster == null or not this.caster.isAlive()
 			return
-		playSound(snd_KuchiyoseChant, this.getCasterEffectPos(), KUCHIYOSE_SOUND_RADIUS, SOUND_LABEL_KUCHIYOSE_CHANT)
+		snd_KuchiyoseChant.playAt(this.getCasterEffectPos(), KUCHIYOSE_SOUND_RADIUS)
 
 	function stopChantSound()
 		if this.chantSoundTimer != null
@@ -397,7 +397,7 @@ class SummonAnimalPath
 	function playSummoningSound()
 		if this.caster == null
 			return
-		playSound(snd_KuchiyoseSummoning, this.targetPos.toVec3(), KUCHIYOSE_SOUND_RADIUS, SOUND_LABEL_KUCHIYOSE_SUMMONING)
+		snd_KuchiyoseSummoning.playAt(this.targetPos.toVec3(), KUCHIYOSE_SOUND_RADIUS)
 
 	function completeSuccessfulFinish()
 		this.teleportAllies()
@@ -442,7 +442,7 @@ class SummonAnimalPath
 		this.playPoofSound()
 
 	function playPoofSound()
-		playSound(snd_KuchiyosePoof, this.targetPos.toVec3(), KUCHIYOSE_SOUND_RADIUS, SOUND_LABEL_KUCHIYOSE_POOF)
+		snd_KuchiyosePoof.playAt(this.targetPos.toVec3(), KUCHIYOSE_SOUND_RADIUS)
 
 	function shouldTeleport(unit u) returns bool
 		if u == null or not u.isAlive()

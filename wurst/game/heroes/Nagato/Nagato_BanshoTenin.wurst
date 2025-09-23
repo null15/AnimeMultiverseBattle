@@ -10,8 +10,8 @@ import TimeStop
 import ClosureEvents
 import SoundSystem
 
-constant SoundProfile snd_BanshoTenin				= new SoundProfile("Nagato\\BanshoTenin\\BanshoTenin.mp3", false, true)
 constant string SOUND_LABEL_BANSHO_TENIN            = "NagatoBanshoTenin"
+constant SoundProfile snd_BanshoTenin				= new SoundProfile("Nagato\\BanshoTenin\\BanshoTenin.mp3", SOUND_LABEL_BANSHO_TENIN, false, true)
 constant real BANSHO_PERIOD							= 0.03125
 constant real BANSHO_STOP_RANGE						= 128.
 constant real BANSHO_MIN_SPEED						= 300.
@@ -47,7 +47,7 @@ class BanshoTenin
 			if this.caster != null and this.caster.isAlive()
 				this.caster.issueImmediateOrder("stop")
 		else
-			playSound(snd_BanshoTenin, this.caster.getPos3Real(), 700, SOUND_LABEL_BANSHO_TENIN)
+			snd_BanshoTenin.playAt(this.caster.getPos3Real(), 700)
 		this.dirtFx = addEffectEntity(BANSHO_DIRT_FX, target.getPos3Real())
 		this.updateDirtEffectTimeStop(this.isEffectTimeStopActive())
 		this.updateDirtEffect(this.caster.getPos(), this.target.getPos())
