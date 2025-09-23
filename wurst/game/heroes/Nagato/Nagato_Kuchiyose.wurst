@@ -60,6 +60,8 @@ class SummonAnimalPath
 	CallbackPeriodic timeStopTimer
 	boolean effectsTimeStopped
 	boolean channelCompleted
+	real casterTimeScaleBeforeOverride
+	boolean casterTimeScaleOverridden
 
 	construct(unit caster, vec2 targetPos)
 		this.caster = caster
@@ -133,6 +135,43 @@ class SummonAnimalPath
 			this.effectsTimeStopped = false
 			this.stopEffectsTimeStop()
 
+	function shouldOverrideCasterTimeScale() returns boolean
+		let casterUnit = this.caster
+		if casterUnit == null
+			return false
+		if not casterUnit.isAlive()
+			return false
+		if casterUnit.isTimeStopped()
+			return false
+		let summon = this.animalPath
+		if summon == null
+			return false
+		return summon.isTimeStopped()
+
+	function startCasterTimeScaleOverride()
+		if this.casterTimeScaleOverridden
+			return
+		let casterUnit = this.caster
+		if casterUnit == null
+			return
+		this.casterTimeScaleBeforeOverride = casterUnit.getEntityTimeScale()
+		casterUnit.setEntityTimeScale(0.)
+		this.casterTimeScaleOverridden = true
+
+	function stopCasterTimeScaleOverride()
+		if not this.casterTimeScaleOverridden
+			return
+		let casterUnit = this.caster
+		if casterUnit != null
+			casterUnit.setEntityTimeScale(this.casterTimeScaleBeforeOverride)
+		this.casterTimeScaleOverridden = false
+
+	function updateCasterTimeScaleOverride()
+		if this.shouldOverrideCasterTimeScale()
+			this.startCasterTimeScaleOverride()
+		else
+			this.stopCasterTimeScaleOverride()
+
 	function isTimeStopActive() returns boolean
 		if this.caster != null and this.caster.isTimeStopped()
 			return true
@@ -141,8 +180,9 @@ class SummonAnimalPath
 		return false
 
 	function updateTimeStopState()
-		this.updateEffectsTimeStop(this.isTimeStopActive())
-
+		let isStopped = this.isTimeStopActive()
+		this.updateEffectsTimeStop(isStopped)
+		this.updateCasterTimeScaleOverride()
 	function updateChannelProgress()
 		if this.finished
 			return
@@ -315,6 +355,7 @@ class SummonAnimalPath
 		if this.finished
 			return
 		this.finished = true
+		this.stopCasterTimeScaleOverride()
 		this.stopTimeStopUpdates()
 		if this.effectsTimeStopped
 			this.stopEffectsTimeStop()
@@ -440,6 +481,7 @@ class SummonAnimalPath
 		this.stopHandSignSound()
 		this.stopChantSound()
 		this.stopTimeStopUpdates()
+		this.stopCasterTimeScaleOverride()
 		this.effectsTimeStopped = false
 		this.animalPath = null
 		this.scribble1 = null
