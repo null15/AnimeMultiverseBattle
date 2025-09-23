@@ -61,7 +61,6 @@ class ShinraTensei
 		snd_ShinraTensei.playAt(this.getPos(), SHINRA_TENSEI_SOUND_RADIUS)
 		this.cb = doPeriodically(SHINRA_TENSEI_PERIOD) (CallbackPeriodic c) ->
 			this.tick()
-			print(snd_ShinraTensei.getPlayback().getPlayback().getPlayedMilliseconds())
 
 	function createEffects()
 		let casterPos = this.getPos()
