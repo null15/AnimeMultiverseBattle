@@ -16,6 +16,7 @@ constant real BANSHO_PERIOD							= 0.03125
 constant real BANSHO_STOP_RANGE						= 128.
 constant real BANSHO_MIN_SPEED						= 300.
 constant real BANSHO_FX_OFFSET						= 80.
+constant real BANSHO_SOUND_RADIUS					= 700.
 constant string BANSHO_DIRT_FX						= "Nagato\\BanshoTenin\\BanshoTeninDragDirt.mdx"
 constant angle BANSHO_DIRT_PITCH					= (0)	.fromDeg()
 constant angle BANSHO_DIRT_ROLL						= (0)	.fromDeg()
@@ -32,6 +33,7 @@ class BanshoTenin
 	real elapsed
 	boolean finished
 	boolean dirtFxTimeStopped
+	ChannelSoundPlayback channelSound
 
 	construct(unit caster, unit target)
 		this.caster = caster
@@ -47,12 +49,18 @@ class BanshoTenin
 			if this.caster != null and this.caster.isAlive()
 				this.caster.issueImmediateOrder("stop")
 		else
-			snd_BanshoTenin.playAt(this.caster.getPos3Real(), 700)
+			this.caster.startChanneling(NAGATO_BANSHO_TENIN, 0.)
+			this.channelSound = snd_BanshoTenin.playChannelForUnit(this.caster, NAGATO_BANSHO_TENIN, BANSHO_SOUND_RADIUS)
 		this.dirtFx = addEffectEntity(BANSHO_DIRT_FX, target.getPos3Real())
 		this.updateDirtEffectTimeStop(this.isEffectTimeStopActive())
 		this.updateDirtEffect(this.caster.getPos(), this.target.getPos())
 		this.cb = doPeriodically(BANSHO_PERIOD) (CallbackPeriodic c) ->
 			this.update()
+
+	function stopChannelSound()
+		if this.channelSound != null
+			this.channelSound.stop()
+			this.channelSound = null
 
 	function isActive() returns boolean
 		return not this.finished
@@ -107,8 +115,12 @@ class BanshoTenin
 		if this.finished
 			return
 		this.finished = true
-		if orderCaster and this.caster != null and this.caster.isAlive()
-			this.caster.issueImmediateOrder("stop")
+		this.stopChannelSound()
+		if this.caster != null
+			if orderCaster and this.caster.isAlive()
+				this.caster.finishChanneling(NAGATO_BANSHO_TENIN)
+				this.caster.issueImmediateOrder("stop")
+			this.caster.clearChanneling(NAGATO_BANSHO_TENIN)
 		if this.cb != null
 			destroy this.cb
 			this.cb = null
@@ -168,6 +180,7 @@ class BanshoTenin
 	ondestroy
 		this.cb = null
 		this.dirtFx = null
+		this.channelSound = null
 
 function onChannel()
 	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN
