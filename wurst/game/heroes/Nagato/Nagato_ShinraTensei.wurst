@@ -10,11 +10,11 @@ import HashSet
 import EntityManagement
 import EntitySystem
 import EffectsSystem
-import SoundUtils
 import SoundSystem
 import TimeStop
 
-constant SoundDefinition snd_ShinraTensei				= new SoundDefinition("Nagato\\Shinra Tensei\\ShinraTensei.mp3", false, true)
+constant SoundProfile snd_ShinraTensei					= new SoundProfile("Nagato\\Shinra Tensei\\ShinraTensei.mp3", false, true)
+constant string SOUND_LABEL_SHINRA_TENSEI               = "NagatoShinraTensei"
 constant string SHINRA_TENSEI_FX						= "Nagato\\Shinra Tensei\\ShinraTensei.mdx"
 constant string SHINRA_TENSEI_DIRT_FX					= "Nagato\\Shinra Tensei\\ShinraTenseiDirt.mdx"
 constant string SHINRA_TENSEI_DUST_FX					= "Nagato\\Shinra Tensei\\DustWaveVersion2.mdx"
@@ -58,7 +58,7 @@ class ShinraTensei
 		this.caster = caster
 		this.affected = new HashSet<unit>
 		this.createEffects()
-		playSound(snd_ShinraTensei, this.getCasterEffectPos(), SHINRA_TENSEI_SOUND_RADIUS)
+		playSound(snd_ShinraTensei, this.getCasterEffectPos(), SHINRA_TENSEI_SOUND_RADIUS, SOUND_LABEL_SHINRA_TENSEI)
 		this.cb = doPeriodically(SHINRA_TENSEI_PERIOD) (CallbackPeriodic c) ->
 			this.tick()
 

@@ -5,8 +5,9 @@ import EntitySystem
 import ClosureTimers
 import objectIDs
 import ClosureEvents
+import SoundSystem
 
-// Current TimeStop good implemented so far.
+// Just a Test File
 
 init
 	nullTimer() ->
@@ -69,3 +70,11 @@ init
 		else if EventData.getChatMessage() == "snd10"
 			let snd = CreateSoundFromLabel("Warning",false,false,false,10,10)
 			StartSound(snd)
+		else if EventData.getChatMessage() == "k"
+			let managedSound = getSoundsWithLabel("NagatoShinraTensei").getFirst()
+			managedSound.setStartOffsetMs(5)
+			// managedSound.getSound().playPosition(millisecs)
+			// let snd = managedSound.get
+
+			// stopAllSounds()
+			// stopAllSounds(true, true)

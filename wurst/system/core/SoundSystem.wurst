@@ -1,13 +1,530 @@
 package SoundSystem
 
-import SoundUtils
+import HashMap
+import LinkedList
+import Time
 import EntitySystem
 
-public function playSound(SoundDefinition snd, vec3 pos, real range)
+@configurable constant DEFAULT_SOUND_STOPS_ON_LEAVE_RANGE = true
+@configurable constant DEFAULT_SOUND_FADE_IN_RATE = 10
+@configurable constant DEFAULT_SOUND_FADE_OUT_RATE = 10
+@configurable constant DEFAULT_SOUND_EAX_SETTINGS = "CombatSoundsEAX"
+@configurable constant DEFAULT_SOUND_VOLUME = 127
+@configurable constant DEFAULT_SOUND_PITCH = 1.
+@configurable constant DEFAULT_SOUND_DURATION = 10000
+@configurable constant DEFAULT_SOUND_CHANNEL = 5
+@configurable constant DEFAULT_SOUND_MIN_DISTANCE = 600.
+@configurable constant DEFAULT_SOUND_MAX_DISTANCE = 8000.
+@configurable constant DEFAULT_SOUND_DISTANCE_CUTOFF = 1500.
+
+public class SoundProfile
+	string filePath
+	boolean looping = false
+	boolean is3D = false
+	boolean stopWhenOutOfRange = DEFAULT_SOUND_STOPS_ON_LEAVE_RANGE
+	int fadeInRate = DEFAULT_SOUND_FADE_IN_RATE
+	int fadeOutRate = DEFAULT_SOUND_FADE_OUT_RATE
+	string eaxSetting = DEFAULT_SOUND_EAX_SETTINGS
+	int baseDuration = DEFAULT_SOUND_DURATION
+	int baseChannel = DEFAULT_SOUND_CHANNEL
+	int baseVolume = DEFAULT_SOUND_VOLUME
+	real basePitch = DEFAULT_SOUND_PITCH
+	real minDistance = DEFAULT_SOUND_MIN_DISTANCE
+	real maxDistance = DEFAULT_SOUND_MAX_DISTANCE
+	real distanceCutoff = DEFAULT_SOUND_DISTANCE_CUTOFF
+
+	construct(string filePath)
+		this.filePath = filePath
+
+	construct(string filePath, boolean looping)
+		this.filePath = filePath
+		this.looping = looping
+
+	construct(string filePath, boolean looping, boolean is3D)
+		this.filePath = filePath
+		this.looping = looping
+		this.is3D = is3D
+
+	construct(SoundProfile other)
+		this.filePath = other.filePath
+		this.looping = other.looping
+		this.is3D = other.is3D
+		this.stopWhenOutOfRange = other.stopWhenOutOfRange
+		this.fadeInRate = other.fadeInRate
+		this.fadeOutRate = other.fadeOutRate
+		this.eaxSetting = other.eaxSetting
+		this.baseDuration = other.baseDuration
+		this.baseChannel = other.baseChannel
+		this.baseVolume = other.baseVolume
+		this.basePitch = other.basePitch
+		this.minDistance = other.minDistance
+		this.maxDistance = other.maxDistance
+		this.distanceCutoff = other.distanceCutoff
+
+	function setLooping(boolean looping) returns SoundProfile
+		this.looping = looping
+		return this
+
+	function set3D(boolean is3D) returns SoundProfile
+		this.is3D = is3D
+		return this
+
+	function setStopWhenOutOfRange(boolean value) returns SoundProfile
+		this.stopWhenOutOfRange = value
+		return this
+
+	function setFadeRates(int fadeInRate, int fadeOutRate) returns SoundProfile
+		this.fadeInRate = fadeInRate
+		this.fadeOutRate = fadeOutRate
+		return this
+
+	function setEaxSetting(string eaxSetting) returns SoundProfile
+		this.eaxSetting = eaxSetting
+		return this
+
+	function setDuration(int duration) returns SoundProfile
+		this.baseDuration = duration
+		return this
+
+	function setChannel(int channel) returns SoundProfile
+		this.baseChannel = channel
+		return this
+
+	function setVolume(int volume) returns SoundProfile
+		this.baseVolume = volume
+		return this
+
+	function setPitch(real pitch) returns SoundProfile
+		this.basePitch = pitch
+		return this
+
+	function setDistances(real minDist, real maxDist, real cutoff) returns SoundProfile
+		this.minDistance = minDist
+		this.maxDistance = maxDist
+		this.distanceCutoff = cutoff
+		return this
+
+	function getFilePath() returns string
+		return this.filePath
+
+	function getDuration() returns int
+		return this.baseDuration
+
+	function getChannel() returns int
+		return this.baseChannel
+
+	function getVolume() returns int
+		return this.baseVolume
+
+	function getPitch() returns real
+		return this.basePitch
+
+	function getMinDistance() returns real
+		return this.minDistance
+
+	function getMaxDistance() returns real
+		return this.maxDistance
+
+	function getDistanceCutoff() returns real
+		return this.distanceCutoff
+
+	function getFadeInRate() returns int
+		return this.fadeInRate
+
+	function getFadeOutRate() returns int
+		return this.fadeOutRate
+
+	function getEaxSetting() returns string
+		return this.eaxSetting
+
+	function stopsWhenOutOfRange() returns boolean
+		return this.stopWhenOutOfRange
+
+	function uses3D() returns boolean
+		return this.is3D
+
+	function isLooping() returns boolean
+		return this.looping
+
+public class ManagedSound
+	SoundProfile profile
+	string label
+	sound hndl
+	player targetPlayer = null
+	unit attachedUnit = null
+	vec3 position = ZERO3
+	boolean hasPosition = false
+	boolean is3D = false
+	boolean playing = false
+	instant lastStartInstant = instantNow()
+	real playedSecondsBase = 0.
+	int startOffsetMs = 0
+	int channel
+	int configuredDuration
+	int volume
+	real pitch
+	real minDistance
+	real maxDistance
+	real distanceCutoff
+
+	construct(string label, SoundProfile profile)
+		this.profile = new SoundProfile(profile)
+		this.label = label
+		this.is3D = profile.uses3D()
+		this.channel = profile.getChannel()
+		this.configuredDuration = profile.getDuration()
+		this.volume = profile.getVolume()
+		this.pitch = profile.getPitch()
+		this.minDistance = profile.getMinDistance()
+		this.maxDistance = profile.getMaxDistance()
+		this.distanceCutoff = profile.getDistanceCutoff()
+		this.hndl = CreateSound(profile.getFilePath(), profile.isLooping(), profile.uses3D(), profile.stopsWhenOutOfRange(), profile.getFadeInRate(), profile.getFadeOutRate(), profile.getEaxSetting())
+		if this.hndl != null
+			this.hndl.setChannel(this.channel)
+			this.hndl.setVolume(this.volume)
+			this.hndl.setPitch(this.pitch)
+			this.hndl.setDuration(this.configuredDuration)
+			if this.is3D
+				SetSoundDistances(this.hndl, this.minDistance, this.maxDistance)
+				SetSoundDistanceCutoff(this.hndl, this.distanceCutoff)
+		registerSound(this)
+
+	private function refreshPlaybackState()
+		if this.playing and this.hndl != null and not this.hndl.isPlaying()
+			this.playedSecondsBase += (instantNow() - this.lastStartInstant).seconds
+			this.playing = false
+
+	function getProfile() returns SoundProfile
+		return this.profile
+
+	function getSound() returns sound
+		return this.hndl
+
+	function getLabel() returns string
+		return this.label
+
+	function setLabel(string newLabel) returns ManagedSound
+		if this.label == newLabel
+			return this
+		removeSoundFromLabelIndex(this, this.label)
+		this.label = newLabel
+		addSoundToLabelIndex(this, newLabel)
+		return this
+
+	function getPlayer() returns player
+		return this.targetPlayer
+
+	function setPlayer(player whichPlayer) returns ManagedSound
+		this.targetPlayer = whichPlayer
+		return this
+
+	function getAttachedUnit() returns unit
+		return this.attachedUnit
+
+	function attachToUnit(unit target) returns ManagedSound
+		this.attachedUnit = target
+		if this.hndl != null and target != null
+			AttachSoundToUnit(this.hndl, target)
+		return this
+
+	function clearAttachment() returns ManagedSound
+		this.attachedUnit = null
+		return this
+
+	function getPosition() returns vec3
+		return this.position
+
+	function setPosition(vec3 pos) returns ManagedSound
+		this.position = pos
+		this.hasPosition = true
+		if this.hndl != null and this.is3D
+			SetSoundPosition(this.hndl, pos.x, pos.y, pos.z)
+		return this
+
+	function setPosition(vec2 pos) returns ManagedSound
+		return this.setPosition(vec3(pos.x, pos.y, this.position.z))
+
+	function setHeight(real height) returns ManagedSound
+		return this.setPosition(vec3(this.position.x, this.position.y, height))
+
+	function setStartOffsetMs(int offset) returns ManagedSound
+		this.startOffsetMs = offset
+		return this
+
+	function setChannel(int channel) returns ManagedSound
+		this.channel = channel
+		if this.hndl != null
+			this.hndl.setChannel(channel)
+		return this
+
+	function getChannel() returns int
+		return this.channel
+
+	function setVolume(int volume) returns ManagedSound
+		this.volume = volume
+		if this.hndl != null
+			this.hndl.setVolume(volume)
+		return this
+
+	function getVolume() returns int
+		return this.volume
+
+	function setPitch(real pitch) returns ManagedSound
+		this.pitch = pitch
+		if this.hndl != null
+			this.hndl.setPitch(pitch)
+		return this
+
+	function getPitch() returns real
+		return this.pitch
+
+	function setDuration(int duration) returns ManagedSound
+		this.configuredDuration = duration
+		if this.hndl != null
+			this.hndl.setDuration(duration)
+		return this
+
+	function getConfiguredDuration() returns int
+		return this.configuredDuration
+
+	function setDistances(real minDist, real maxDist, real cutoff) returns ManagedSound
+		this.minDistance = minDist
+		this.maxDistance = maxDist
+		this.distanceCutoff = cutoff
+		if this.hndl != null and this.is3D
+			SetSoundDistances(this.hndl, minDist, maxDist)
+			SetSoundDistanceCutoff(this.hndl, cutoff)
+		return this
+
+	function setConeAngles(real inside, real outside, int outsideVolume) returns ManagedSound
+		if this.hndl != null
+			SetSoundConeAngles(this.hndl, inside, outside, outsideVolume)
+		return this
+
+	function setConeOrientation(vec3 direction) returns ManagedSound
+		if this.hndl != null
+			SetSoundConeOrientation(this.hndl, direction.x, direction.y, direction.z)
+		return this
+
+	function setVelocity(vec3 velocity) returns ManagedSound
+		if this.hndl != null
+			SetSoundVelocity(this.hndl, velocity.x, velocity.y, velocity.z)
+		return this
+
+	function play() returns ManagedSound
+		if this.hndl == null
+			return this
+		if this.playing
+			return this
+		this.playing = true
+		this.lastStartInstant = instantNow()
+		if this.attachedUnit != null
+			AttachSoundToUnit(this.hndl, this.attachedUnit)
+		else if this.is3D and this.hasPosition
+			SetSoundPosition(this.hndl, this.position.x, this.position.y, this.position.z)
+		if this.targetPlayer != null
+			if GetLocalPlayer() == this.targetPlayer
+				StartSound(this.hndl)
+				if this.startOffsetMs != 0
+					SetSoundPlayPosition(this.hndl, this.startOffsetMs)
+		else
+			StartSound(this.hndl)
+			if this.startOffsetMs != 0
+				SetSoundPlayPosition(this.hndl, this.startOffsetMs)
+		this.startOffsetMs = 0
+		return this
+
+	function playAt(vec3 pos) returns ManagedSound
+		this.setPosition(pos)
+		return this.play()
+
+	function playForPlayer(player whichPlayer) returns ManagedSound
+		this.setPlayer(whichPlayer)
+		return this.play()
+
+	function stop(boolean killWhenDone, boolean fadeOut) returns ManagedSound
+		this.refreshPlaybackState()
+		if this.hndl == null
+			return this
+		if this.playing
+			this.playedSecondsBase += (instantNow() - this.lastStartInstant).seconds
+			this.playing = false
+		this.hndl.stop(killWhenDone, fadeOut)
+		return this
+
+	function stop() returns ManagedSound
+		return this.stop(false, false)
+
+	function fadeOut() returns ManagedSound
+		return this.stop(false, true)
+
+	function kill() returns ManagedSound
+		return this.stop(true, false)
+
+	function resetPlayedTime() returns ManagedSound
+		this.playedSecondsBase = 0.
+		if this.playing
+			this.lastStartInstant = instantNow()
+		return this
+
+	function getPlayedSeconds() returns real
+		this.refreshPlaybackState()
+		var total = this.playedSecondsBase
+		if this.playing
+			total += (instantNow() - this.lastStartInstant).seconds
+		return total
+
+	function getPlayedDuration() returns duration
+		return this.getPlayedSeconds().seconds()
+
+	function isPlaying() returns boolean
+		this.refreshPlaybackState()
+		return this.playing
+
+	function is3DSound() returns boolean
+		return this.is3D
+
+	function getMinDistance() returns real
+		return this.minDistance
+
+	function getMaxDistance() returns real
+		return this.maxDistance
+
+	function getDistanceCutoff() returns real
+		return this.distanceCutoff
+
+	function setDistancesFromProfile(SoundProfile source) returns ManagedSound
+		if source == null
+			return this
+		return this.setDistances(source.getMinDistance(), source.getMaxDistance(), source.getDistanceCutoff())
+
+	ondestroy
+		this.refreshPlaybackState()
+		unregisterSound(this)
+		if this.hndl != null
+			this.hndl.stop(true, false)
+			this.hndl = null
+		this.attachedUnit = null
+		this.targetPlayer = null
+
+let trackedSounds = new LinkedList<ManagedSound>()
+let soundsByLabel = new HashMap<string, LinkedList<ManagedSound>>()
+
+function addSoundToLabelIndex(ManagedSound snd, string label)
+	if snd == null
+		return
+	if label == null or label.length() == 0
+		return
+	var list = soundsByLabel.get(label)
+	if list == null
+		list = new LinkedList<ManagedSound>()
+		soundsByLabel.put(label, list)
+	list.add(snd)
+
+function removeSoundFromLabelIndex(ManagedSound snd, string label)
+	if snd == null
+		return
+	if label == null or label.length() == 0
+		return
+	let list = soundsByLabel.get(label)
+	if list == null
+		return
+	list.remove(snd)
+	if list.isEmpty()
+		soundsByLabel.remove(label)
+
+function registerSound(ManagedSound snd)
+	if snd == null
+		return
+	trackedSounds.add(snd)
+	addSoundToLabelIndex(snd, snd.getLabel())
+
+function unregisterSound(ManagedSound snd)
+	if snd == null
+		return
+	trackedSounds.remove(snd)
+	removeSoundFromLabelIndex(snd, snd.getLabel())
+
+public function getAllSounds() returns LinkedList<ManagedSound>
+	let result = new LinkedList<ManagedSound>()
+	for snd in trackedSounds
+		result.add(snd)
+	return result
+
+public function getSoundsWithLabel(string label) returns LinkedList<ManagedSound>
+	let result = new LinkedList<ManagedSound>()
+	if label == null or label.length() == 0
+		return result
+	let list = soundsByLabel.get(label)
+	if list == null
+		return result
+	for snd in list
+		result.add(snd)
+	return result
+
+public function stopAllSounds(boolean killWhenDone, boolean fadeOut)
+	for snd in trackedSounds
+		snd.stop(killWhenDone, fadeOut)
+
+public function stopAllSounds()
+	stopAllSounds(false, false)
+
+public function killAllSounds()
+	stopAllSounds(true, false)
+
+public function stopSoundsWithLabel(string label, boolean killWhenDone, boolean fadeOut)
+	if label == null or label.length() == 0
+		return
+	let list = soundsByLabel.get(label)
+	if list == null
+		return
+	for snd in list
+		snd.stop(killWhenDone, fadeOut)
+
+public function stopSoundsWithLabel(string label)
+	stopSoundsWithLabel(label, false, false)
+
+public function killSoundsWithLabel(string label)
+	stopSoundsWithLabel(label, true, false)
+
+public function destroySoundsWithLabel(string label)
+	if label == null or label.length() == 0
+		return
+	let list = soundsByLabel.get(label)
+	if list == null
+		return
+	let snapshot = new LinkedList<ManagedSound>()
+	for snd in list
+		snapshot.add(snd)
+	for snd in snapshot
+		destroy snd
+
+public function SoundProfile.createInstance(string label) returns ManagedSound
+	return new ManagedSound(label, this)
+
+public function SoundProfile.createInstanceForPlayer(string label, player whichPlayer) returns ManagedSound
+	let snd = new ManagedSound(label, this)
+	snd.setPlayer(whichPlayer)
+	return snd
+
+public function createSound(string label, string filePath) returns ManagedSound
+	return new ManagedSound(label, new SoundProfile(filePath))
+
+public function playSound(SoundProfile profile, vec3 pos, real range) returns LinkedList<ManagedSound>
+	return playSound(profile, pos, range, profile != null ? profile.getFilePath() : "")
+
+public function playSound(SoundProfile profile, vec3 pos, real range, string label) returns LinkedList<ManagedSound>
+	let result = new LinkedList<ManagedSound>()
+	if profile == null
+		return result
 	let center = pos.toVec2()
 	for i = 0 to bj_MAX_PLAYERS - 1
 		let hero = Unit.getHero(i)
 		if hero != null and hero.isAlive()
 			if hero.getPos().distanceTo(center) <= range
-				let inst = snd.playForPlayer(players[i])
-				inst.pos = pos
+				let snd = profile.createInstance(label)
+				snd.setPlayer(players[i])
+				snd.setPosition(pos)
+				snd.play()
+				result.add(snd)
+	return result
