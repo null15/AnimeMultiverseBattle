@@ -72,7 +72,7 @@ init
 			StartSound(snd)
 		else if EventData.getChatMessage() == "k"
 			let managedSound = getSoundsWithLabel("NagatoShinraTensei").getFirst()
-			managedSound.setStartOffsetMs(5)
+			managedSound.getSound().getDuration()
 			// managedSound.getSound().playPosition(millisecs)
 			// let snd = managedSound.get
 

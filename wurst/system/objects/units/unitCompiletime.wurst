@@ -111,7 +111,7 @@ function makeDummy(int id, string modelPath)
 		commaList(AbilityIds.crowForm))
 
 	new UnitDefinition(NAGATO_ANIMAL_PATH_SUMMON, UnitIds.wisp)
-	..setName("Chakra Rod")
+	..setName("Animal Path")
 	..setUpgradesUsed("")
 	..setStructuresBuilt("")
 	..setManaRegeneration(0)
