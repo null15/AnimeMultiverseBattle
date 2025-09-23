@@ -1,9 +1,11 @@
 package SoundSystem
 
+import ClosureTimers
 import HashMap
-import LinkedList
 import Time
+import EntityManagement
 import EntitySystem
+import TimeStop
 
 @configurable constant DEFAULT_SOUND_STOPS_ON_LEAVE_RANGE = true
 @configurable constant DEFAULT_SOUND_FADE_IN_RATE = 10
@@ -18,6 +20,7 @@ import EntitySystem
 @configurable constant DEFAULT_SOUND_DISTANCE_CUTOFF = 1500.
 
 constant real SOUND_PLAYBACK_TIMER_DURATION = 3600.
+constant real CHANNEL_SOUND_UPDATE_PERIOD = 0.03125
 
 function managedSoundTimerNoOp()
 	// Intentionally empty – used to keep playback timers alive.
@@ -444,6 +447,27 @@ public class ManagedSound
 	function stop() returns ManagedSound
 		return this.stop(false, false)
 
+	function pause() returns ManagedSound
+		if this.hndl == null
+			return this
+		this.refreshPlaybackState()
+		if not this.playing
+			return this
+		let offset = this.getPlayedMilliseconds()
+		this.stop(false, false)
+		this.startOffsetMs = offset
+		return this
+
+	function resume() returns ManagedSound
+		if this.hndl == null
+			return this
+		if this.playing
+			return this
+		let offset = this.getPlayedMilliseconds()
+		if offset <= 0
+			return this.play()
+		return this.playFromMilliseconds(offset)
+
 	function fadeOut() returns ManagedSound
 		return this.stop(false, true)
 
@@ -595,6 +619,83 @@ public class SoundPlayback
 	function killAll() returns SoundPlayback
 		return this.stopAll(true, false)
 
+	function pauseAll() returns SoundPlayback
+		for snd in this.instances
+			if snd != null
+				snd.pause()
+		return this
+
+	function resumeAll() returns SoundPlayback
+		for snd in this.instances
+			if snd != null
+				snd.resume()
+		return this
+
+public class ChannelSoundPlayback
+	unit caster
+	int abilityId
+	SoundPlayback playback
+	CallbackPeriodic time
+	boolean paused = false
+	boolean destroying = false
+
+	construct(unit caster, int abilityId, SoundPlayback playback)
+		this.caster = caster
+		this.abilityId = abilityId
+		this.playback = playback
+		if caster != null and caster.isTimeStopped() and playback != null and not playback.isEmpty()
+			playback.pauseAll()
+			this.paused = true
+		this.time = doPeriodically(CHANNEL_SOUND_UPDATE_PERIOD) (CallbackPeriodic c) ->
+			this.update()
+
+	function getPlayback() returns SoundPlayback
+		return this.playback
+
+	function stop()
+		this.terminate(true)
+
+	function update()
+		if this.destroying
+			return
+		let casterUnit = this.caster
+		if casterUnit == null or not casterUnit.isAlive()
+			this.terminate(true)
+			return
+		if this.abilityId != 0 and not casterUnit.isChannelingAbility(this.abilityId)
+			this.terminate(true)
+			return
+		if this.playback == null or this.playback.isEmpty()
+			return
+		let shouldPause = casterUnit.isTimeStopped()
+		if shouldPause
+			if not this.paused
+				this.paused = true
+				this.playback.pauseAll()
+		else if this.paused
+			this.paused = false
+			this.playback.resumeAll()
+
+	function terminate(boolean stopPlayback)
+		if this.destroying
+			return
+		this.destroying = true
+		if this.time != null
+			destroy this.time
+			this.time = null
+		if stopPlayback and this.playback != null
+			this.playback.stopAll()
+		this.playback = null
+		this.caster = null
+		destroy this
+
+	ondestroy
+		if this.time != null
+			destroy this.time
+			this.time = null
+		this.playback = null
+		this.caster = null
+
 let trackedSounds = new LinkedList<ManagedSound>()
 let soundsByLabel = new HashMap<string, LinkedList<ManagedSound>>()
 
@@ -697,6 +798,27 @@ public function destroySoundsWithLabel(string label)
 		snapshot.add(snd)
 	for snd in snapshot
 		destroy snd
+
+public function SoundProfile.playChannel(unit caster, int abilityId, vec3 pos, real range) returns ChannelSoundPlayback
+	return this.playChannel(caster, abilityId, pos, range, this.getLabel())
+
+public function SoundProfile.playChannel(unit caster, int abilityId, vec3 pos, real range, string label) returns ChannelSoundPlayback
+	let playback = playSound(this, pos, range, label)
+	if caster != null
+		for snd in playback.getInstances()
+			if snd != null
+				snd.attachToUnit(caster)
+	return new ChannelSoundPlayback(caster, abilityId, playback)
+
+public function SoundProfile.playChannelForUnit(unit caster, int abilityId, real range) returns ChannelSoundPlayback
+	return this.playChannelForUnit(caster, abilityId, range, this.getLabel())
+
+public function SoundProfile.playChannelForUnit(unit caster, int abilityId, real range, string label) returns ChannelSoundPlayback
+	var origin = vec3(0, 0, 0)
+	if caster != null
+		let casterEntity = caster.getEntity()
+		origin = casterEntity != null ? casterEntity.getPos() : caster.getPos3Real()
+	return this.playChannel(caster, abilityId, origin, range, label)
 
 public function SoundProfile.createInstance() returns ManagedSound
 	return new ManagedSound(this.getLabel(), this)

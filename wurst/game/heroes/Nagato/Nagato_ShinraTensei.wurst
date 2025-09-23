@@ -53,12 +53,14 @@ class ShinraTensei
 	EffectsEntity dustWave
 	EffectsEntity shinraTenseiBlast
 	boolean effectsTimeStopped = false
+	ChannelSoundPlayback channelSound
 
 	construct(unit caster)
 		this.caster = caster
 		this.affected = new HashSet<unit>
 		this.createEffects()
-		let playback = snd_ShinraTensei.playAt(this.getPos(), SHINRA_TENSEI_SOUND_RADIUS)
+		this.channelSound = snd_ShinraTensei.playChannelForUnit(this.caster, NAGATO_SHINRA_TENSEI, SHINRA_TENSEI_SOUND_RADIUS)
+		let playback = this.channelSound != null ? this.channelSound.getPlayback() : null
 		this.debugShinraTenseiSound(playback)
 		this.cb = doPeriodically(SHINRA_TENSEI_PERIOD) (CallbackPeriodic c) ->
 			this.tick()
@@ -226,6 +228,9 @@ class ShinraTensei
 				u.setMoveSpeed(baseSpeed)
 
 	function stop()
+		if this.channelSound != null
+			this.channelSound.stop()
+			this.channelSound = null
 		if this.cb != null
 			destroy this.cb
 			this.cb = null
