@@ -37,3 +37,35 @@ init
 			Unit.getHero(players[0].getId()).revive(vec2(0, 0), true)
 		else if EventData.getChatMessage() == "stop"
 			Unit.getHero(0).issueImmediateOrder("stop")
+		else if EventData.getChatMessage() == "snd1"
+			let snd = CreateSoundFromLabel("InterfaceError",false,false,false,10,10)
+			ClearTextMessages()
+			DisplayTimedTextToPlayer(players[0],0.52,0.96,2,"You tried to use a command when I forbid you from doing that")
+			StartSound(snd)
+		else if EventData.getChatMessage() == "snd2"
+			let snd = CreateSoundFromLabel("QuestCompleted",false,false,false,10,10)
+			StartSound(snd)
+		else if EventData.getChatMessage() == "snd3"
+			let snd = CreateSoundFromLabel("Rescue",false,false,false,10,10)
+			StartSound(snd)
+		else if EventData.getChatMessage() == "snd4"
+			let snd = CreateSoundFromLabel("QuestNew",false,false,false,10,10)
+			StartSound(snd)
+		else if EventData.getChatMessage() == "snd5"
+			let snd = CreateSoundFromLabel("QuestUpdate",false,false,false,10,10)
+			StartSound(snd)
+		else if EventData.getChatMessage() == "snd6"
+			let snd = CreateSoundFromLabel("QuestFailed",false,false,false,10,10)
+			StartSound(snd)
+		else if EventData.getChatMessage() == "snd7"
+			let snd = CreateSoundFromLabel("Hint",false,false,false,10,10)
+			StartSound(snd)
+		else if EventData.getChatMessage() == "snd8"
+			let snd = CreateSoundFromLabel("SecretFound",false,false,false,10,10)
+			StartSound(snd)
+		else if EventData.getChatMessage() == "snd9"
+			let snd = CreateSoundFromLabel("ItemReward",false,false,false,10,10)
+			StartSound(snd)
+		else if EventData.getChatMessage() == "snd10"
+			let snd = CreateSoundFromLabel("Warning",false,false,false,10,10)
+			StartSound(snd)

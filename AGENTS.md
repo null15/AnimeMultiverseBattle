@@ -78,6 +78,7 @@
 - `@compiletime` functions take no parameters and run during compilation.
 - The `@config` annotation belongs only in packages ending with `_config`; use `@configurable` constants elsewhere for tunables.
 - Function parameters are immutable.
+- Not allowed to set Function parameters values in the parameters itself.
 - There is no `continue` keyword in Wurst.
 - `return` statements belong at the end of functions (not inside constructors).
 
