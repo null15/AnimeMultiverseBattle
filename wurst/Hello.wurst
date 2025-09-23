@@ -9,8 +9,15 @@ import SoundSystem
 
 // Just a Test File
 
+// When channel sound plays, if player end channel early it should stop the sound abruptly too
+
 init
 	nullTimer() ->
+		for i = 0 to bj_MAX_PLAYERS - 1
+			if GetLocalPlayer() == players[i]
+				for iter = 0 to 2
+					PauseGame(true)
+					PauseGame(false)
 		let start = vec2(1000., 1000.)
 		let first = Unit.create(players[PLAYER_NEUTRAL_AGGRESSIVE], UnitIds.footman, start)
 		let id = first.getId()
@@ -77,6 +84,3 @@ init
 				let elapsedMs = managedSound.getPlayedMilliseconds()
 				let durationMs = managedSound.getNativeDurationMs()
 				DisplayTimedTextToPlayer(players[0],0.52,0.96,2,"Elapsed: " + elapsedMs.toString() + " / " + durationMs.toString() + " ms")
-
-			// stopAllSounds()
-			// stopAllSounds(true, true)

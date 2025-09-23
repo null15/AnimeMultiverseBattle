@@ -58,9 +58,24 @@ class ShinraTensei
 		this.caster = caster
 		this.affected = new HashSet<unit>
 		this.createEffects()
-		snd_ShinraTensei.playAt(this.getPos(), SHINRA_TENSEI_SOUND_RADIUS)
+		let playback = snd_ShinraTensei.playAt(this.getPos(), SHINRA_TENSEI_SOUND_RADIUS)
+		this.debugShinraTenseiSound(playback)
 		this.cb = doPeriodically(SHINRA_TENSEI_PERIOD) (CallbackPeriodic c) ->
 			this.tick()
+
+	function debugShinraTenseiSound(SoundPlayback playback)
+		if playback == null
+			return
+		let snd = playback.getPlayback()
+		if snd == null
+			return
+		doPeriodically(0.03125) (CallbackPeriodic cb) ->
+			print("Shinra Tensei sound ms: " + snd.getPlayedMilliseconds().toString())
+			if not snd.isPlaying() or snd.getSound() == null
+				destroy cb
+		doAfter(5) -> 
+			print(snd.getPlayedMilliseconds().toString())
+			print(snd.playbackElapsedMsBase)
 
 	function createEffects()
 		let casterPos = this.getPos()

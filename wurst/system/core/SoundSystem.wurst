@@ -17,6 +17,12 @@ import EntitySystem
 @configurable constant DEFAULT_SOUND_MAX_DISTANCE = 8000.
 @configurable constant DEFAULT_SOUND_DISTANCE_CUTOFF = 1500.
 
+constant real SOUND_PLAYBACK_TIMER_DURATION = 3600.
+
+function managedSoundTimerNoOp()
+	// Intentionally empty – used to keep playback timers alive.
+	return
+
 public class SoundProfile
 	string filePath
 	string defaultLabel = ""
@@ -184,8 +190,9 @@ public class ManagedSound
 	boolean hasPosition = false
 	boolean is3D = false
 	boolean playing = false
-	instant lastStartInstant = instantNow()
-	real playedSecondsBase = 0.
+	timer playbackTimer = null
+	boolean playbackTimerRunning = false
+	real playbackElapsedMsBase = 0.
 	int startOffsetMs = 0
 	int channel
 	int configuredDuration
@@ -221,9 +228,36 @@ public class ManagedSound
 				SetSoundDistanceCutoff(this.hndl, this.distanceCutoff)
 		registerSound(this)
 
+	private function ensurePlaybackTimer() returns timer
+		if this.playbackTimer == null
+			this.playbackTimer = CreateTimer()
+		return this.playbackTimer
+
+	private function restartPlaybackTimer()
+		let time = this.ensurePlaybackTimer()
+		time.pause()
+		time.start(SOUND_PLAYBACK_TIMER_DURATION, function managedSoundTimerNoOp)
+		this.playbackTimerRunning = true
+
+	private function stopPlaybackTimer()
+		if this.playbackTimer != null and this.playbackTimerRunning
+			this.playbackElapsedMsBase += this.playbackTimer.getElapsed() * 1000.
+			this.playbackTimer.pause()
+			this.playbackTimerRunning = false
+
+	private function resetPlaybackTracking(real offsetMs)
+		this.playbackElapsedMsBase = offsetMs
+		this.restartPlaybackTimer()
+
+	private function getAccumulatedPlaybackMs() returns real
+		var total = this.playbackElapsedMsBase
+		if this.playbackTimer != null and this.playbackTimerRunning
+			total += this.playbackTimer.getElapsed() * 1000.
+		return total
+
 	private function refreshPlaybackState()
 		if this.playing and this.hndl != null and not this.hndl.isPlaying()
-			this.playedSecondsBase += (instantNow() - this.lastStartInstant).seconds
+			this.stopPlaybackTimer()
 			this.playing = false
 
 	function getProfile() returns SoundProfile
@@ -361,9 +395,8 @@ public class ManagedSound
 			return this
 		if this.startOffsetMs < 0
 			this.startOffsetMs = 0
-		this.playedSecondsBase = 0.
+		this.resetPlaybackTracking(this.startOffsetMs.toReal())
 		this.playing = true
-		this.lastStartInstant = instantNow()
 		if this.attachedUnit != null
 			AttachSoundToUnit(this.hndl, this.attachedUnit)
 		else if this.is3D and this.hasPosition
@@ -403,8 +436,8 @@ public class ManagedSound
 		if this.hndl == null
 			return this
 		if this.playing
-			this.playedSecondsBase += (instantNow() - this.lastStartInstant).seconds
 			this.playing = false
+		this.stopPlaybackTimer()
 		this.hndl.stop(killWhenDone, fadeOut)
 		return this
 
@@ -418,20 +451,21 @@ public class ManagedSound
 		return this.stop(true, false)
 
 	function resetPlayedTime() returns ManagedSound
-		this.playedSecondsBase = 0.
+		this.playbackElapsedMsBase = 0.
 		if this.playing
-			this.lastStartInstant = instantNow()
+			this.restartPlaybackTimer()
+		else if this.playbackTimer != null
+			this.playbackTimer.pause()
+			this.playbackTimerRunning = false
+		this.startOffsetMs = 0
 		return this
 
 	function getPlayedSeconds() returns real
 		this.refreshPlaybackState()
-		var total = this.playedSecondsBase
-		if this.playing
-			total += (instantNow() - this.lastStartInstant).seconds
-		return total
+		return this.getAccumulatedPlaybackMs() / 1000.
 
 	function getPlayedMilliseconds() returns int
-		return R2I(this.getPlayedSeconds() * 1000.)
+		return R2I(this.getAccumulatedPlaybackMs())
 
 	function getPlayedDuration() returns duration
 		return this.getPlayedSeconds().seconds()
@@ -459,6 +493,13 @@ public class ManagedSound
 
 	ondestroy
 		this.refreshPlaybackState()
+		this.stopPlaybackTimer()
+		if this.playbackTimer != null
+			this.playbackTimer.pause()
+			this.playbackTimer.destr()
+			this.playbackTimer = null
+		this.playbackTimerRunning = false
+		this.playbackElapsedMsBase = 0.
 		unregisterSound(this)
 		if this.hndl != null
 			this.hndl.stop(true, false)
