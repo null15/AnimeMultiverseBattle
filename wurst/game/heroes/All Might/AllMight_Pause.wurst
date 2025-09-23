@@ -15,8 +15,6 @@ function onCast()
 		forUnitsInRange(center, radius) (unit u) ->
 			if u != caster
 				u.timeStopTimed(5)
-				if u.getTypeId() == NAGATO_ANIMAL_PATH_SUMMON
-					print("Animal Path timestopped")
 
 		for miss in Missiles.collection
 			if miss.getPos().toVec2().distanceTo(center) <= radius

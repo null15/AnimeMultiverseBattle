@@ -37,4 +37,3 @@ init
 			Unit.getHero(players[0].getId()).revive(vec2(0, 0), true)
 		else if EventData.getChatMessage() == "stop"
 			Unit.getHero(0).issueImmediateOrder("stop")
-	
