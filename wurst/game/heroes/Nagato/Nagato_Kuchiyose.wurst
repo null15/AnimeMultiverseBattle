@@ -35,9 +35,7 @@ constant string SOUND_LABEL_KUCHIYOSE_POOF = "NagatoKuchiyosePoof"
 constant SoundProfile snd_KuchiyosePoof = new SoundProfile("Nagato\\Kuchiyose\\Poof.mp3", SOUND_LABEL_KUCHIYOSE_POOF, false, true)
 constant string SOUND_LABEL_KUCHIYOSE_CHANT = "NagatoKuchiyoseChant"
 constant SoundProfile snd_KuchiyoseChant = new SoundProfile("Nagato\\Kuchiyose\\AnimalPathChant.mp3", SOUND_LABEL_KUCHIYOSE_CHANT, false, true)
-constant real KUCHIYOSE_CHANT_DELAY = 2.75
 constant real KUCHIYOSE_SOUND_RADIUS = 700.
-constant real KUCHIYOSE_SUMMONING_SOUND_LEAD = 0.25
 constant int ANIMATION_CHANNEL = 8
 constant int ANIMATION_END = 17
 constant HashMap<unit, SummonAnimalPath> active = new HashMap<unit, SummonAnimalPath>()
@@ -51,18 +49,20 @@ class SummonAnimalPath
 	EffectsEntity scribble1
 	EffectsEntity scribble2
 	unit animalPath
+	unit animalPathSoundSource
 	boolean finished
 	LinkedList<EffectsEntity> channelWindEffects
 	CallbackPeriodic channelWindTimer
 	boolean nextChannelWindIsFirst
-	CallbackSingle chantSoundTimer
 	CallbackPeriodic timeStopTimer
 	boolean effectsTimeStopped
-	boolean soundsTimeStopped
 	boolean channelCompleted
 	real casterTimeScaleBeforeOverride
 	boolean casterTimeScaleOverridden
-	LinkedList<SoundPlayback> trackedSoundPlaybacks
+	ChannelSoundPlayback handSignSound
+	ChannelSoundPlayback summoningSound
+	ChannelSoundPlayback chantSound
+	ChannelSoundPlayback poofSound
 
 	construct(unit caster, vec2 targetPos)
 		this.caster = caster
@@ -70,11 +70,9 @@ class SummonAnimalPath
 		this.finished = false
 		this.channelCompleted = false
 		this.channelWindEffects = new LinkedList<EffectsEntity>
-		this.trackedSoundPlaybacks = new LinkedList<SoundPlayback>
 		this.createVisuals()
 		this.startChannelWindEffects()
-		this.startHandSignSound()
-		this.startChantSound()
+		this.playHandSignSound()
 		this.startTimeStopUpdates()
 
 	function hasCompletedChannel() returns boolean
@@ -83,6 +81,7 @@ class SummonAnimalPath
 	function createVisuals()
 		let casterPos = this.getCasterEffectPos()
 		this.animalPath = Unit.create(this.caster.getOwner(), NAGATO_ANIMAL_PATH_SUMMON, this.targetPos)..setScale(0.7)
+		this.animalPathSoundSource = this.animalPath
 		let animalPathPos = this.getAnimalPathEffectPos()
 		this.scribble1 = addEffectEntity(KUCHIYOSE_SCRIBBLE_MODEL_PATH, casterPos)
 		if this.scribble1 != null
@@ -136,37 +135,6 @@ class SummonAnimalPath
 			this.effectsTimeStopped = false
 			this.stopEffectsTimeStop()
 
-	function trackSoundPlayback(SoundPlayback playback)
-		if playback == null or playback.isEmpty()
-			return
-		if this.trackedSoundPlaybacks != null
-			this.trackedSoundPlaybacks.add(playback)
-		if this.soundsTimeStopped or this.shouldPauseChannelDueToTimeStop()
-			playback.pauseAll()
-
-	function pauseTrackedSounds()
-		if this.trackedSoundPlaybacks == null
-			return
-		for playback in this.trackedSoundPlaybacks
-			if playback != null
-				playback.pauseAll()
-
-	function resumeTrackedSounds()
-		if this.trackedSoundPlaybacks == null
-			return
-		for playback in this.trackedSoundPlaybacks
-			if playback != null
-				playback.resumeAll()
-
-	function updateSoundTimeStop(boolean active)
-		if active
-			if not this.soundsTimeStopped
-				this.soundsTimeStopped = true
-				this.pauseTrackedSounds()
-		else if this.soundsTimeStopped
-			this.soundsTimeStopped = false
-			this.resumeTrackedSounds()
-
 	function shouldOverrideCasterTimeScale() returns boolean
 		let casterUnit = this.caster
 		if casterUnit == null
@@ -215,7 +183,6 @@ class SummonAnimalPath
 		let isStopped = this.isTimeStopActive()
 		this.updateEffectsTimeStop(isStopped)
 		this.updateCasterTimeScaleOverride()
-		this.updateSoundTimeStop(this.shouldPauseChannelDueToTimeStop())
 
 	function updateChannelProgress()
 		if this.finished
@@ -321,36 +288,38 @@ class SummonAnimalPath
 			this.channelWindTimer = null
 		this.releaseAllChannelWindEffects()
 
-	function startHandSignSound()
-		let summon = this.animalPath
+	function playSoundForAnimalPath(SoundProfile profile) returns ChannelSoundPlayback
+		if profile == null
+			return null
+		let summon = this.animalPath != null ? this.animalPath : this.animalPathSoundSource
 		if summon == null
-			return
-		let summonEntity = summon.getEntity()
-		let pos = summonEntity != null ? summonEntity.getPos() : summon.getPos3Real()
-		let playback = snd_KuchiyoseHandSign.playAt(pos, KUCHIYOSE_SOUND_RADIUS)
-		this.trackSoundPlayback(playback)
+			return null
+		return profile.playChannelForUnit(summon, 0, KUCHIYOSE_SOUND_RADIUS)
 
-	function startChantSound()
-		if KUCHIYOSE_CHANT_DELAY <= 0.
-			this.playChantSound()
-			return
-		let inst = this
-		this.chantSoundTimer = doAfter(KUCHIYOSE_CHANT_DELAY) ->
-			inst.chantSoundTimer = null
-			inst.playChantSound()
+	function stopChannelSound(ChannelSoundPlayback channel) returns ChannelSoundPlayback
+		if channel != null
+			channel.stop()
+		return null
 
-	function playChantSound()
-		if this.finished
-			return
-		if this.caster == null or not this.caster.isAlive()
-			return
-		let playback = snd_KuchiyoseChant.playAt(this.getCasterEffectPos(), KUCHIYOSE_SOUND_RADIUS)
-		this.trackSoundPlayback(playback)
+	function playHandSignSound()
+		this.handSignSound = this.playSoundForAnimalPath(snd_KuchiyoseHandSign)
+
+	function stopHandSignSound()
+		this.handSignSound = this.stopChannelSound(this.handSignSound)
+
+	function playCastEndSounds()
+		this.stopHandSignSound()
+		this.summoningSound = this.playSoundForAnimalPath(snd_KuchiyoseSummoning)
+		this.chantSound = this.playSoundForAnimalPath(snd_KuchiyoseChant)
+
+	function stopSummoningSound()
+		this.summoningSound = this.stopChannelSound(this.summoningSound)
 
 	function stopChantSound()
-		if this.chantSoundTimer != null
-			destroy this.chantSoundTimer
-			this.chantSoundTimer = null
+		this.chantSound = this.stopChannelSound(this.chantSound)
+
+	function stopPoofSound()
+		this.poofSound = this.stopChannelSound(this.poofSound)
 
 	function releaseAllChannelWindEffects()
 		if this.channelWindEffects == null
@@ -365,16 +334,15 @@ class SummonAnimalPath
 			return
 		this.finished = true
 		this.stopCasterTimeScaleOverride()
-		this.updateSoundTimeStop(false)
 		this.stopTimeStopUpdates()
 		if this.effectsTimeStopped
 			this.stopEffectsTimeStop()
 		this.stopChannelWindEffects()
-		this.stopChantSound()
-		if this.trackedSoundPlaybacks != null
-			destroy this.trackedSoundPlaybacks
-			this.trackedSoundPlaybacks = null
-		this.soundsTimeStopped = false
+		if not success
+			this.stopHandSignSound()
+			this.stopSummoningSound()
+			this.stopChantSound()
+			this.stopPoofSound()
 		if this.caster != null
 			if active.has(this.caster)
 				active.remove(this.caster)
@@ -383,6 +351,7 @@ class SummonAnimalPath
 			else
 				this.caster.clearChanneling(NAGATO_SUMMON_ANIMAL_PATH)
 		if success
+			this.playCastEndSounds()
 			this.startSuccessfulFinish()
 		else
 			this.cancelFinish()
@@ -390,24 +359,9 @@ class SummonAnimalPath
 	function startSuccessfulFinish()
 		this.playCasterFinishAnimation()
 		this.playAnimalPathFinishAnimation()
-		this.schedulePreTeleportSound()
 		let inst = this
 		doAfter(ANIMAL_PATH_TELEPORT_DELAY) ->
 			inst.completeSuccessfulFinish()
-
-	function schedulePreTeleportSound()
-		let inst = this
-		let delay = ANIMAL_PATH_TELEPORT_DELAY - KUCHIYOSE_SUMMONING_SOUND_LEAD
-		if delay <= 0.
-			inst.playSummoningSound()
-		else
-			doAfter(delay) ->
-				inst.playSummoningSound()
-
-	function playSummoningSound()
-		if this.caster == null
-			return
-		snd_KuchiyoseSummoning.playAt(this.targetPos.toVec3(), KUCHIYOSE_SOUND_RADIUS)
 
 	function completeSuccessfulFinish()
 		this.teleportAllies()
@@ -452,7 +406,7 @@ class SummonAnimalPath
 		this.playPoofSound()
 
 	function playPoofSound()
-		snd_KuchiyosePoof.playAt(this.targetPos.toVec3(), KUCHIYOSE_SOUND_RADIUS)
+		this.poofSound = this.playSoundForAnimalPath(snd_KuchiyosePoof)
 
 	function shouldTeleport(unit u) returns bool
 		if u == null or not u.isAlive()
@@ -467,21 +421,25 @@ class SummonAnimalPath
 
 	function playAnimalPathFinishAnimation()
 		let summon = this.animalPath
-		this.animalPath = null
 		if summon == null
 			return
 		summon..setAnimation(ANIMATION_END)..setEntityTimeScale(CASTER_FINISH_ANIMATION_TIME_SCALE)
-		// doAfter(ANIMAL_PATH_FINISH_ANIMATION_DELAY) ->
-			// summon.setAnimation(ANIMATION_END)
+		let inst = this
 		doAfter(ANIMAL_PATH_LINGER_DURATION) ->
 			if summon != null
 				summon.remove()
+			if inst.animalPath == summon
+				inst.animalPath = null
+			if inst.animalPathSoundSource == summon
+				inst.animalPathSoundSource = null
 
 	function removeAnimalPathImmediate()
 		let summon = this.animalPath
 		this.animalPath = null
 		if summon != null
 			summon.remove()
+		if this.animalPathSoundSource == summon
+			this.animalPathSoundSource = null
 
 	function cleanupScribble()
 		this.scribble1 = releaseEffect(this.scribble1)
@@ -491,19 +449,17 @@ class SummonAnimalPath
 		if this.effectsTimeStopped
 			this.stopEffectsTimeStop()
 		this.stopChannelWindEffects()
+		this.stopHandSignSound()
+		this.stopSummoningSound()
 		this.stopChantSound()
+		this.stopPoofSound()
 		this.stopTimeStopUpdates()
 		this.stopCasterTimeScaleOverride()
-		this.updateSoundTimeStop(false)
-		if this.trackedSoundPlaybacks != null
-			destroy this.trackedSoundPlaybacks
-			this.trackedSoundPlaybacks = null
-		this.soundsTimeStopped = false
 		this.effectsTimeStopped = false
 		this.animalPath = null
+		this.animalPathSoundSource = null
 		this.scribble1 = null
 		this.scribble2 = null
-		this.chantSoundTimer = null
 
 function onChannel()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
