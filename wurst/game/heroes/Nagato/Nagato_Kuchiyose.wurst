@@ -329,11 +329,6 @@ class SummonAnimalPath
 		let pos = summonEntity != null ? summonEntity.getPos() : summon.getPos3Real()
 		let playback = snd_KuchiyoseHandSign.playAt(pos, KUCHIYOSE_SOUND_RADIUS)
 		this.trackSoundPlayback(playback)
-		// For AI:
-		// Hand sign plays at two locations, AnimalPath location and caster location.
-		// So if a player can't hear snd_KuchiyoseHandSign from animalPath
-		// then play KUCHIYOSE_SOUND_RADIUS at casters location for them
-		// If they still cant hear, then thats fine, then it simply means they are not within range of animalpath nor caster
 
 	function startChantSound()
 		if KUCHIYOSE_CHANT_DELAY <= 0.
