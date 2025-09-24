@@ -58,9 +58,11 @@ class SummonAnimalPath
 	CallbackSingle chantSoundTimer
 	CallbackPeriodic timeStopTimer
 	boolean effectsTimeStopped
+	boolean soundsTimeStopped
 	boolean channelCompleted
 	real casterTimeScaleBeforeOverride
 	boolean casterTimeScaleOverridden
+	LinkedList<SoundPlayback> trackedSoundPlaybacks
 
 	construct(unit caster, vec2 targetPos)
 		this.caster = caster
@@ -68,6 +70,7 @@ class SummonAnimalPath
 		this.finished = false
 		this.channelCompleted = false
 		this.channelWindEffects = new LinkedList<EffectsEntity>
+		this.trackedSoundPlaybacks = new LinkedList<SoundPlayback>
 		this.createVisuals()
 		this.startChannelWindEffects()
 		this.startHandSignSound()
@@ -133,6 +136,37 @@ class SummonAnimalPath
 			this.effectsTimeStopped = false
 			this.stopEffectsTimeStop()
 
+	function trackSoundPlayback(SoundPlayback playback)
+		if playback == null or playback.isEmpty()
+			return
+		if this.trackedSoundPlaybacks != null
+			this.trackedSoundPlaybacks.add(playback)
+		if this.soundsTimeStopped or this.shouldPauseChannelDueToTimeStop()
+			playback.pauseAll()
+
+	function pauseTrackedSounds()
+		if this.trackedSoundPlaybacks == null
+			return
+		for playback in this.trackedSoundPlaybacks
+			if playback != null
+				playback.pauseAll()
+
+	function resumeTrackedSounds()
+		if this.trackedSoundPlaybacks == null
+			return
+		for playback in this.trackedSoundPlaybacks
+			if playback != null
+				playback.resumeAll()
+
+	function updateSoundTimeStop(boolean active)
+		if active
+			if not this.soundsTimeStopped
+				this.soundsTimeStopped = true
+				this.pauseTrackedSounds()
+		else if this.soundsTimeStopped
+			this.soundsTimeStopped = false
+			this.resumeTrackedSounds()
+
 	function shouldOverrideCasterTimeScale() returns boolean
 		let casterUnit = this.caster
 		if casterUnit == null
@@ -181,6 +215,8 @@ class SummonAnimalPath
 		let isStopped = this.isTimeStopActive()
 		this.updateEffectsTimeStop(isStopped)
 		this.updateCasterTimeScaleOverride()
+		this.updateSoundTimeStop(this.shouldPauseChannelDueToTimeStop())
+
 	function updateChannelProgress()
 		if this.finished
 			return
@@ -286,7 +322,13 @@ class SummonAnimalPath
 		this.releaseAllChannelWindEffects()
 
 	function startHandSignSound()
-		snd_KuchiyoseHandSign.playAt(this.animalPath.getEntity().getPos(), KUCHIYOSE_SOUND_RADIUS)
+		let summon = this.animalPath
+		if summon == null
+			return
+		let summonEntity = summon.getEntity()
+		let pos = summonEntity != null ? summonEntity.getPos() : summon.getPos3Real()
+		let playback = snd_KuchiyoseHandSign.playAt(pos, KUCHIYOSE_SOUND_RADIUS)
+		this.trackSoundPlayback(playback)
 		// For AI:
 		// Hand sign plays at two locations, AnimalPath location and caster location.
 		// So if a player can't hear snd_KuchiyoseHandSign from animalPath
@@ -307,7 +349,8 @@ class SummonAnimalPath
 			return
 		if this.caster == null or not this.caster.isAlive()
 			return
-		snd_KuchiyoseChant.playAt(this.getCasterEffectPos(), KUCHIYOSE_SOUND_RADIUS)
+		let playback = snd_KuchiyoseChant.playAt(this.getCasterEffectPos(), KUCHIYOSE_SOUND_RADIUS)
+		this.trackSoundPlayback(playback)
 
 	function stopChantSound()
 		if this.chantSoundTimer != null
@@ -327,11 +370,16 @@ class SummonAnimalPath
 			return
 		this.finished = true
 		this.stopCasterTimeScaleOverride()
+		this.updateSoundTimeStop(false)
 		this.stopTimeStopUpdates()
 		if this.effectsTimeStopped
 			this.stopEffectsTimeStop()
 		this.stopChannelWindEffects()
 		this.stopChantSound()
+		if this.trackedSoundPlaybacks != null
+			destroy this.trackedSoundPlaybacks
+			this.trackedSoundPlaybacks = null
+		this.soundsTimeStopped = false
 		if this.caster != null
 			if active.has(this.caster)
 				active.remove(this.caster)
@@ -451,6 +499,11 @@ class SummonAnimalPath
 		this.stopChantSound()
 		this.stopTimeStopUpdates()
 		this.stopCasterTimeScaleOverride()
+		this.updateSoundTimeStop(false)
+		if this.trackedSoundPlaybacks != null
+			destroy this.trackedSoundPlaybacks
+			this.trackedSoundPlaybacks = null
+		this.soundsTimeStopped = false
 		this.effectsTimeStopped = false
 		this.animalPath = null
 		this.scribble1 = null
