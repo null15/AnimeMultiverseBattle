@@ -1,0 +1,100 @@
+package World2Screen
+
+import ClosureTimers
+
+constant real TIME_STEP = 0.02
+
+public tuple ScreenProjection(real screenX, real screenY, boolean onScreen)
+public tuple WorldIntersection(real worldX, real worldY, real worldZ, boolean converged)
+
+boolean preCalc = false
+real eyeX = 0.
+real eyeY = 0.
+real eyeZ = 0.
+real cosRot = 0.
+real sinRot = 0.
+real cosAttack = 0.
+real sinAttack = 0.
+real cosAttackCosRot = 0.
+real cosAttackSinRot = 0.
+real sinAttackCosRot = 0.
+real sinAttackSinRot = 0.
+real yCenterScreenShift = 0.
+real scaleFactor = 0.
+location terrainLoc = Location(0., 0.)
+
+function cameraPrecalc()
+	eyeX = GetCameraEyePositionX()
+	eyeY = GetCameraEyePositionY()
+	eyeZ = GetCameraEyePositionZ()
+	let angleOfAttack = GetCameraField(CAMERA_FIELD_ANGLE_OF_ATTACK)
+	let rotation = GetCameraField(CAMERA_FIELD_ROTATION)
+	let fieldOfView = GetCameraField(CAMERA_FIELD_FIELD_OF_VIEW)
+	cosAttack = Cos(angleOfAttack)
+	sinAttack = Sin(angleOfAttack)
+	cosRot = Cos(rotation)
+	sinRot = Sin(rotation)
+	yCenterScreenShift = 0.1284 * cosAttack
+	let fovSquared = fieldOfView * fieldOfView
+	let fovCubed = fovSquared * fieldOfView
+	scaleFactor = 0.0524 * fovCubed - 0.0283 * fovSquared + 1.061 * fieldOfView
+	cosAttackCosRot = cosAttack * cosRot
+	cosAttackSinRot = cosAttack * sinRot
+	sinAttackCosRot = sinAttack * cosRot
+	sinAttackSinRot = sinAttack * sinRot
+	preCalc = true
+
+public function world2Screen(real x, real y, real z) returns ScreenProjection
+	if not preCalc
+		cameraPrecalc()
+	let dx = x - eyeX
+	let dy = y - eyeY
+	let dz = z - eyeZ
+	let xPrime = scaleFactor * (-cosAttackCosRot * dx - cosAttackSinRot * dy - sinAttack * dz)
+	let xs = 0.4 + (cosRot * dy - sinRot * dx) / xPrime
+	let ys = 0.42625 - yCenterScreenShift + (sinAttackCosRot * dx + sinAttackSinRot * dy - cosAttack * dz) / xPrime
+	let onScreen = xPrime < 0. and xs > -0.1333 and xs < 0.9333 and ys > 0. and ys < 0.6
+	return ScreenProjection(xs, ys, onScreen)
+
+public function screen2World(real x, real y) returns WorldIntersection
+	if not preCalc
+		cameraPrecalc()
+	let a = (x - 0.4) * scaleFactor
+	let b = (0.42625 - yCenterScreenShift - y) * scaleFactor
+	let nx = 1. / SquareRoot(1. + a * a + b * b)
+	var ny = SquareRoot(1. - (1. + b * b) * nx * nx)
+	var nz = SquareRoot(1. - nx * nx - ny * ny)
+	if a > 0.
+		ny = -ny
+	if b < 0.
+		nz = -nz
+	let nxPrime = cosAttackCosRot * nx - sinRot * ny + sinAttackCosRot * nz
+	let nyPrime = cosAttackSinRot * nx + cosRot * ny + sinAttackSinRot * nz
+	let nzPrime = -sinAttack * nx + cosAttack * nz
+	let terrainGuess = getTerrainHeight(eyeX, eyeY)
+	var xGuess = eyeX + nxPrime * (eyeZ - terrainGuess) / nzPrime
+	var yGuess = eyeY + nyPrime * (eyeZ - terrainGuess) / nzPrime
+	var zWorld = getTerrainHeight(xGuess, yGuess)
+	var deltaZ = zWorld - terrainGuess
+	var zGuess = zWorld
+	var zWorldOld = zWorld
+	var deltaZOld = deltaZ
+	int i = 0
+	while (deltaZ > 1. or deltaZ < -1.) and i < 50
+		zWorldOld = zWorld
+		deltaZOld = deltaZ
+		xGuess = eyeX + nxPrime * (eyeZ - zGuess) / nzPrime
+		yGuess = eyeY + nyPrime * (eyeZ - zGuess) / nzPrime
+		zWorld = getTerrainHeight(xGuess, yGuess)
+		deltaZ = zWorld - zGuess
+		zGuess = (deltaZOld * zWorld - deltaZ * zWorldOld) / (deltaZOld - deltaZ)
+		i += 1
+	return WorldIntersection(xGuess, yGuess, zWorld, i < 50)
+
+function getTerrainHeight(real x, real y) returns real
+	MoveLocation(terrainLoc, x, y)
+	return GetLocationZ(terrainLoc)
+
+init
+	doPeriodically(TIME_STEP) (CallbackPeriodic periodic) ->
+		preCalc = false

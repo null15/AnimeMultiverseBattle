@@ -1,0 +1,129 @@
+package SyncedCamera
+
+import ClosureTimers
+import StringUtils
+
+constant real TIME_STEP = 0.02
+constant real EPSILON = 0.001
+constant string SYNC_PREFIX = "SyncCamera"
+
+function realAbs(real value) returns real
+	return value >= 0. ? value : -value
+
+function buildPayload(int playerIndex, real eyeX, real eyeY, real eyeZ, real angleOfAttack, real rotation, real fieldOfView, real targetDistance) returns string
+	var payload = (playerIndex + 1).toString()
+	payload += "," + eyeX.toString()
+	payload += "," + eyeY.toString()
+	payload += "," + eyeZ.toString()
+	payload += "," + angleOfAttack.toString()
+	payload += "," + rotation.toString()
+	payload += "," + fieldOfView.toString()
+	payload += "," + targetDistance.toString()
+	return payload
+
+public class SyncedCamera
+	static player localPlayer = null
+	static boolean array ready
+	static real array eyeX
+	static real array eyeY
+	static real array eyeZ
+	static real array angleOfAttack
+	static real array rotation
+	static real array fieldOfView
+	static real array targetDistance
+
+	static function getIndex(player whichPlayer) returns int
+		return whichPlayer != null ? whichPlayer.getId() : -1
+
+	static function differenceExceeds(real currentValue, real storedValue) returns boolean
+		return realAbs(currentValue - storedValue) > EPSILON
+
+	static function onSync()
+		let data = BlzGetTriggerSyncData()
+		var parsedPlayerIndex = -1
+		var fieldIndex = 0
+		data.forEachIn(",") (string part) ->
+			if fieldIndex == 0
+				parsedPlayerIndex = part.toInt() - 1
+			else if parsedPlayerIndex >= 0 and parsedPlayerIndex < bj_MAX_PLAYER_SLOTS
+				switch fieldIndex
+					case 1
+						eyeX[parsedPlayerIndex] = part.toReal()
+					case 2
+						eyeY[parsedPlayerIndex] = part.toReal()
+					case 3
+						eyeZ[parsedPlayerIndex] = part.toReal()
+					case 4
+						angleOfAttack[parsedPlayerIndex] = part.toReal()
+					case 5
+						rotation[parsedPlayerIndex] = part.toReal()
+					case 6
+						fieldOfView[parsedPlayerIndex] = part.toReal()
+					case 7
+						targetDistance[parsedPlayerIndex] = part.toReal()
+			fieldIndex += 1
+		if parsedPlayerIndex >= 0 and parsedPlayerIndex < bj_MAX_PLAYER_SLOTS
+			ready[parsedPlayerIndex] = true
+
+	static function updateLocalCamera()
+		if localPlayer == null
+			return
+		let index = getIndex(localPlayer)
+		if index < 0 or not ready[index]
+			return
+
+		let currentEyeX = GetCameraEyePositionX()
+		let currentEyeY = GetCameraEyePositionY()
+		let currentEyeZ = GetCameraEyePositionZ()
+		let currentAngle = GetCameraField(CAMERA_FIELD_ANGLE_OF_ATTACK)
+		let currentRotation = GetCameraField(CAMERA_FIELD_ROTATION)
+		let currentFov = GetCameraField(CAMERA_FIELD_FIELD_OF_VIEW)
+		let currentDistance = GetCameraField(CAMERA_FIELD_TARGET_DISTANCE)
+
+		if differenceExceeds(currentEyeX, eyeX[index])
+			or differenceExceeds(currentEyeY, eyeY[index])
+			or differenceExceeds(currentEyeZ, eyeZ[index])
+			or differenceExceeds(currentAngle, angleOfAttack[index])
+			or differenceExceeds(currentRotation, rotation[index])
+			or differenceExceeds(currentFov, fieldOfView[index])
+			or differenceExceeds(currentDistance, targetDistance[index])
+			ready[index] = false
+			BlzSendSyncData(SYNC_PREFIX, buildPayload(index, currentEyeX, currentEyeY, currentEyeZ, currentAngle, currentRotation, currentFov, currentDistance))
+
+	static function getEyeX(player whichPlayer) returns real
+		let index = getIndex(whichPlayer)
+		return index >= 0 ? eyeX[index] : 0.
+
+	static function getEyeY(player whichPlayer) returns real
+		let index = getIndex(whichPlayer)
+		return index >= 0 ? eyeY[index] : 0.
+
+	static function getEyeZ(player whichPlayer) returns real
+		let index = getIndex(whichPlayer)
+		return index >= 0 ? eyeZ[index] : 0.
+
+	static function getAngleOfAttack(player whichPlayer) returns real
+		let index = getIndex(whichPlayer)
+		return index >= 0 ? angleOfAttack[index] : 0.
+
+	static function getRotation(player whichPlayer) returns real
+		let index = getIndex(whichPlayer)
+		return index >= 0 ? rotation[index] : 0.
+
+	static function getFieldOfView(player whichPlayer) returns real
+		let index = getIndex(whichPlayer)
+		return index >= 0 ? fieldOfView[index] : 0.
+
+	static function getTargetDistance(player whichPlayer) returns real
+		let index = getIndex(whichPlayer)
+		return index >= 0 ? targetDistance[index] : 0.
+
+init
+	SyncedCamera.localPlayer = GetLocalPlayer()
+	let syncTrigger = CreateTrigger()
+	for i = 0 to bj_MAX_PLAYERS - 1
+		SyncedCamera.ready[i] = true
+		BlzTriggerRegisterPlayerSyncEvent(syncTrigger, players[i], SYNC_PREFIX, false)
+	syncTrigger.addAction(() -> SyncedCamera.onSync())
+	doPeriodically(TIME_STEP) (CallbackPeriodic periodic) ->
+		SyncedCamera.updateLocalCamera()
