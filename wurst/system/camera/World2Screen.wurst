@@ -1,9 +1,9 @@
 package World2Screen
 
-import ClosureTimers
 import PrecomputedHeightMap
 
-constant real TIME_STEP = 0.02
+public constant real CAMERA_EPSILON = 0.0001
+public constant real SQRT_EPSILON = 0.0000001
 
 public tuple ScreenProjection(real screenX, real screenY, boolean onScreen)
 public tuple WorldIntersection(real worldX, real worldY, real worldZ, boolean converged)
@@ -12,6 +12,9 @@ boolean preCalc = false
 real eyeX = 0.
 real eyeY = 0.
 real eyeZ = 0.
+real lastAngleOfAttack = 0.
+real lastRotation = 0.
+real lastFieldOfView = 0.
 real cosRot = 0.
 real sinRot = 0.
 real cosAttack = 0.
@@ -23,13 +26,20 @@ real sinAttackSinRot = 0.
 real yCenterScreenShift = 0.
 real scaleFactor = 0.
 
-function cameraPrecalc()
-	eyeX = GetCameraEyePositionX()
-	eyeY = GetCameraEyePositionY()
-	eyeZ = GetCameraEyePositionZ()
-	let angleOfAttack = GetCameraField(CAMERA_FIELD_ANGLE_OF_ATTACK)
-	let rotation = GetCameraField(CAMERA_FIELD_ROTATION)
-	let fieldOfView = GetCameraField(CAMERA_FIELD_FIELD_OF_VIEW)
+public function safeSqrt(real value) returns real
+	if value < 0.
+		return 0.
+	if value <= SQRT_EPSILON
+		return SquareRoot(SQRT_EPSILON)
+	return SquareRoot(value)
+
+function cameraPrecalc(real newEyeX, real newEyeY, real newEyeZ, real angleOfAttack, real rotation, real fieldOfView)
+	eyeX = newEyeX
+	eyeY = newEyeY
+	eyeZ = newEyeZ
+	lastAngleOfAttack = angleOfAttack
+	lastRotation = rotation
+	lastFieldOfView = fieldOfView
 	cosAttack = Cos(angleOfAttack)
 	sinAttack = Sin(angleOfAttack)
 	cosRot = Cos(rotation)
@@ -44,9 +54,25 @@ function cameraPrecalc()
 	sinAttackSinRot = sinAttack * sinRot
 	preCalc = true
 
-public function world2Screen(real x, real y, real z) returns ScreenProjection
+function ensureCameraState()
+	let currentEyeX = GetCameraEyePositionX()
+	let currentEyeY = GetCameraEyePositionY()
+	let currentEyeZ = GetCameraEyePositionZ()
+	let currentAngle = GetCameraField(CAMERA_FIELD_ANGLE_OF_ATTACK)
+	let currentRotation = GetCameraField(CAMERA_FIELD_ROTATION)
+	let currentFov = GetCameraField(CAMERA_FIELD_FIELD_OF_VIEW)
 	if not preCalc
-		cameraPrecalc()
+		cameraPrecalc(currentEyeX, currentEyeY, currentEyeZ, currentAngle, currentRotation, currentFov)
+		return
+	if (currentEyeX - eyeX).abs() > CAMERA_EPSILON or (currentEyeY - eyeY).abs() > CAMERA_EPSILON or (currentEyeZ - eyeZ).abs() > CAMERA_EPSILON
+		cameraPrecalc(currentEyeX, currentEyeY, currentEyeZ, currentAngle, currentRotation, currentFov)
+		return
+	if (currentAngle - lastAngleOfAttack).abs() > CAMERA_EPSILON or (currentRotation - lastRotation).abs() > CAMERA_EPSILON or (currentFov - lastFieldOfView).abs() > CAMERA_EPSILON
+		cameraPrecalc(currentEyeX, currentEyeY, currentEyeZ, currentAngle, currentRotation, currentFov)
+		return
+
+public function world2Screen(real x, real y, real z) returns ScreenProjection
+	ensureCameraState()
 	let dx = x - eyeX
 	let dy = y - eyeY
 	let dz = z - eyeZ
@@ -57,13 +83,15 @@ public function world2Screen(real x, real y, real z) returns ScreenProjection
 	return ScreenProjection(xs, ys, onScreen)
 
 public function screen2World(real x, real y) returns WorldIntersection
-	if not preCalc
-		cameraPrecalc()
+	ensureCameraState()
 	let a = (x - 0.4) * scaleFactor
 	let b = (0.42625 - yCenterScreenShift - y) * scaleFactor
-	let nx = 1. / SquareRoot(1. + a * a + b * b)
-	var ny = SquareRoot(1. - (1. + b * b) * nx * nx)
-	var nz = SquareRoot(1. - nx * nx - ny * ny)
+	let denominator = safeSqrt(1. + a * a + b * b)
+	if denominator <= SQRT_EPSILON
+		return WorldIntersection(eyeX, eyeY, eyeZ, false)
+	let nx = 1. / denominator
+	var ny = safeSqrt(1. - (1. + b * b) * nx * nx)
+	var nz = safeSqrt(1. - nx * nx - ny * ny)
 	if a > 0.
 		ny = -ny
 	if b < 0.
@@ -71,6 +99,8 @@ public function screen2World(real x, real y) returns WorldIntersection
 	let nxPrime = cosAttackCosRot * nx - sinRot * ny + sinAttackCosRot * nz
 	let nyPrime = cosAttackSinRot * nx + cosRot * ny + sinAttackSinRot * nz
 	let nzPrime = -sinAttack * nx + cosAttack * nz
+	if nzPrime.abs() < SQRT_EPSILON
+		return WorldIntersection(eyeX, eyeY, eyeZ, false)
 	let terrainGuess = getTerrainZ(eyeX, eyeY)
 	var xGuess = eyeX + nxPrime * (eyeZ - terrainGuess) / nzPrime
 	var yGuess = eyeY + nyPrime * (eyeZ - terrainGuess) / nzPrime
@@ -85,12 +115,8 @@ public function screen2World(real x, real y) returns WorldIntersection
 		yGuess = eyeY + nyPrime * (eyeZ - zGuess) / nzPrime
 		zWorld = getTerrainZ(xGuess, yGuess)
 		deltaZ = zWorld - zGuess
-		if deltaZOld == deltaZ
-			break
+		if (deltaZOld - deltaZ).abs() < SQRT_EPSILON
+			return WorldIntersection(xGuess, yGuess, zWorld, false)
 		zGuess = (deltaZOld * zWorld - deltaZ * zWorldOld) / (deltaZOld - deltaZ)
 		i += 1
 	return WorldIntersection(xGuess, yGuess, zWorld, i < 50)
-
-init
-	doPeriodically(TIME_STEP) (CallbackPeriodic periodic) ->
-		preCalc = false

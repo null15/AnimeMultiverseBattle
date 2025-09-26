@@ -1,16 +1,16 @@
 package World2ScreenSync
 
-import ClosureTimers
 import PrecomputedHeightMap
 import SyncedCamera
 import World2Screen
-
-constant real TIME_STEP = 0.02
 
 boolean array preCalc
 real array eyeX
 real array eyeY
 real array eyeZ
+real array lastAngleOfAttack
+real array lastRotation
+real array lastFieldOfView
 real array cosRot
 real array sinRot
 real array cosAttack
@@ -25,20 +25,17 @@ real array scaleFactor
 function getIndex(player whichPlayer) returns int
 	return whichPlayer != null ? whichPlayer.getId() : -1
 
-function cameraPrecalc(player whichPlayer)
-	let pid = getIndex(whichPlayer)
-	if pid < 0
-		return
-	let angleOfAttack = SyncedCamera.getAngleOfAttack(whichPlayer)
-	let rotation = SyncedCamera.getRotation(whichPlayer)
-	let fieldOfView = SyncedCamera.getFieldOfView(whichPlayer)
+function cameraPrecalc(int pid, real newEyeX, real newEyeY, real newEyeZ, real angleOfAttack, real rotation, real fieldOfView)
 	cosAttack[pid] = Cos(angleOfAttack)
 	sinAttack[pid] = Sin(angleOfAttack)
 	cosRot[pid] = Cos(rotation)
 	sinRot[pid] = Sin(rotation)
-	eyeX[pid] = SyncedCamera.getEyeX(whichPlayer)
-	eyeY[pid] = SyncedCamera.getEyeY(whichPlayer)
-	eyeZ[pid] = SyncedCamera.getEyeZ(whichPlayer)
+	eyeX[pid] = newEyeX
+	eyeY[pid] = newEyeY
+	eyeZ[pid] = newEyeZ
+	lastAngleOfAttack[pid] = angleOfAttack
+	lastRotation[pid] = rotation
+	lastFieldOfView[pid] = fieldOfView
 	yCenterScreenShift[pid] = 0.1284 * cosAttack[pid]
 	cosAttackCosRot[pid] = cosAttack[pid] * cosRot[pid]
 	cosAttackSinRot[pid] = cosAttack[pid] * sinRot[pid]
@@ -49,12 +46,31 @@ function cameraPrecalc(player whichPlayer)
 	scaleFactor[pid] = 0.0524 * fovCubed - 0.0283 * fovSquared + 1.061 * fieldOfView
 	preCalc[pid] = true
 
-public function world2ScreenSynced(real x, real y, real z, player whichPlayer) returns ScreenProjection
+function ensureCameraState(player whichPlayer) returns int
 	let pid = getIndex(whichPlayer)
 	if pid < 0
-		return ScreenProjection(0., 0., false)
+		return pid
+	let newEyeX = SyncedCamera.getEyeX(whichPlayer)
+	let newEyeY = SyncedCamera.getEyeY(whichPlayer)
+	let newEyeZ = SyncedCamera.getEyeZ(whichPlayer)
+	let newAngle = SyncedCamera.getAngleOfAttack(whichPlayer)
+	let newRotation = SyncedCamera.getRotation(whichPlayer)
+	let newFov = SyncedCamera.getFieldOfView(whichPlayer)
 	if not preCalc[pid]
-		cameraPrecalc(whichPlayer)
+		cameraPrecalc(pid, newEyeX, newEyeY, newEyeZ, newAngle, newRotation, newFov)
+		return pid
+	if (newEyeX - eyeX[pid]).abs() > CAMERA_EPSILON or (newEyeY - eyeY[pid]).abs() > CAMERA_EPSILON or (newEyeZ - eyeZ[pid]).abs() > CAMERA_EPSILON
+		cameraPrecalc(pid, newEyeX, newEyeY, newEyeZ, newAngle, newRotation, newFov)
+		return pid
+	if (newAngle - lastAngleOfAttack[pid]).abs() > CAMERA_EPSILON or (newRotation - lastRotation[pid]).abs() > CAMERA_EPSILON or (newFov - lastFieldOfView[pid]).abs() > CAMERA_EPSILON
+		cameraPrecalc(pid, newEyeX, newEyeY, newEyeZ, newAngle, newRotation, newFov)
+		return pid
+	return pid
+
+public function world2ScreenSynced(real x, real y, real z, player whichPlayer) returns ScreenProjection
+	let pid = ensureCameraState(whichPlayer)
+	if pid < 0
+		return ScreenProjection(0., 0., false)
 	let dx = x - eyeX[pid]
 	let dy = y - eyeY[pid]
 	let dz = z - eyeZ[pid]
@@ -65,16 +81,17 @@ public function world2ScreenSynced(real x, real y, real z, player whichPlayer) r
 	return ScreenProjection(xs, ys, onScreen)
 
 public function screen2WorldSynced(real x, real y, player whichPlayer) returns WorldIntersection
-	let pid = getIndex(whichPlayer)
+	let pid = ensureCameraState(whichPlayer)
 	if pid < 0
 		return WorldIntersection(0., 0., 0., false)
-	if not preCalc[pid]
-		cameraPrecalc(whichPlayer)
 	let a = (x - 0.4) * scaleFactor[pid]
 	let b = (0.42625 - yCenterScreenShift[pid] - y) * scaleFactor[pid]
-	let nx = 1. / SquareRoot(1. + a * a + b * b)
-	var ny = SquareRoot(1. - (1. + b * b) * nx * nx)
-	var nz = SquareRoot(1. - nx * nx - ny * ny)
+	let denominator = safeSqrt(1. + a * a + b * b)
+	if denominator <= SQRT_EPSILON
+		return WorldIntersection(eyeX[pid], eyeY[pid], eyeZ[pid], false)
+	let nx = 1. / denominator
+	var ny = safeSqrt(1. - (1. + b * b) * nx * nx)
+	var nz = safeSqrt(1. - nx * nx - ny * ny)
 	if a > 0.
 		ny = -ny
 	if b < 0.
@@ -82,6 +99,8 @@ public function screen2WorldSynced(real x, real y, player whichPlayer) returns W
 	let nxPrime = cosAttackCosRot[pid] * nx - sinRot[pid] * ny + sinAttackCosRot[pid] * nz
 	let nyPrime = cosAttackSinRot[pid] * nx + cosRot[pid] * ny + sinAttackSinRot[pid] * nz
 	let nzPrime = -sinAttack[pid] * nx + cosAttack[pid] * nz
+	if nzPrime.abs() < SQRT_EPSILON
+		return WorldIntersection(eyeX[pid], eyeY[pid], eyeZ[pid], false)
 	let terrainGuess = getTerrainZ(eyeX[pid], eyeY[pid])
 	var xGuess = eyeX[pid] + nxPrime * (eyeZ[pid] - terrainGuess) / nzPrime
 	var yGuess = eyeY[pid] + nyPrime * (eyeZ[pid] - terrainGuess) / nzPrime
@@ -96,8 +115,8 @@ public function screen2WorldSynced(real x, real y, player whichPlayer) returns W
 		yGuess = eyeY[pid] + nyPrime * (eyeZ[pid] - zGuess) / nzPrime
 		zWorld = getTerrainZ(xGuess, yGuess)
 		deltaZ = zWorld - zGuess
-		if deltaZOld == deltaZ
-			break
+		if (deltaZOld - deltaZ).abs() < SQRT_EPSILON
+			return WorldIntersection(xGuess, yGuess, zWorld, false)
 		zGuess = (deltaZOld * zWorld - deltaZ * zWorldOld) / (deltaZOld - deltaZ)
 		i += 1
 	return WorldIntersection(xGuess, yGuess, zWorld, i < 50)
@@ -107,8 +126,3 @@ public function getTriggerPlayerMouseScreenCoordinates() returns ScreenProjectio
 	let mouseY = BlzGetTriggerPlayerMouseY()
 	let worldZ = getTerrainZ(mouseX, mouseY)
 	return world2ScreenSynced(mouseX, mouseY, worldZ, GetTriggerPlayer())
-
-init
-	doPeriodically(TIME_STEP) (CallbackPeriodic periodic) ->
-		for i = 0 to bj_MAX_PLAYERS - 1
-			preCalc[i] = false
