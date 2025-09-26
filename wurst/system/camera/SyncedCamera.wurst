@@ -42,7 +42,7 @@ public class SyncedCamera
 		let data = BlzGetTriggerSyncData()
 		var parsedPlayerIndex = -1
 		var fieldIndex = 0
-		data.forEachIn(",") (string part) ->
+		for string part in data.split(",")
 			if fieldIndex == 0
 				parsedPlayerIndex = part.toInt() - 1
 			else if parsedPlayerIndex >= 0 and parsedPlayerIndex < bj_MAX_PLAYER_SLOTS

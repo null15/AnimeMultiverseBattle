@@ -77,16 +77,16 @@ public function screen2World(real x, real y) returns WorldIntersection
 	var zWorld = getTerrainHeight(xGuess, yGuess)
 	var deltaZ = zWorld - terrainGuess
 	var zGuess = zWorld
-	var zWorldOld = zWorld
-	var deltaZOld = deltaZ
 	int i = 0
 	while (deltaZ > 1. or deltaZ < -1.) and i < 50
-		zWorldOld = zWorld
-		deltaZOld = deltaZ
+		let zWorldOld = zWorld
+		let deltaZOld = deltaZ
 		xGuess = eyeX + nxPrime * (eyeZ - zGuess) / nzPrime
 		yGuess = eyeY + nyPrime * (eyeZ - zGuess) / nzPrime
 		zWorld = getTerrainHeight(xGuess, yGuess)
 		deltaZ = zWorld - zGuess
+		if deltaZOld == deltaZ
+			break
 		zGuess = (deltaZOld * zWorld - deltaZ * zWorldOld) / (deltaZOld - deltaZ)
 		i += 1
 	return WorldIntersection(xGuess, yGuess, zWorld, i < 50)

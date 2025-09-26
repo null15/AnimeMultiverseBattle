@@ -88,16 +88,16 @@ public function screen2WorldSynced(real x, real y, player whichPlayer) returns W
 	var zWorld = getTerrainHeight(xGuess, yGuess)
 	var deltaZ = zWorld - terrainGuess
 	var zGuess = zWorld
-	var zWorldOld = zWorld
-	var deltaZOld = deltaZ
 	int i = 0
 	while (deltaZ > 1. or deltaZ < -1.) and i < 50
-		zWorldOld = zWorld
-		deltaZOld = deltaZ
+		let zWorldOld = zWorld
+		let deltaZOld = deltaZ
 		xGuess = eyeX[pid] + nxPrime * (eyeZ[pid] - zGuess) / nzPrime
 		yGuess = eyeY[pid] + nyPrime * (eyeZ[pid] - zGuess) / nzPrime
 		zWorld = getTerrainHeight(xGuess, yGuess)
 		deltaZ = zWorld - zGuess
+		if deltaZOld == deltaZ
+			break
 		zGuess = (deltaZOld * zWorld - deltaZ * zWorldOld) / (deltaZOld - deltaZ)
 		i += 1
 	return WorldIntersection(xGuess, yGuess, zWorld, i < 50)
