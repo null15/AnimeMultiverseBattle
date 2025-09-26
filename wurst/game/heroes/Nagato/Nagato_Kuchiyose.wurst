@@ -60,9 +60,9 @@ class SummonAnimalPath
 	real casterTimeScaleBeforeOverride
 	boolean casterTimeScaleOverridden
 	ChannelSoundPlayback handSignSound
-	ChannelSoundPlayback summoningSound
-	ChannelSoundPlayback chantSound
-	ChannelSoundPlayback poofSound
+	SoundPlayback summoningSound
+	SoundPlayback chantSound
+	SoundPlayback poofSound
 
 	construct(unit caster, vec2 targetPos)
 		this.caster = caster
@@ -288,6 +288,11 @@ class SummonAnimalPath
 			this.channelWindTimer = null
 		this.releaseAllChannelWindEffects()
 
+	function getAnimalPathSoundPos() returns vec3
+		if this.animalPath != null
+			return this.getAnimalPathEffectPos()
+		return this.targetPos.toVec3()
+
 	function playSoundForAnimalPath(SoundProfile profile) returns ChannelSoundPlayback
 		if profile == null
 			return null
@@ -296,9 +301,19 @@ class SummonAnimalPath
 			return null
 		return profile.playChannelForUnit(summon, 0, KUCHIYOSE_SOUND_RADIUS)
 
+	function playSoundAtAnimalPath(SoundProfile profile) returns SoundPlayback
+		if profile == null
+			return null
+		return profile.playAt(this.getAnimalPathSoundPos(), KUCHIYOSE_SOUND_RADIUS)
+
 	function stopChannelSound(ChannelSoundPlayback channel) returns ChannelSoundPlayback
 		if channel != null
 			channel.stop()
+		return null
+
+	function stopSoundPlayback(SoundPlayback playback) returns SoundPlayback
+		if playback != null
+			playback.stopAll()
 		return null
 
 	function playHandSignSound()
@@ -309,17 +324,17 @@ class SummonAnimalPath
 
 	function playCastEndSounds()
 		this.stopHandSignSound()
-		this.summoningSound = this.playSoundForAnimalPath(snd_KuchiyoseSummoning)
-		this.chantSound = this.playSoundForAnimalPath(snd_KuchiyoseChant)
+		this.summoningSound = this.playSoundAtAnimalPath(snd_KuchiyoseSummoning)
+		this.chantSound = this.playSoundAtAnimalPath(snd_KuchiyoseChant)
 
 	function stopSummoningSound()
-		this.summoningSound = this.stopChannelSound(this.summoningSound)
+		this.summoningSound = this.stopSoundPlayback(this.summoningSound)
 
 	function stopChantSound()
-		this.chantSound = this.stopChannelSound(this.chantSound)
+		this.chantSound = this.stopSoundPlayback(this.chantSound)
 
 	function stopPoofSound()
-		this.poofSound = this.stopChannelSound(this.poofSound)
+		this.poofSound = this.stopSoundPlayback(this.poofSound)
 
 	function releaseAllChannelWindEffects()
 		if this.channelWindEffects == null
@@ -366,6 +381,9 @@ class SummonAnimalPath
 	function completeSuccessfulFinish()
 		this.teleportAllies()
 		this.cleanupScribble()
+		this.summoningSound = null
+		this.chantSound = null
+		this.poofSound = null
 		this.caster = null
 		destroy this
 
@@ -406,7 +424,7 @@ class SummonAnimalPath
 		this.playPoofSound()
 
 	function playPoofSound()
-		this.poofSound = this.playSoundForAnimalPath(snd_KuchiyosePoof)
+		this.poofSound = this.playSoundAtAnimalPath(snd_KuchiyosePoof)
 
 	function shouldTeleport(unit u) returns bool
 		if u == null or not u.isAlive()
