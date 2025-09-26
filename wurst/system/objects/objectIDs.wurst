@@ -99,15 +99,15 @@ public constant			ALL_MIGHT_TRANSFORM2		= compiletime(ABIL_ID_GEN.next())
 public constant         ALL_MIGHT_BEARFORM          = compiletime(ABIL_ID_GEN.next())
 
 /* ------------------------ Nagato Uzumaki ------------------------ */
-public constant		    NAGATO_BANSHO_TENIN 		= compiletime(ABIL_ID_GEN.next())
-public constant		    NAGATO_SHINRA_TENSEI		= compiletime(ABIL_ID_GEN.next())
-public constant			NAGATO_UZUMAKI_BIND			= compiletime(ABIL_ID_GEN.next())
-public constant                 NAGATO_SUMMON_ANIMAL_PATH              = compiletime(ABIL_ID_GEN.next())
+public constant		    NAGATO_BANSHO_TENIN             = compiletime(ABIL_ID_GEN.next())
+public constant		    NAGATO_SHINRA_TENSEI    		= compiletime(ABIL_ID_GEN.next())
+public constant			NAGATO_UZUMAKI_BIND 			= compiletime(ABIL_ID_GEN.next())
+public constant         NAGATO_SUMMON_ANIMAL_PATH       = compiletime(ABIL_ID_GEN.next())
 
-public constant			NAGATO_UZUMAKI_CHAKRA_ROD	= compiletime(UNIT_ID_GEN.next())
+public constant			NAGATO_UZUMAKI_CHAKRA_ROD       = compiletime(UNIT_ID_GEN.next())
 
-public constant			NAGATO_UZUMAKI_HEAD			= compiletime(UNIT_ID_GEN.next())
-public constant                 NAGATO_ANIMAL_PATH_SUMMON              = compiletime(UNIT_ID_GEN.next())
+public constant			NAGATO_UZUMAKI_HEAD             = compiletime(UNIT_ID_GEN.next())
+public constant         NAGATO_ANIMAL_PATH_SUMMON       = compiletime(UNIT_ID_GEN.next())
 
 /* ---------------------------- MISC ---------------------------- */
 public constant 		ALL_MIGHT_POWER_SKIN 		= compiletime(HERO_ID_GEN.next())
