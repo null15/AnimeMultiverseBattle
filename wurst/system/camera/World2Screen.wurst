@@ -1,6 +1,7 @@
 package World2Screen
 
 import ClosureTimers
+import PrecomputedHeightMap
 
 constant real TIME_STEP = 0.02
 
@@ -21,7 +22,6 @@ real sinAttackCosRot = 0.
 real sinAttackSinRot = 0.
 real yCenterScreenShift = 0.
 real scaleFactor = 0.
-location terrainLoc = Location(0., 0.)
 
 function cameraPrecalc()
 	eyeX = GetCameraEyePositionX()
@@ -71,10 +71,10 @@ public function screen2World(real x, real y) returns WorldIntersection
 	let nxPrime = cosAttackCosRot * nx - sinRot * ny + sinAttackCosRot * nz
 	let nyPrime = cosAttackSinRot * nx + cosRot * ny + sinAttackSinRot * nz
 	let nzPrime = -sinAttack * nx + cosAttack * nz
-	let terrainGuess = getTerrainHeight(eyeX, eyeY)
+	let terrainGuess = getTerrainZ(eyeX, eyeY)
 	var xGuess = eyeX + nxPrime * (eyeZ - terrainGuess) / nzPrime
 	var yGuess = eyeY + nyPrime * (eyeZ - terrainGuess) / nzPrime
-	var zWorld = getTerrainHeight(xGuess, yGuess)
+	var zWorld = getTerrainZ(xGuess, yGuess)
 	var deltaZ = zWorld - terrainGuess
 	var zGuess = zWorld
 	int i = 0
@@ -83,17 +83,13 @@ public function screen2World(real x, real y) returns WorldIntersection
 		let deltaZOld = deltaZ
 		xGuess = eyeX + nxPrime * (eyeZ - zGuess) / nzPrime
 		yGuess = eyeY + nyPrime * (eyeZ - zGuess) / nzPrime
-		zWorld = getTerrainHeight(xGuess, yGuess)
+		zWorld = getTerrainZ(xGuess, yGuess)
 		deltaZ = zWorld - zGuess
 		if deltaZOld == deltaZ
 			break
 		zGuess = (deltaZOld * zWorld - deltaZ * zWorldOld) / (deltaZOld - deltaZ)
 		i += 1
 	return WorldIntersection(xGuess, yGuess, zWorld, i < 50)
-
-function getTerrainHeight(real x, real y) returns real
-	MoveLocation(terrainLoc, x, y)
-	return GetLocationZ(terrainLoc)
 
 init
 	doPeriodically(TIME_STEP) (CallbackPeriodic periodic) ->

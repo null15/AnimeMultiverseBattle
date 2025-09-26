@@ -1,0 +1,37 @@
+package PrecomputedHeightMap
+
+import Heightmap
+
+public tuple UnitCoordinates(real x, real y, real z)
+
+/**
+ * Returns the terrain height at the given world coordinates using the
+ * precomputed height map provided by the shared Heightmap module.
+ */
+public function getTerrainZ(real x, real y) returns real
+	return vec2(x, y).getHeightMap()
+
+/**
+ * Convenience wrapper mirroring the classic GetLocZ implementation.
+ */
+public function getLocZ(real x, real y) returns real
+	return getTerrainZ(x, y)
+
+/**
+ * Returns the absolute world z position of a unit, combining the terrain
+ * height with the unit's fly height.
+ */
+public function getUnitZ(unit whichUnit) returns real
+	if whichUnit == null
+		return 0.
+	return getTerrainZ(GetUnitX(whichUnit), GetUnitY(whichUnit)) + GetUnitFlyHeight(whichUnit)
+
+/**
+ * Collects the current world-space coordinates for a unit.
+ */
+public function getUnitCoordinates(unit whichUnit) returns UnitCoordinates
+	if whichUnit == null
+		return UnitCoordinates(0., 0., 0.)
+	let x = GetUnitX(whichUnit)
+	let y = GetUnitY(whichUnit)
+	return UnitCoordinates(x, y, getTerrainZ(x, y) + GetUnitFlyHeight(whichUnit))

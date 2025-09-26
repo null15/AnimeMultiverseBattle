@@ -1,19 +1,15 @@
 package ScreenTest
 
 import ClosureTimers
+import PrecomputedHeightMap
 import World2Screen
 import World2ScreenSync
 
 real mouseScreenX = 0.
 real mouseScreenY = 0.
 boolean isMouseProjectionVisible = false
-location heightLoc = Location(0., 0.)
 framehandle screenTestFrame = null
 effect runeEffect = null
-
-function getTerrainZ(real x, real y) returns real
-	MoveLocation(heightLoc, x, y)
-	return GetLocationZ(heightLoc)
 
 init
 	doAfter(8) -> 
