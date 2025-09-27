@@ -18,6 +18,7 @@ constant real BANSHO_STOP_RANGE						= 128.
 constant real BANSHO_MIN_SPEED						= 300.
 constant real BANSHO_FX_OFFSET						= 80.
 constant real BANSHO_SOUND_RADIUS					= 700.
+constant real BANSHO_PULL_DURATION					= 6.
 constant string BANSHO_DIRT_FX						= "Nagato\\BanshoTenin\\BanshoTeninDragDirt.mdx"
 constant angle BANSHO_DIRT_PITCH					= (0)	.fromDeg()
 constant angle BANSHO_DIRT_ROLL						= (0)	.fromDeg()
@@ -46,7 +47,7 @@ class BanshoTenin extends ChannelSpell
 				caster.issueImmediateOrder("stop")
 		else
 			print("Pull")
-			this.beginChannel(3.)
+			this.beginChannel(BANSHO_PULL_DURATION)
 			this.setChannelSound(snd_BanshoTenin.playChannelForUnit(caster, NAGATO_BANSHO_TENIN, BANSHO_SOUND_RADIUS))
 			this.dirtFx = addEffectEntity(BANSHO_DIRT_FX, target.getPos3Real())
 			if this.dirtFx != null
