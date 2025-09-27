@@ -124,33 +124,26 @@ class BanshoTenin extends ChannelSpell
 		this.pull = null
 
 function onChannel()
-	print("1")
 	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN
-		print("2")
 		let caster = GetTriggerUnit()
 		if caster == null
-			print("3")
 			printTimedToPlayer("Caster invalid, aborting spell cast", 3, caster.getOwner())
 			return
 		let target = GetSpellTargetUnit()
 		if target == null
-			print("4")
 			printTimedToPlayer("Target invalid, aborting spell cast", 3, caster.getOwner())
 			return
 		if active.has(caster)
-			print("5")
 			active.get(caster).stop(false)
-			let inst = new BanshoTenin(caster, target)
-			if inst != null and inst.isChannelActive()
-				active.put(caster, inst)
-				nullTimer() ->
-					caster
-					..setAnimation(CASTER_ANIMATION_INDEX)
-					..setEntityTimeScale(CASTER_ANIMATION_SPEED)
-			else if inst != null
-				destroy inst
-		else
-			print("6")
+		let inst = new BanshoTenin(caster, target)
+		if inst != null and inst.isChannelActive()
+			active.put(caster, inst)
+			nullTimer() ->
+				caster
+				..setAnimation(CASTER_ANIMATION_INDEX)
+				..setEntityTimeScale(CASTER_ANIMATION_SPEED)
+		else if inst != null
+			destroy inst
 
 function onStop()
 	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN
