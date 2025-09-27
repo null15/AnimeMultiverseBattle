@@ -6,9 +6,10 @@ import ClosureTimers
 import HashMap
 import EntitySystem
 import EffectsSystem
-import TimeStop
 import ClosureEvents
 import SoundSystem
+import TimeStopSpell
+import TimeStop
 
 constant string SOUND_LABEL_BANSHO_TENIN            = "NagatoBanshoTenin"
 constant SoundProfile snd_BanshoTenin				= new SoundProfile("Nagato\\BanshoTenin\\BanshoTenin.mp3", SOUND_LABEL_BANSHO_TENIN, false, true)
@@ -25,75 +26,55 @@ constant int CASTER_ANIMATION_INDEX					= 13
 constant real CASTER_ANIMATION_SPEED				= 1.5
 constant HashMap<unit, BanshoTenin> active			= new HashMap<unit, BanshoTenin>()
 
-class BanshoTenin
-	unit caster
+class BanshoTenin extends ChannelSpell
 	unit target
-	CallbackPeriodic cb
 	EffectsEntity dirtFx
+	Pull pull
 	real elapsed
-	boolean finished
-	boolean dirtFxTimeStopped
-	ChannelSoundPlayback channelSound
 
 	construct(unit caster, unit target)
-		this.caster = caster
+		super(caster, NAGATO_BANSHO_TENIN, BANSHO_PERIOD)
 		this.target = target
 		this.elapsed = 0.
-		this.finished = false
+		this.addTarget(target)
 		var speed = target.getMoveSpeed()
 		if speed < BANSHO_MIN_SPEED
 			speed = BANSHO_MIN_SPEED
-		let pull = Pull.toUnit(target, caster, BANSHO_STOP_RANGE, speed)
-		if pull == null
-			this.finished = true
-			if this.caster != null and this.caster.isAlive()
-				this.caster.issueImmediateOrder("stop")
+		this.pull = Pull.toUnit(target, caster, BANSHO_STOP_RANGE, speed)
+		if this.pull == null
+			if caster != null and caster.isAlive()
+				caster.issueImmediateOrder("stop")
 		else
-			this.caster.startChanneling(NAGATO_BANSHO_TENIN, 0.)
-			this.channelSound = snd_BanshoTenin.playChannelForUnit(this.caster, NAGATO_BANSHO_TENIN, BANSHO_SOUND_RADIUS)
-		this.dirtFx = addEffectEntity(BANSHO_DIRT_FX, target.getPos3Real())
-		this.updateDirtEffectTimeStop(this.isEffectTimeStopActive())
-		this.updateDirtEffect(this.caster.getPos(), this.target.getPos())
-		this.cb = doPeriodically(BANSHO_PERIOD) (CallbackPeriodic c) ->
-			this.update()
+			this.beginChannel(0.)
+			this.setChannelSound(snd_BanshoTenin.playChannelForUnit(caster, NAGATO_BANSHO_TENIN, BANSHO_SOUND_RADIUS))
+			this.dirtFx = addEffectEntity(BANSHO_DIRT_FX, target.getPos3Real())
+			if this.dirtFx != null
+				this.registerEffectWithUnit(this.dirtFx, caster)
+				this.registerEffectWithUnit(this.dirtFx, target)
+				this.updateDirtEffect(caster.getPos(), target.getPos())
+			this.startTicking()
 
-	function stopChannelSound()
-		if this.channelSound != null
-			this.channelSound.stop()
-			this.channelSound = null
-
-	function isActive() returns boolean
-		return not this.finished
-
-	function update()
-		if this.finished
-			return
-		if this.caster == null or not this.caster.isAlive()
-			this.stop(true)
+	override function onChannelTick()
+		let casterUnit = this.getCaster()
+		if casterUnit == null or not casterUnit.isAlive()
+			this.finishChannel(true)
 			return
 		if this.target == null or not this.target.isAlive()
-			this.stop(true)
+			this.finishChannel(true)
 			return
-		let casterTimeStopped = this.caster.isTimeStopped()
-		let targetTimeStopped = this.target.isTimeStopped()
-		this.updateDirtEffectTimeStop(casterTimeStopped or targetTimeStopped)
-		if casterTimeStopped
-			return
-		let casterPos = this.caster.getPos()
+		let casterPos = casterUnit.getPos()
 		let targetPos = this.target.getPos()
-		let diff = casterPos - targetPos
-		let dist = diff.length()
-		if dist <= BANSHO_STOP_RANGE
-			this.stop(true)
+		if casterPos.distanceTo(targetPos) <= BANSHO_STOP_RANGE
+			this.finishChannel(true)
 			return
-		this.elapsed += BANSHO_PERIOD
-		if this.caster.isEnemyOf(this.target)
-			let rawLevel = this.caster.getAbilityLevel(NAGATO_BANSHO_TENIN)
+		this.elapsed += this.getTickPeriod()
+		if casterUnit.isEnemyOf(this.target)
+			let rawLevel = casterUnit.getAbilityLevel(NAGATO_BANSHO_TENIN)
 			let lvl = rawLevel > 0 ? rawLevel.toReal() : 1.
 			let baseDps = 14. + 6. * lvl
 			let rampDps = 8. + 3. * lvl
-			let damage = (baseDps + rampDps * this.elapsed) * BANSHO_PERIOD
-			this.caster.damageTarget(this.target, damage, ATTACK_TYPE_HERO)
+			let damage = (baseDps + rampDps * this.elapsed) * this.getTickPeriod()
+			casterUnit.damageTarget(this.target, damage, ATTACK_TYPE_HERO)
 		else
 			this.target.clearTimeStop()
 			this.target.clearTimedPause()
@@ -104,37 +85,21 @@ class BanshoTenin
 		var appliedSpeed = this.target.getMoveSpeed()
 		if appliedSpeed < BANSHO_MIN_SPEED
 			appliedSpeed = BANSHO_MIN_SPEED
-		let pull = Pull.getActive(this.target)
-		if pull == null
-			this.stop(true)
+		let activePull = Pull.getActive(this.target)
+		if activePull == null
+			this.finishChannel(true)
 			return
-		pull.speed = appliedSpeed
+		activePull.speed = appliedSpeed
 		this.updateDirtEffect(casterPos, targetPos)
 
-	function stop(boolean orderCaster)
-		if this.finished
-			return
-		this.finished = true
-		this.stopChannelSound()
-		if this.caster != null
-			if orderCaster and this.caster.isAlive()
-				this.caster.finishChanneling(NAGATO_BANSHO_TENIN)
-				this.caster.issueImmediateOrder("stop")
-			this.caster.clearChanneling(NAGATO_BANSHO_TENIN)
-		if this.cb != null
-			destroy this.cb
-			this.cb = null
+	override function onChannelFinish(boolean orderCaster) returns boolean
 		if this.target != null
 			Pull.stopActive(this.target)
-		if this.dirtFxTimeStopped
-			this.updateDirtEffectTimeStop(false)
-		if this.dirtFx != null
-			this.dirtFx = destroyEffectEntity(this.dirtFx)
-		if this.caster != null and active.has(this.caster)
-			active.remove(this.caster)
-		this.caster = null
-		this.target = null
-		destroy this
+		if orderCaster
+			let casterUnit = this.getCaster()
+			if casterUnit != null and casterUnit.isAlive()
+				casterUnit.issueImmediateOrder("stop")
+		return true
 
 	function updateDirtEffect(vec2 casterPos, vec2 targetPos)
 		if this.dirtFx == null or this.target == null
@@ -147,40 +112,14 @@ class BanshoTenin
 		if actor != null
 			actor.setOrientation(yaw + BANSHO_DIRT_YAW_OFFSET, BANSHO_DIRT_PITCH, BANSHO_DIRT_ROLL)
 
-	function isEffectTimeStopActive() returns boolean
-		if this.caster != null and this.caster.isTimeStopped()
-			return true
-		if this.target != null and this.target.isTimeStopped()
-			return true
-		return false
-
-	function startDirtEffectTimeStop()
-		if this.dirtFx == null
-			return
-		let fx = this.dirtFx.getActor()
-		if fx != null
-			fx.startTimeStop()
-
-	function stopDirtEffectTimeStop()
-		if this.dirtFx == null
-			return
-		let fx = this.dirtFx.getActor()
-		if fx != null
-			fx.stopTimeStop()
-
-	function updateDirtEffectTimeStop(boolean active)
-		if active
-			if not this.dirtFxTimeStopped
-				this.dirtFxTimeStopped = true
-				this.startDirtEffectTimeStop()
-		else if this.dirtFxTimeStopped
-			this.dirtFxTimeStopped = false
-			this.stopDirtEffectTimeStop()
-
-	ondestroy
-		this.cb = null
+	override function onCleanup()
+		let casterUnit = this.getCaster()
+		if casterUnit != null and active.has(casterUnit)
+			if active.get(casterUnit) == this
+				active.remove(casterUnit)
 		this.dirtFx = null
-		this.channelSound = null
+		this.target = null
+		this.pull = null
 
 function onChannel()
 	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN
@@ -194,21 +133,21 @@ function onChannel()
 			return
 		if active.has(caster)
 			active.get(caster).stop(false)
-		let inst = new BanshoTenin(caster, target)
-		nullTimer() ->
-			caster
-			..setAnimation(CASTER_ANIMATION_INDEX)
-			..setEntityTimeScale(CASTER_ANIMATION_SPEED)
-		if inst.isActive()
-			active.put(caster, inst)
-		else
-			destroy inst
+			let inst = new BanshoTenin(caster, target)
+			if inst != null and inst.isChannelActive()
+				active.put(caster, inst)
+				nullTimer() ->
+					caster
+					..setAnimation(CASTER_ANIMATION_INDEX)
+					..setEntityTimeScale(CASTER_ANIMATION_SPEED)
+			else if inst != null
+				destroy inst
 
 function onStop()
 	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN
 		let caster = GetTriggerUnit()
 		if caster != null and active.has(caster)
-			active.get(caster).stop(false)
+			active.get(caster).finishChannel(false)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())

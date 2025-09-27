@@ -8,6 +8,8 @@ import EntityManagement
 import EntitySystem
 import EffectsSystem
 import SoundSystem
+import TimeStopSpell
+import HashSet
 import TimeStop
 
 constant real SUMMON_CHANNEL_TIME = 3.
@@ -40,200 +42,78 @@ constant int ANIMATION_CHANNEL = 8
 constant int ANIMATION_END = 17
 constant HashMap<unit, SummonAnimalPath> active = new HashMap<unit, SummonAnimalPath>()
 
-function releaseEffect(EffectsEntity entity) returns EffectsEntity
-	return destroyEffectEntity(entity)
-
-class SummonAnimalPath
-	unit caster
+class SummonAnimalPath extends ChannelSpell
 	vec2 targetPos
-	EffectsEntity scribble1
-	EffectsEntity scribble2
+	EffectTimeStopTracker scribble1Tracker
+	EffectTimeStopTracker scribble2Tracker
 	unit animalPath
 	unit animalPathSoundSource
 	boolean finished
-	LinkedList<EffectsEntity> channelWindEffects
+	LinkedList<EffectTimeStopTracker> channelWindTrackers
 	CallbackPeriodic channelWindTimer
 	boolean nextChannelWindIsFirst
-	CallbackPeriodic timeStopTimer
-	boolean effectsTimeStopped
 	boolean channelCompleted
-	real casterTimeScaleBeforeOverride
-	boolean casterTimeScaleOverridden
-	ChannelSoundPlayback handSignSound
 	SoundPlayback summoningSound
 	SoundPlayback chantSound
 	SoundPlayback poofSound
 
 	construct(unit caster, vec2 targetPos)
-		this.caster = caster
+		super(caster, NAGATO_SUMMON_ANIMAL_PATH, KUCHIYOSE_TIME_STOP_UPDATE_PERIOD)
 		this.targetPos = targetPos
 		this.finished = false
 		this.channelCompleted = false
-		this.channelWindEffects = new LinkedList<EffectsEntity>
+		this.channelWindTrackers = new LinkedList<EffectTimeStopTracker>
 		this.createVisuals()
+		this.enableChannelExclusion()
 		this.startChannelWindEffects()
 		this.playHandSignSound()
-		this.startTimeStopUpdates()
+		this.beginChannel(SUMMON_CHANNEL_TIME)
+		this.startTicking()
 
 	function hasCompletedChannel() returns boolean
 		return this.channelCompleted
 
+	override function shouldPauseChannel() returns boolean
+		return this.anyTrackedUnitTimeStopped()
+
 	function createVisuals()
+		let casterUnit = this.getCaster()
 		let casterPos = this.getCasterEffectPos()
-		this.animalPath = Unit.create(this.caster.getOwner(), NAGATO_ANIMAL_PATH_SUMMON, this.targetPos)..setScale(0.7)
+		let owner = casterUnit != null ? casterUnit.getOwner() : null
+		this.animalPath = Unit.create(owner, NAGATO_ANIMAL_PATH_SUMMON, this.targetPos)..setScale(0.7)
 		this.animalPathSoundSource = this.animalPath
+		if this.animalPath != null
+			this.registerUnit(this.animalPath)
+			this.registerTimeScaleSource(this.animalPath)
 		let animalPathPos = this.getAnimalPathEffectPos()
-		this.scribble1 = addEffectEntity(KUCHIYOSE_SCRIBBLE_MODEL_PATH, casterPos)
-		if this.scribble1 != null
-			let scribbleActor1 = this.scribble1.getActor()
+		let scribble1 = addEffectEntity(KUCHIYOSE_SCRIBBLE_MODEL_PATH, casterPos)
+		let scribble2 = addEffectEntity(KUCHIYOSE_SCRIBBLE_MODEL_PATH, animalPathPos)
+		let watchers = new HashSet<unit>
+		if casterUnit != null
+			watchers.add(casterUnit)
+		if this.animalPath != null
+			watchers.add(this.animalPath)
+		if scribble1 != null
+			let scribbleActor1 = scribble1.getActor()
 			if scribbleActor1 != null
 				scribbleActor1.playAnimation(ANIM_TYPE_STAND)
-		this.scribble2 = addEffectEntity(KUCHIYOSE_SCRIBBLE_MODEL_PATH, animalPathPos)
-		if this.scribble2 != null
-			let scribbleActor2 = this.scribble2.getActor()
+			this.scribble1Tracker = this.registerEffectWithUnits(scribble1, watchers)
+		if scribble2 != null
+			let scribbleActor2 = scribble2.getActor()
 			if scribbleActor2 != null
 				scribbleActor2.playAnimation(ANIM_TYPE_STAND)
+			this.scribble2Tracker = this.registerEffectWithUnits(scribble2, watchers)
+		destroy watchers
 		if this.animalPath != null
 			this.animalPath.setFacing(ANIMAL_PATH_SOUTH_FACING)
 			this.animalPath..setAnimation(ANIMATION_CHANNEL)..setEntityTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
 
-	function startEffectTimeStop(EffectsEntity entity)
-		if entity == null
-			return
-		let fx = entity.getActor()
-		if fx != null
-			fx.startTimeStop()
-
-	function stopEffectTimeStop(EffectsEntity entity)
-		if entity == null
-			return
-		let fx = entity.getActor()
-		if fx != null
-			fx.stopTimeStop()
-
-	function startEffectsTimeStop()
-		this.startEffectTimeStop(this.scribble1)
-		this.startEffectTimeStop(this.scribble2)
-		if this.channelWindEffects != null
-			for fx in this.channelWindEffects
-				this.startEffectTimeStop(fx)
-
-	function stopEffectsTimeStop()
-		this.stopEffectTimeStop(this.scribble1)
-		this.stopEffectTimeStop(this.scribble2)
-		if this.channelWindEffects != null
-			for fx in this.channelWindEffects
-				this.stopEffectTimeStop(fx)
-		this.effectsTimeStopped = false
-
-	function updateEffectsTimeStop(boolean active)
-		if active
-			if not this.effectsTimeStopped
-				this.effectsTimeStopped = true
-				this.startEffectsTimeStop()
-		else if this.effectsTimeStopped
-			this.effectsTimeStopped = false
-			this.stopEffectsTimeStop()
-
-	function shouldOverrideCasterTimeScale() returns boolean
-		let casterUnit = this.caster
-		if casterUnit == null
-			return false
-		if not casterUnit.isAlive()
-			return false
-		if casterUnit.isTimeStopped()
-			return false
-		let summon = this.animalPath
-		if summon == null
-			return false
-		return summon.isTimeStopped()
-
-	function startCasterTimeScaleOverride()
-		if this.casterTimeScaleOverridden
-			return
-		let casterUnit = this.caster
-		if casterUnit == null
-			return
-		this.casterTimeScaleBeforeOverride = casterUnit.getEntityTimeScale()
-		casterUnit.setEntityTimeScale(0.)
-		this.casterTimeScaleOverridden = true
-
-	function stopCasterTimeScaleOverride()
-		if not this.casterTimeScaleOverridden
-			return
-		let casterUnit = this.caster
-		if casterUnit != null
-			casterUnit.setEntityTimeScale(this.casterTimeScaleBeforeOverride)
-		this.casterTimeScaleOverridden = false
-
-	function updateCasterTimeScaleOverride()
-		if this.shouldOverrideCasterTimeScale()
-			this.startCasterTimeScaleOverride()
-		else
-			this.stopCasterTimeScaleOverride()
-
-	function isTimeStopActive() returns boolean
-		if this.caster != null and this.caster.isTimeStopped()
-			return true
-		if this.animalPath != null and this.animalPath.isTimeStopped()
-			return true
-		return false
-
-	function updateTimeStopState()
-		let isStopped = this.isTimeStopActive()
-		this.updateEffectsTimeStop(isStopped)
-		this.updateCasterTimeScaleOverride()
-
-	function updateChannelProgress()
-		if this.finished
-			return
-		let casterUnit = this.caster
-		if casterUnit == null
-			this.finish(false)
-			return
-		if not casterUnit.isAlive()
-			this.finish(false)
-			return
-		if not casterUnit.isChannelingAbility(NAGATO_SUMMON_ANIMAL_PATH)
-			if this.channelCompleted
-				this.finish(true)
-			else
-				this.finish(false)
-			return
-		if this.shouldPauseChannelDueToTimeStop()
-			return
-		casterUnit.consumeChannelTime(NAGATO_SUMMON_ANIMAL_PATH, KUCHIYOSE_TIME_STOP_UPDATE_PERIOD)
-		if not this.channelCompleted and casterUnit.getChannelRemaining(NAGATO_SUMMON_ANIMAL_PATH) <= 0.
-			this.channelCompleted = true
-			this.finish(true)
-
-	function onPeriodicUpdate()
-		this.updateTimeStopState()
-		this.updateChannelProgress()
-
-	function shouldPauseChannelDueToTimeStop() returns boolean
-		if this.animalPath != null and this.animalPath.isTimeStopped()
-			return true
-		return false
-
-	function startTimeStopUpdates()
-		if this.timeStopTimer != null
-			return
-		let inst = this
-		this.timeStopTimer = doPeriodically(KUCHIYOSE_TIME_STOP_UPDATE_PERIOD) (CallbackPeriodic c) ->
-			inst.onPeriodicUpdate()
-		this.onPeriodicUpdate()
-
-	function stopTimeStopUpdates()
-		if this.timeStopTimer != null
-			destroy this.timeStopTimer
-			this.timeStopTimer = null
-
 	function getCasterEffectPos() returns vec3
-		if this.caster == null
+		let casterUnit = this.getCaster()
+		if casterUnit == null
 			return vec3(0, 0, 0)
-		let casterEntity = this.caster.getEntity()
-		return casterEntity != null ? casterEntity.getPos() : this.caster.getPos3Real()
+		let casterEntity = casterUnit.getEntity()
+		return casterEntity != null ? casterEntity.getPos() : casterUnit.getPos3Real()
 
 	function getAnimalPathEffectPos() returns vec3
 		if this.animalPath == null
@@ -251,27 +131,33 @@ class SummonAnimalPath
 			inst.playNextChannelWindEffect()
 
 	function playNextChannelWindEffect()
-		if this.caster == null
+		if this.getCaster() == null
 			return
 		this.playChannelWindEffect(this.nextChannelWindIsFirst)
 		this.nextChannelWindIsFirst = not this.nextChannelWindIsFirst
 
 	function playChannelWindEffect(boolean playFirst)
-		if this.caster == null
+		let casterUnit = this.getCaster()
+		if casterUnit == null
 			return
-		let casterPos		= this.getCasterEffectPos()
-		let animalPathPos	= this.getAnimalPathEffectPos()
+		let casterPos           = this.getCasterEffectPos()
+		let animalPathPos       = this.getAnimalPathEffectPos()
 		let modelPath = playFirst ? KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_1 : KUCHIYOSE_CHANNEL_WIND_MODEL_PATH_2
 		let effectInstance1 = this.createChannelWindEffect(modelPath, casterPos)
 		let effectInstance2 = this.createChannelWindEffect(modelPath, animalPathPos)
+		let watchers = new HashSet<unit>
+		watchers.add(casterUnit)
+		if this.animalPath != null
+			watchers.add(this.animalPath)
 		if effectInstance1 != null
-			if this.effectsTimeStopped
-				this.startEffectTimeStop(effectInstance1)
-			this.channelWindEffects.add(effectInstance1)
+			let tracker1 = this.registerEffectWithUnits(effectInstance1, watchers)
+			if this.channelWindTrackers != null and tracker1 != null
+				this.channelWindTrackers.add(tracker1)
 		if effectInstance2 != null
-			if this.effectsTimeStopped
-				this.startEffectTimeStop(effectInstance2)
-			this.channelWindEffects.add(effectInstance2)
+			let tracker2 = this.registerEffectWithUnits(effectInstance2, watchers)
+			if this.channelWindTrackers != null and tracker2 != null
+				this.channelWindTrackers.add(tracker2)
+		destroy watchers
 
 	function createChannelWindEffect(string modelPath, vec3 pos) returns EffectsEntity
 		let entity = addEffectEntity(modelPath, pos)
@@ -306,21 +192,16 @@ class SummonAnimalPath
 			return null
 		return profile.playAt(this.getAnimalPathSoundPos(), KUCHIYOSE_SOUND_RADIUS)
 
-	function stopChannelSound(ChannelSoundPlayback channel) returns ChannelSoundPlayback
-		if channel != null
-			channel.stop()
-		return null
-
 	function stopSoundPlayback(SoundPlayback playback) returns SoundPlayback
 		if playback != null
 			playback.stopAll()
 		return null
 
 	function playHandSignSound()
-		this.handSignSound = this.playSoundForAnimalPath(snd_KuchiyoseHandSign)
+		this.setChannelSound(this.playSoundForAnimalPath(snd_KuchiyoseHandSign))
 
 	function stopHandSignSound()
-		this.handSignSound = this.stopChannelSound(this.handSignSound)
+		this.stopChannelSound()
 
 	function playCastEndSounds()
 		this.stopHandSignSound()
@@ -337,34 +218,32 @@ class SummonAnimalPath
 		this.poofSound = this.stopSoundPlayback(this.poofSound)
 
 	function releaseAllChannelWindEffects()
-		if this.channelWindEffects == null
+		if this.channelWindTrackers == null
 			return
-		for fx in this.channelWindEffects
-			releaseEffect(fx)
-		destroy this.channelWindEffects
-		this.channelWindEffects = null
+		for tracker in this.channelWindTrackers
+			if tracker != null
+				tracker.release()
+		this.channelWindTrackers.clear()
 
-	function finish(boolean success)
+	override function onChannelFinish(boolean orderCaster) returns boolean
+		this.handleFinish(orderCaster)
+		return false
+
+	function handleFinish(boolean success)
 		if this.finished
 			return
 		this.finished = true
-		this.stopCasterTimeScaleOverride()
-		this.stopTimeStopUpdates()
-		if this.effectsTimeStopped
-			this.stopEffectsTimeStop()
+		this.channelCompleted = success
 		this.stopChannelWindEffects()
 		if not success
 			this.stopHandSignSound()
 			this.stopSummoningSound()
 			this.stopChantSound()
 			this.stopPoofSound()
-		if this.caster != null
-			if active.has(this.caster)
-				active.remove(this.caster)
-			if success
-				this.caster.finishChanneling(NAGATO_SUMMON_ANIMAL_PATH)
-			else
-				this.caster.clearChanneling(NAGATO_SUMMON_ANIMAL_PATH)
+		let casterUnit = this.getCaster()
+		if casterUnit != null and active.has(casterUnit)
+			if active.get(casterUnit) == this
+				active.remove(casterUnit)
 		if success
 			this.playCastEndSounds()
 			this.startSuccessfulFinish()
@@ -384,18 +263,16 @@ class SummonAnimalPath
 		this.summoningSound = null
 		this.chantSound = null
 		this.poofSound = null
-		this.caster = null
-		destroy this
+		this.finishSpell()
 
 	function cancelFinish()
 		this.removeAnimalPathImmediate()
 		this.cleanupScribble()
 		this.playCasterFinishAnimation()
-		this.caster = null
-		destroy this
+		this.finishSpell()
 
 	function playCasterFinishAnimation()
-		let casterUnit = this.caster
+		let casterUnit = this.getCaster()
 		if casterUnit != null
 			nullTimer() ->
 				if casterUnit != null and casterUnit.isAlive() and not casterUnit.isTimeStopped()
@@ -408,17 +285,25 @@ class SummonAnimalPath
 			let actor = entity.getActor()
 			if actor != null
 				actor.playAnimation(ANIM_TYPE_BIRTH)
-			if this.effectsTimeStopped
-				this.startEffectTimeStop(entity)
+			let watchers = new HashSet<unit>
+			let casterUnit = this.getCaster()
+			if casterUnit != null
+				watchers.add(casterUnit)
+			if this.animalPath != null
+				watchers.add(this.animalPath)
+			let tracker = this.registerEffectWithUnits(entity, watchers)
+			destroy watchers
 			doAfter(ANIMAL_PATH_TELEPORT_WIND_RELEASE_DELAY) ->
-				releaseEffect(entity)
+				if tracker != null
+					tracker.release()
 
 	function teleportAllies()
-		if this.caster == null or not this.caster.isAlive()
+		let casterUnit = this.getCaster()
+		if casterUnit == null or not casterUnit.isAlive()
 			this.removeAnimalPathImmediate()
 			return
-		let origin = this.caster.getPos()
-		teleportUnitToPoint(this.caster, this.targetPos)
+		let origin = casterUnit.getPos()
+		teleportUnitToPoint(casterUnit, this.targetPos)
 		teleportUnitsInRangeToPoint(origin, ANIMAL_PATH_TELEPORT_RADIUS, this.targetPos, (unit u) -> this.shouldTeleport(u), ANIMAL_PATH_TELEPORT_SPREAD)
 		this.spawnTeleportWindAt(this.targetPos)
 		this.playPoofSound()
@@ -429,11 +314,12 @@ class SummonAnimalPath
 	function shouldTeleport(unit u) returns bool
 		if u == null or not u.isAlive()
 			return false
-		if u == this.caster
+		let casterUnit = this.getCaster()
+		if u == casterUnit
 			return false
 		if not u.isType(UNIT_TYPE_HERO)
 			return false
-		if not this.caster.isAllyOf(u)
+		if casterUnit == null or not casterUnit.isAllyOf(u)
 			return false
 		return true
 
@@ -460,24 +346,34 @@ class SummonAnimalPath
 			this.animalPathSoundSource = null
 
 	function cleanupScribble()
-		this.scribble1 = releaseEffect(this.scribble1)
-		this.scribble2 = releaseEffect(this.scribble2)
+		if this.scribble1Tracker != null
+			this.scribble1Tracker.release()
+			this.scribble1Tracker = null
+		if this.scribble2Tracker != null
+			this.scribble2Tracker.release()
+			this.scribble2Tracker = null
 
-	ondestroy
-		if this.effectsTimeStopped
-			this.stopEffectsTimeStop()
+	override function onCleanup()
 		this.stopChannelWindEffects()
 		this.stopHandSignSound()
 		this.stopSummoningSound()
 		this.stopChantSound()
 		this.stopPoofSound()
-		this.stopTimeStopUpdates()
-		this.stopCasterTimeScaleOverride()
-		this.effectsTimeStopped = false
+		this.releaseAllChannelWindEffects()
+		this.cleanupScribble()
+		if this.channelWindTrackers != null
+			destroy this.channelWindTrackers
+			this.channelWindTrackers = null
+		let casterUnit = this.getCaster()
+		if casterUnit != null and active.has(casterUnit)
+			if active.get(casterUnit) == this
+				active.remove(casterUnit)
 		this.animalPath = null
 		this.animalPathSoundSource = null
-		this.scribble1 = null
-		this.scribble2 = null
+		this.summoningSound = null
+		this.chantSound = null
+		this.poofSound = null
+		this.channelWindTimer = null
 
 function onChannel()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
@@ -494,13 +390,15 @@ function onChannel()
 			caster.issueImmediateOrder("stop")
 			return
 		if active.has(caster)
-			active.get(caster).finish(false)
-		caster.startChanneling(NAGATO_SUMMON_ANIMAL_PATH, SUMMON_CHANNEL_TIME)
+			active.get(caster).finishChannel(false)
 		let inst = new SummonAnimalPath(caster, targetPos)
-		active.put(caster, inst)
-		nullTimer() ->
-			if caster != null
-				caster..setAnimation(ANIMATION_CHANNEL)..setEntityTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
+		if inst != null and inst.isChannelActive()
+			active.put(caster, inst)
+			nullTimer() ->
+				if caster != null
+					caster..setAnimation(ANIMATION_CHANNEL)..setEntityTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
+		else if inst != null
+			destroy inst
 
 function onEnd()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
@@ -508,9 +406,8 @@ function onEnd()
 		if caster != null and active.has(caster)
 			let inst = active.get(caster)
 			if inst != null
-				inst.finish(inst.hasCompletedChannel())
+				inst.finishChannel(inst.hasCompletedChannel())
 
 init
-	registerTimeStopChannelExclusion(NAGATO_SUMMON_ANIMAL_PATH)
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, () -> onEnd())

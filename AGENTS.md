@@ -97,6 +97,7 @@
 ### Memory, handles, and lifecycle
 - Destroy objects with `destroy x` (or dedicated helpers) instead of calling `x.destroy()` unless a helper exists.
 - Objects created with `new` require explicit cleanup (`ondestroy` is the destructor hook). Be mindful of reference cycles and manual reference counting.
+- There is no such things as "continue" or "super.destroy()" or params with "...", eg: function test(type x, unit watcher...).
 - Clean up temporary objects promptly; avoid creating new objects inside hot loops, and prefer pooling patterns when appropriate.
 - Manage unit, item, and player handles carefully—indexing is often 0-based in code even when UI shows 1-based players.
 - You cannot `destroy` framehandles; treat them as persistent once created.

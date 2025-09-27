@@ -1,0 +1,505 @@
+package TimeStopSpell
+
+import HashMap
+import HashSet
+import ClosureTimers
+import EntitySystem
+import EffectsSystem
+import EntityManagement
+import TimeStop
+import SoundSystem
+
+public class EffectTimeStopTracker
+	EffectsEntity sfx
+	HashSet<unit> watchers
+	boolean destroyOnFinish
+	boolean timeStopped
+
+	construct(EffectsEntity sfx, boolean destroyOnFinish)
+		this.sfx = sfx
+		this.destroyOnFinish = destroyOnFinish
+		this.watchers = new HashSet<unit>
+		this.timeStopped = false
+
+	function addWatcher(unit watcher)
+		if watcher == null
+			return
+		this.watchers.add(watcher)
+
+	function addWatchers(HashSet<unit> units)
+		if units == null
+			return
+		for u in units
+			this.addWatcher(u)
+
+	function shouldFreeze() returns boolean
+		if this.watchers == null or this.watchers.isEmpty()
+			return false
+		for watcher in this.watchers
+			if watcher != null and watcher.isTimeStopped()
+				return true
+		return false
+
+	function startTimeStop()
+		if this.sfx == null
+			return
+		let actor = this.sfx.getActor()
+		if actor != null
+			actor.startTimeStop()
+
+	function stopTimeStop()
+		if this.sfx == null
+			return
+		let actor = this.sfx.getActor()
+		if actor != null
+			actor.stopTimeStop()
+
+	function applyInitialState()
+		if this.sfx == null
+			return
+		if this.shouldFreeze()
+			this.timeStopped = true
+			this.startTimeStop()
+		else if this.timeStopped
+			this.timeStopped = false
+			this.stopTimeStop()
+
+	function updateState()
+		if this.sfx == null
+			return
+		let freeze = this.shouldFreeze()
+		if freeze
+			if not this.timeStopped
+				this.timeStopped = true
+				this.startTimeStop()
+		else if this.timeStopped
+			this.timeStopped = false
+			this.stopTimeStop()
+
+	function release()
+		if this.sfx != null and this.destroyOnFinish
+			this.sfx = destroyEffectEntity(this.sfx)
+		this.sfx = null
+		if this.watchers != null
+			destroy this.watchers
+		this.watchers = null
+		this.timeStopped = false
+
+	function getEffect() returns EffectsEntity
+		return this.sfx
+
+	ondestroy
+		this.sfx = null
+		if this.watchers != null
+			destroy this.watchers
+		this.watchers = null
+
+let channelExclusionCounts = new HashMap<int, int>()
+
+function addChannelExclusion(int abilityId)
+	if abilityId == 0
+		return
+	var count = 0
+	if channelExclusionCounts.has(abilityId)
+		count = channelExclusionCounts.get(abilityId)
+	count += 1
+	channelExclusionCounts.put(abilityId, count)
+	if count == 1
+		registerTimeStopChannelExclusion(abilityId)
+
+function removeChannelExclusion(int abilityId)
+	if abilityId == 0
+		return
+	if not channelExclusionCounts.has(abilityId)
+		return
+	var count = channelExclusionCounts.get(abilityId)
+	count -= 1
+	if count <= 0
+		channelExclusionCounts.remove(abilityId)
+		unregisterTimeStopChannelExclusion(abilityId)
+	else
+		channelExclusionCounts.put(abilityId, count)
+
+class TimeStopAwareSpell
+	unit caster
+	int abilityId
+	real tickPeriod
+	CallbackPeriodic periodic
+	LinkedList<EffectTimeStopTracker> trackedEffects
+	HashSet<unit> trackedUnits
+	HashSet<unit> timeScaleSources
+	real casterTimeScaleBeforeOverride
+	boolean casterTimeScaleOverridden
+	ChannelSoundPlayback channelSound
+	boolean cleanedUp
+
+	construct(unit caster, int abilityId, real tickPeriod)
+		this.caster = caster
+		this.abilityId = abilityId
+		this.tickPeriod = tickPeriod
+		this.trackedEffects = new LinkedList<EffectTimeStopTracker>()
+		this.trackedUnits = new HashSet<unit>
+		this.timeScaleSources = new HashSet<unit>
+		this.casterTimeScaleBeforeOverride = 1.
+		this.casterTimeScaleOverridden = false
+		this.cleanedUp = false
+		if caster != null
+			this.registerUnit(caster)
+
+	function getCaster() returns unit
+		return this.caster
+
+	function getAbilityId() returns int
+		return this.abilityId
+
+	function getTickPeriod() returns real
+		return this.tickPeriod
+
+	function startTicking()
+		if this.periodic != null
+			return
+		if this.tickPeriod <= 0.
+			return
+		let inst = this
+		this.periodic = doPeriodically(this.tickPeriod) (CallbackPeriodic c) ->
+			inst.tick()
+
+	function stopTicking()
+		if this.periodic != null
+			destroy this.periodic
+			this.periodic = null
+
+	function onBeforeTick()
+		// override
+
+	function onTick()
+		// override
+
+	function tick()
+		if this.cleanedUp
+			return
+		this.onBeforeTick()
+		if this.cleanedUp
+			return
+		this.updateTrackedEffects()
+		this.updateCasterTimeScaleOverride()
+		if this.cleanedUp
+			return
+		this.onTick()
+
+	function updateTrackedEffects()
+		if this.trackedEffects == null or this.trackedEffects.isEmpty()
+			return
+		for tracker in this.trackedEffects
+			if tracker != null
+				tracker.updateState()
+
+	function registerUnit(unit watcher)
+		if watcher == null
+			return
+		if this.trackedUnits != null
+			this.trackedUnits.add(watcher)
+
+	function registerUnits(HashSet<unit> units)
+		if units == null
+			return
+		for u in units
+			this.registerUnit(u)
+
+	function anyTrackedUnitTimeStopped() returns boolean
+		if this.trackedUnits == null or this.trackedUnits.isEmpty()
+			return false
+		for u in this.trackedUnits
+			if u != null and u.isTimeStopped()
+				return true
+		return false
+
+	function registerEffect(EffectsEntity sfx, boolean destroyOnFinish) returns EffectTimeStopTracker
+		if sfx == null
+			return null
+		let tracker = new EffectTimeStopTracker(sfx, destroyOnFinish)
+		this.trackedEffects.add(tracker)
+		tracker.applyInitialState()
+		return tracker
+
+	function registerEffect(EffectsEntity sfx) returns EffectTimeStopTracker
+		return this.registerEffect(sfx, true)
+
+	function registerEffectWithUnit(EffectsEntity sfx, unit watcher) returns EffectTimeStopTracker
+		let tracker = this.registerEffect(sfx, true)
+		if tracker != null
+			tracker.addWatcher(watcher)
+		return tracker
+
+	function registerEffectWithUnits(EffectsEntity sfx, HashSet<unit> watchers) returns EffectTimeStopTracker
+		let tracker = this.registerEffect(sfx, true)
+		if tracker != null
+			tracker.addWatchers(watchers)
+		return tracker
+
+	function registerPersistentEffectWithUnit(EffectsEntity sfx, unit watcher) returns EffectTimeStopTracker
+		let tracker = this.registerEffect(sfx, false)
+		if tracker != null
+			tracker.addWatcher(watcher)
+		return tracker
+
+	function registerPersistentEffectWithUnits(EffectsEntity sfx, HashSet<unit> watchers) returns EffectTimeStopTracker
+		let tracker = this.registerEffect(sfx, false)
+		if tracker != null
+			tracker.addWatchers(watchers)
+		return tracker
+
+	function setChannelSound(ChannelSoundPlayback snd)
+		if this.channelSound != null and this.channelSound != snd
+			this.channelSound.stop()
+		this.channelSound = snd
+
+	function stopChannelSound()
+		if this.channelSound != null
+			this.channelSound.stop()
+		this.channelSound = null
+
+	function registerTimeScaleSource(unit source)
+		if source == null
+			return
+		if this.timeScaleSources != null
+			this.timeScaleSources.add(source)
+
+	function shouldOverrideCasterTimeScale() returns boolean
+		let casterUnit = this.caster
+		if casterUnit == null
+			return false
+		if not casterUnit.isAlive()
+			return false
+		if casterUnit.isTimeStopped()
+			return false
+		if this.timeScaleSources == null or this.timeScaleSources.isEmpty()
+			return false
+		for unit source in this.timeScaleSources
+			if source != null and source.isTimeStopped()
+				return true
+		return false
+
+	function startCasterTimeScaleOverride()
+		if this.casterTimeScaleOverridden
+			return
+		let casterUnit = this.caster
+		if casterUnit == null
+			return
+		this.casterTimeScaleBeforeOverride = casterUnit.getEntityTimeScale()
+		casterUnit.setEntityTimeScale(0.)
+		this.casterTimeScaleOverridden = true
+
+	function stopCasterTimeScaleOverride()
+		if not this.casterTimeScaleOverridden
+			return
+		let casterUnit = this.caster
+		if casterUnit != null
+			casterUnit.setEntityTimeScale(this.casterTimeScaleBeforeOverride)
+		this.casterTimeScaleOverridden = false
+
+	function updateCasterTimeScaleOverride()
+		if this.shouldOverrideCasterTimeScale()
+			this.startCasterTimeScaleOverride()
+		else
+			this.stopCasterTimeScaleOverride()
+
+	function cleanupEffects()
+		if this.trackedEffects == null or this.trackedEffects.isEmpty()
+			return
+		for tracker in this.trackedEffects
+			if tracker != null
+				tracker.release()
+		this.trackedEffects.clear()
+
+	function onCleanup()
+		// override
+
+	function finishSpell()
+		if this.cleanedUp
+			return
+		this.cleanedUp = true
+		this.stopTicking()
+		this.stopCasterTimeScaleOverride()
+		this.stopChannelSound()
+		this.cleanupEffects()
+		this.onCleanup()
+		if this.trackedUnits != null
+			this.trackedUnits.clear()
+		if this.timeScaleSources != null
+			this.timeScaleSources.clear()
+		destroy this
+
+	ondestroy
+		this.caster = null
+		if this.periodic != null
+			destroy this.periodic
+		this.periodic = null
+		if this.trackedEffects != null
+			for tracker in this.trackedEffects
+				if tracker != null
+					destroy tracker
+			this.trackedEffects = null
+		if this.trackedUnits != null
+			destroy this.trackedUnits
+		this.trackedUnits = null
+		if this.timeScaleSources != null
+			destroy this.timeScaleSources
+		this.timeScaleSources = null
+		this.channelSound = null
+
+public class ChannelSpell extends TimeStopAwareSpell
+	HashSet<unit> targets
+	boolean channelStarted
+	boolean channelActive
+	real channelDuration
+	boolean hasChannelDuration
+	boolean allowTicksDuringTimeStop
+	boolean skipTick
+	boolean channelExclusionActive
+
+	construct(unit caster, int abilityId, real tickPeriod)
+		super(caster, abilityId, tickPeriod)
+		this.targets = new HashSet<unit>
+		this.channelStarted = false
+		this.channelActive = false
+		this.channelDuration = 0.
+		this.hasChannelDuration = false
+		this.allowTicksDuringTimeStop = false
+		this.skipTick = false
+		this.channelExclusionActive = false
+
+	function addTarget(unit target)
+		if target == null
+			return
+		this.targets.add(target)
+		this.registerUnit(target)
+
+	function setAllowTicksDuringTimeStop(boolean allow)
+		this.allowTicksDuringTimeStop = allow
+
+	function enableChannelExclusion()
+		if this.channelExclusionActive
+			return
+		addChannelExclusion(this.getAbilityId())
+		this.channelExclusionActive = true
+
+	function disableChannelExclusion()
+		if not this.channelExclusionActive
+			return
+		removeChannelExclusion(this.getAbilityId())
+		this.channelExclusionActive = false
+
+	function isChannelActive() returns boolean
+		return this.channelActive
+
+	function isChannelStarted() returns boolean
+		return this.channelStarted
+
+	function stop(boolean orderCaster)
+		this.finishChannel(orderCaster)
+
+	function addTargets(HashSet<unit> units)
+		if units == null
+			return
+		for u in units
+			this.addTarget(u)
+
+	function beginChannel(real duration)
+		if this.channelStarted
+			return
+		this.channelStarted = true
+		this.channelActive = true
+		this.channelDuration = duration
+		this.hasChannelDuration = duration > 0.
+		let casterUnit = this.getCaster()
+		if casterUnit != null
+			casterUnit.startChanneling(this.getAbilityId(), duration)
+
+	function shouldPauseChannel() returns boolean
+		return false
+
+	override function onBeforeTick()
+		if not this.channelActive
+			this.skipTick = true
+			return
+		this.skipTick = false
+		let casterUnit = this.getCaster()
+		if casterUnit == null or not casterUnit.isAlive()
+			this.handleCasterInvalid()
+			this.skipTick = true
+			return
+		if not this.channelStarted
+			this.skipTick = true
+			return
+		if not casterUnit.isChannelingAbility(this.getAbilityId())
+			this.handleChannelLost()
+			this.skipTick = true
+			return
+		if this.hasChannelDuration
+			if this.shouldPauseChannel()
+				this.skipTick = true
+				return
+			let consumed = casterUnit.consumeChannelTime(this.getAbilityId(), this.getTickPeriod())
+			if consumed <= 0.
+				if not this.allowTicksDuringTimeStop
+					this.skipTick = true
+					return
+			if casterUnit.getChannelRemaining(this.getAbilityId()) <= 0.
+				this.handleChannelCompleted()
+				this.skipTick = true
+				return
+		else
+			if this.shouldPauseChannel()
+				this.skipTick = true
+				return
+			if not this.allowTicksDuringTimeStop and casterUnit.isTimeStopped()
+				this.skipTick = true
+				return
+	override function onTick()
+		if this.skipTick
+			return
+		this.onChannelTick()
+
+	function onChannelTick()
+		// override
+
+	function handleCasterInvalid()
+		if this.channelActive
+			this.finishChannel(false)
+
+	function handleChannelLost()
+		if this.channelActive
+			this.finishChannel(false)
+
+	function handleChannelCompleted()
+		if this.channelActive
+			this.finishChannel(true)
+
+	function onChannelFinish(boolean _orderCaster) returns boolean
+		return true
+
+	function finishChannel(boolean orderCaster)
+		if not this.channelActive
+			return
+		this.channelActive = false
+		let casterUnit = this.getCaster()
+		if casterUnit != null
+			if orderCaster
+				casterUnit.finishChanneling(this.getAbilityId())
+			else
+				casterUnit.clearChanneling(this.getAbilityId())
+		this.disableChannelExclusion()
+		let shouldFinalize = this.onChannelFinish(orderCaster)
+		if shouldFinalize
+			this.finishSpell()
+
+	override function onCleanup()
+		if this.targets != null
+			this.targets.clear()
+
+	ondestroy
+		this.disableChannelExclusion()
+		if this.targets != null
+			destroy this.targets
+		this.targets = null
