@@ -1,37 +1,37 @@
 package ScreenTest
 
-import ClosureTimers
-import PrecomputedHeightMap
-import World2Screen
-import World2ScreenSync
+// import ClosureTimers
+// import PrecomputedHeightMap
+// import World2Screen
+// import World2ScreenSync
 
-real mouseScreenX = 0.
-real mouseScreenY = 0.
-boolean isMouseProjectionVisible = false
-framehandle screenTestFrame = null
-effect runeEffect = null
+// real mouseScreenX = 0.
+// real mouseScreenY = 0.
+// boolean isMouseProjectionVisible = false
+// framehandle screenTestFrame = null
+// effect runeEffect = null
 
-init
-	doAfter(8) -> 
-		print("Testing")
-		CreateFogModifierRectBJ(true, players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect())
-		screenTestFrame = BlzCreateFrameByType("TEXT", "ScreenTestText", BlzGetOriginFrame(ORIGIN_FRAME_WORLD_FRAME, 0), "", 0)
-		BlzFrameSetText(screenTestFrame, "Hello, I am a frame!")
-		BlzFrameSetEnable(screenTestFrame, false)
-		runeEffect = AddSpecialEffect("Doodads\\Cinematic\\GlowingRunes\\GlowingRunes0.mdx", 0., 0.)
-		let mouseTrigger = CreateTrigger()
-		mouseTrigger.registerPlayerEvent(players[0], EVENT_PLAYER_MOUSE_MOVE)
-		mouseTrigger.addAction(()) ->
-			let mouseX = BlzGetTriggerPlayerMouseX()
-			let mouseY = BlzGetTriggerPlayerMouseY()
-			let mouseZ = getTerrainZ(mouseX, mouseY)
-			let projection = world2ScreenSynced(mouseX, mouseY, mouseZ, players[0])
-			mouseScreenX = projection.screenX
-			mouseScreenY = projection.screenY
-			isMouseProjectionVisible = projection.onScreen
-			BlzFrameSetAbsPoint(screenTestFrame, FRAMEPOINT_BOTTOMLEFT, mouseScreenX, mouseScreenY)
-			BlzFrameSetVisible(screenTestFrame, isMouseProjectionVisible)
+// init
+// 	doAfter(8) -> 
+// 		print("Testing")
+// 		CreateFogModifierRectBJ(true, players[0], FOG_OF_WAR_VISIBLE, GetPlayableMapRect())
+// 		screenTestFrame = BlzCreateFrameByType("TEXT", "ScreenTestText", BlzGetOriginFrame(ORIGIN_FRAME_WORLD_FRAME, 0), "", 0)
+// 		BlzFrameSetText(screenTestFrame, "Hello, I am a frame!")
+// 		BlzFrameSetEnable(screenTestFrame, false)
+// 		runeEffect = AddSpecialEffect("Doodads\\Cinematic\\GlowingRunes\\GlowingRunes0.mdx", 0., 0.)
+// 		let mouseTrigger = CreateTrigger()
+// 		mouseTrigger.registerPlayerEvent(players[0], EVENT_PLAYER_MOUSE_MOVE)
+// 		mouseTrigger.addAction(()) ->
+// 			let mouseX = BlzGetTriggerPlayerMouseX()
+// 			let mouseY = BlzGetTriggerPlayerMouseY()
+// 			let mouseZ = getTerrainZ(mouseX, mouseY)
+// 			let projection = world2ScreenSynced(mouseX, mouseY, mouseZ, players[0])
+// 			mouseScreenX = projection.screenX
+// 			mouseScreenY = projection.screenY
+// 			isMouseProjectionVisible = projection.onScreen
+// 			BlzFrameSetAbsPoint(screenTestFrame, FRAMEPOINT_BOTTOMLEFT, mouseScreenX, mouseScreenY)
+// 			BlzFrameSetVisible(screenTestFrame, isMouseProjectionVisible)
 
-		doPeriodically(0.01) (CallbackPeriodic periodic) ->
-			let intersection = screen2WorldSynced(mouseScreenX, mouseScreenY, players[0])
-			BlzSetSpecialEffectPosition(runeEffect, intersection.worldX, intersection.worldY, intersection.worldZ)
+// 		doPeriodically(0.01) (CallbackPeriodic periodic) ->
+// 			let intersection = screen2WorldSynced(mouseScreenX, mouseScreenY, players[0])
+// 			BlzSetSpecialEffectPosition(runeEffect, intersection.worldX, intersection.worldY, intersection.worldZ)
