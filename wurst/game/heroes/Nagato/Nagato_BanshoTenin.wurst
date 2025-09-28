@@ -122,6 +122,7 @@ class BanshoTenin extends ChannelSpell
 		this.dirtFx = null
 		this.target = null
 		this.pull = null
+		this.elapsed = 0
 
 function onChannel()
 	if GetSpellAbilityId() == NAGATO_BANSHO_TENIN

@@ -9,12 +9,33 @@ import objectIDs
 	..setLevels(2)
 	..presetDamageBonus(lvl -> 0)
 	..presetMoveSpeedBonus(lvl -> 0)
+	/*
+	* To explain how this works briefly: When you give (ALL_MIGHT_SWAPPER1, lvl 1) ability to a unit, if they have the "BASE" abilities on them
+	* Then this Tinker Engineer Ability will "swap/upgrade" the base ability to the next ability.
+	* You can upgrade/swap max 4 abilities per tinker engineer abilities (because theres only 4 fields), if you want more then you need to have two Tinker Engineer abilities added
+	* You can stack as many as you want the more tinker engineer abilities you add onto a unit.
+	* 
+	* Take the below as example (these are the fields, max 4):
+	* setAbilityUpgrade & setAbilityUpgrade1 & setAbilityUpgrade2 & setAbilityUpgrade3
+	* 
+	* setAbilityUpgrade, using this as example, at lvl 1 (default, lvl 0 means its unlearned) it will swap ALL_MIGHT_MISSILE_BASE to ALL_MIGHT_MISSILE1
+	* So basically when you "learn" the tinker engineer ability (or just add the ability to the unit), then the upgrade/swap happens
+	* if I set the level of the tinker engineer ability to lvl 2, then it will swap ALL_MIGHT_MISSILE1 to ALL_MIGHT_MISSILE2
+	* or if I downgrade and set it to lvl 1 (it was lvl 2) it will reverse ALL_MIGHT_MISSILE2 to ALL_MIGHT_MISSILE1
+	* All around, powerful ability for upgrading/swapping spells :)
+	*
+	* PS: If the hero does not have the previous/next ability, lets say ALL_MIGHT_MISSILE1, then upgrading/swapping BASE to this wont work, or downgrading MISSILE2 to MISSILE1
+	*/
+	// Ability 1 Swapper / Upgrader
 	..setAbilityUpgrade(1, commaList(ALL_MIGHT_MISSILE_BASE, ALL_MIGHT_MISSILE1))
 	..setAbilityUpgrade(2, commaList(ALL_MIGHT_MISSILE1, ALL_MIGHT_MISSILE2))
-	..setAbilityUpgrade1(1, commaList(ALL_MIGHT_PULL_BASE, ALL_MIGHT_PULL1))
-	..setAbilityUpgrade1(2, commaList(ALL_MIGHT_PULL1, ALL_MIGHT_PULL2))
+	// Ability 2 Swapper / Upgrader
+	..setAbilityUpgrade1(1, commaList(ALL_MIGHT_PULL_BASE, PULL_TEST_ABILITY))
+	..setAbilityUpgrade1(2, commaList(PULL_TEST_ABILITY, ALL_MIGHT_PULL2))
+	// Ability 3 Swapper / Upgrader
 	..setAbilityUpgrade2(1, commaList(ALL_MIGHT_PUSH_BASE, ALL_MIGHT_PUSH1))
 	..setAbilityUpgrade2(2, commaList(ALL_MIGHT_PUSH1, ALL_MIGHT_PUSH2))
+	// Ability 4 Swapper / Upgrader
 	..setAbilityUpgrade3(1, commaList(ALL_MIGHT_PAUSE_BASE, ALL_MIGHT_PAUSE1))
 	..setAbilityUpgrade3(2, commaList(ALL_MIGHT_PAUSE1, ALL_MIGHT_PAUSE2))
 	..setName("ALL MIGHT SWAPPER 1")
@@ -107,21 +128,25 @@ import objectIDs
 	..presetButtonPosNormal(1, 2)
 	registerElementalSpell(Element.FIRE, ALL_MIGHT_PULL_BASE)
 
-	new ChannelAbilityPreset(ALL_MIGHT_PULL1, 1, true)
-	..setName("ALL_MIGHT_PULL 1")
-	..setTooltipNormal(1, "ALL_MIGHT_PULL 1")
-	..setTooltipNormalExtended(1, "Knocks a target back and stuns. (Normal)")
-	..presetIcon(Icons.bTNStormBolt)
+	new ChannelAbilityPreset(PULL_TEST_ABILITY, 5, true)
+	..setName("Pull Ability (target)")
+	..presetTooltipNormal(lvl -> "Pull Ability (target)")
+	..presetTooltipNormalExtended(lvl -> "Test Pull Ability for target units")
+	..presetIcon(Icons.bTNHeartOfAszune)
 	..setHeroAbility(true)
 	..presetTargetTypes(Targettype.UNIT)
+	..presetDurationHero(lvl -> 6)
+	..presetDurationNormal(lvl -> 6)
+	..presetFollowThroughTime(lvl -> 99)
 	..presetManaCost(lvl -> 1)
-	..presetCastingTime(lvl -> 0)
+	..presetCastRange(lvl -> 1200)
 	..setHotkeyLearn("W")
 	..setHotkeyNormal("W")
 	..setHotkeyTurnOff("W")
 	..presetCooldown(lvl -> 1)
 	..presetButtonPosNormal(1, 2)
-	registerElementalSpell(Element.EARTH, ALL_MIGHT_PULL1)
+	..presetTargetsAllowed(lvl -> commaList(UnitTargetType.Allies, UnitTargetType.Enemies))
+	registerElementalSpell(Element.LIGHTNING, PULL_TEST_ABILITY)
 
 	new ChannelAbilityPreset(ALL_MIGHT_PULL2, 1, true)
 	..setName("ALL_MIGHT_PULL 2")

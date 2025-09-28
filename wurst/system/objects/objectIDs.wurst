@@ -78,7 +78,7 @@ public constant 		FRIEZA					= compiletime(HERO_ID_GEN.next())
 
 /* ------------------------ Ability IDs ------------------------ */
 
-/* ------------------------ All Might ------------------------ */
+/* ------------------------ All Might / Tester ------------------------ */
 public constant			ALL_MIGHT_SWAPPER1  		= compiletime(ABIL_ID_GEN.next())
 public constant			ALL_MIGHT_SWAPPER2  		= compiletime(ABIL_ID_GEN.next())
 public constant			ALL_MIGHT_MISSILE_BASE  	= compiletime(ABIL_ID_GEN.next())
@@ -88,7 +88,7 @@ public constant			ALL_MIGHT_PAUSE_BASE    	= compiletime(ABIL_ID_GEN.next())
 public constant			ALL_MIGHT_PAUSE1    		= compiletime(ABIL_ID_GEN.next())
 public constant			ALL_MIGHT_PAUSE2    		= compiletime(ABIL_ID_GEN.next())
 public constant			ALL_MIGHT_PULL_BASE 		= compiletime(ABIL_ID_GEN.next())
-public constant			ALL_MIGHT_PULL1 			= compiletime(ABIL_ID_GEN.next())
+public constant			PULL_TEST_ABILITY 			= compiletime(ABIL_ID_GEN.next())
 public constant			ALL_MIGHT_PULL2 			= compiletime(ABIL_ID_GEN.next())
 public constant			ALL_MIGHT_PUSH_BASE 		= compiletime(ABIL_ID_GEN.next())
 public constant			ALL_MIGHT_PUSH1 			= compiletime(ABIL_ID_GEN.next())

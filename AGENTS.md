@@ -33,7 +33,7 @@
 
 ### UI, heroes, and content scaffolding
 - **UI** (`wurst/system/ui`): chat system hooks, draft hero data, and nested `components/draft` for frame layouts. Combine with `wurst-table-layout` when assembling custom frames.
-- **Heroes** (`wurst/game/heroes`): each hero folder implements abilities using the systems above (e.g., All Might's missiles, pulls, and transformations; Nagato's binding and summons).
+- **Heroes** (`wurst/game/heroes`): each hero folder implements abilities using the systems above (e.g., All Might/Tester missiles, pulls, and transformations; Nagato's binding and summons).
 - **Objects** (`wurst/system/objects`): compiletime ability/buff/unit creation scripts; extend these to register new IDs alongside the existing hero constants.
 
 ## External Frameworks and Dependencies

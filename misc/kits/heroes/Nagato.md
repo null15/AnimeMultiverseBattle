@@ -29,11 +29,12 @@
 - After 3 seconds of casting, teleports Nagato and any nearby ally heroes to the location of animal path.
 
 ## T - Chibaku Tensei
-- Summons a BIG ROCK at the targeted location that keeps damaging and pulling all enemies to its center for its duration.
-- Enemies being pulled take increasing damage the closer they are to the center.
-- Pull speed increases over time.
-- Lasts 7 seconds.
-- After this ability ends, the BIG ROCK explodes, slamming enemies near its center to the ground, dealing damage to thmem and slowing them by 80% for 1 second.
+- Summons Chibaku Tensei at Targeted Location.
+- Pulls enemy units within 900 AoE towards it, dealing damage over time for as long as they keep getting pulled
+- Grows stronger over time, increasing damage and pull speed.
+- If Within 100 AoE, stop the pull, when exiting outside 100 AoE, start the pull again onto the Center of Chibaku.
+- The unit will not receive damage when within 100 AoE from pull damage, but if they exit the 100 AoE and get pulled again (by chibaku), then they will receive pull damage.
+- After 7 seconds, slam the Chibaku Tensei on the Ground, and make it explode, dealing damage to anyone within 600 AoE & slow them for 80% for 1 second.
 
 ---
 

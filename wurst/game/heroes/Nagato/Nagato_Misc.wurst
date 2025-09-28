@@ -10,3 +10,5 @@ init
 			addEffectEntity("Nagato\\Nagato\\PainHead.mdx", getIndexingUnit(), "head")
 		else if getIndexingUnit().getTypeId() == NAGATO_ANIMAL_PATH_SUMMON
 			addEffectEntity("Nagato\\Kuchiyose\\AnimalPathHead.mdx", getIndexingUnit(), "head")
+		else if getIndexingUnit().getTypeId() == ALL_MIGHT
+			addEffectEntity("Nagato\\Kuchiyose\\AnimalPathHead.mdx", getIndexingUnit(), "head")

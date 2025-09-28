@@ -11,7 +11,7 @@ import Units
 
 @compiletime function defineAllMightPowerSkin()
 	new UnitDefinition(ALL_MIGHT_POWER_SKIN, UnitIds.paladin)
-	..setName("All Might Power Skin")
+	..setName("Test Unit Skin")
 	..setModelFile(Units.arthas1)
 
 function makeDummy(int id, string modelPath)

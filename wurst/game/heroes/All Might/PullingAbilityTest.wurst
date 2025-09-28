@@ -1,0 +1,92 @@
+package PullingAbilityTest
+
+import objectIDs
+import Pull
+import TimeStopSpell
+import EntityManagement
+import EntitySystem
+import HashMap
+import ClosureTimers
+
+constant HashMap<unit, PullingAbilityTest> active	= new HashMap<unit, PullingAbilityTest>()
+constant int CASTER_ANIMATION_INDEX					= 13
+constant real CASTER_ANIMATION_SPEED				= 1.5
+constant real CHANNEL_DURATION						= 6.
+
+class PullingAbilityTest extends ChannelSpell
+	unit caster
+	unit target
+	real elapsed
+	Pull pull
+
+	construct(unit caster, unit target)
+		super(caster, PULL_TEST_ABILITY, 0.03125)
+		this.caster = caster
+		this.target = target
+		this.elapsed = 0.
+		this.addTarget(target)
+		pull = Pull.toUnit(target, caster, 128, 300)
+		if this.pull == null
+			if this.caster != null and this.caster.isAlive()
+				this.caster.issueImmediateOrder("stop")
+		else
+			this.beginChannel(CHANNEL_DURATION)
+			this.startTicking()
+
+	override function onChannelTick()
+		if this.caster == null or not this.caster.isAlive()
+			this.finishChannel(true)
+			return
+		if this.target == null or not this.target.isAlive()
+			this.finishChannel(true)
+			return
+		let casterPos = this.caster.getEntity() != null ? this.caster.getEntity().getPos() : this.caster.getPos3Real()
+		let targetPos = this.caster.getEntity() != null ? this.target.getEntity().getPos() : this.target.getPos3Real()
+		if targetPos.distanceTo(casterPos) < 150
+			this.finishChannel(true)
+			return
+		this.elapsed += this.getTickPeriod()
+		print("Elapsed: " + this.elapsed.toString())
+
+	override function onChannelFinish(boolean orderCaster) returns boolean
+		if this.target != null
+			Pull.stopActive(this.target)
+		if orderCaster
+			if this.caster != null and this.caster.isAlive()
+				this.caster.issueImmediateOrder("stop")
+		return orderCaster
+		
+	override function onCleanup()
+		if this.caster != null and active.has(this.caster)
+			if active.get(this.caster) == this
+				active.remove(this.caster)
+		this.target = null
+		this.pull = null
+		this.caster = null
+		this.elapsed = 0
+
+function onChannel()
+	if GetSpellAbilityId() == PULL_TEST_ABILITY
+		let caster = GetTriggerUnit()
+		let target = GetSpellTargetUnit()
+		if active.has(caster)
+			active.get(caster).stop(false)
+		let pull = new PullingAbilityTest(caster, target)
+		if pull != null and pull.isChannelActive()
+			active.put(caster, pull)
+			nullTimer() -> 
+				caster
+				..setAnimation(CASTER_ANIMATION_INDEX)
+				..setEntityTimeScale(CASTER_ANIMATION_SPEED)
+		else if pull != null
+			destroy pull
+
+function onEnd()
+	if GetSpellAbilityId() == PULL_TEST_ABILITY
+		let caster = GetTriggerUnit()
+		if caster != null and active.has(caster)
+			active.get(caster).finishChannel(false)
+
+init
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, () -> onEnd())

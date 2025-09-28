@@ -5,6 +5,7 @@ import UnitObjEditing
 import UnitIds
 import Icons
 import AbilityIds
+import Abilities
 import ObjectIds
 import Units
 
@@ -129,8 +130,8 @@ function makeHero(
 		300, 300, 5,
 		1, 1,
 		commaList(AbilityIds.inventory, NAGATO_UZUMAKI_HEAD),
-				commaList(NAGATO_BANSHO_TENIN, NAGATO_SHINRA_TENSEI, NAGATO_UZUMAKI_BIND, NAGATO_SUMMON_ANIMAL_PATH, 'root'),
-		24, 150, "", 0,
+		commaList(NAGATO_BANSHO_TENIN, NAGATO_SHINRA_TENSEI, NAGATO_UZUMAKI_BIND, NAGATO_SUMMON_ANIMAL_PATH, 'root'),
+		24, 600, Abilities.frostBoltMissile, 300,
 		12, 500, "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl", 1100)
 
 	makeHero(
@@ -664,9 +665,9 @@ function makeHero(
 
 	makeHero(
 		ALL_MIGHT, UnitIds.paladin,
-		Icons.bTNFootman, "All Might", "Symbol of Peace",
-		"Smiles in the face of danger with overwhelming power.",
-		Units.theCaptain1, 1.15,
+		Icons.bTNFootman, "Test Unit", "Symbol of Tester",
+		"Smiles in the Realm of Testers and has unyielding Testing Capabilities.",
+		"Nagato\\Nagato\\DevaPain.mdx", 0.8,
 		32, 3.8,
 		20, 2.0,
 		12, 1.0,

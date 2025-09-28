@@ -90,6 +90,10 @@ public class Pull
 	static function toUnit(unit target, unit source, real stopRange, real speed) returns Pull
 		if target == null or source == null or not UNIT_FILTER.get(target)
 			return null
+		if target != null and source != null
+			if target == source
+				printLog(Loglevel.ERROR, "Attempted to cast Pull onto themselves. Unit in question (source): |cffffd700" + source.getName() + "|r and (target): |cffffd700" + target.getName() + "|r")
+				return null
 		return new Pull(target, source.getPos(), stopRange, speed, source)
 
 	static function toPoint(unit target, vec2 point, real stopRange, real speed) returns Pull

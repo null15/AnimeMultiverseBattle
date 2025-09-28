@@ -9,9 +9,6 @@ import SoundSystem
 
 // Just a Test File
 
-// When channel sound plays, if player end channel early it should stop the sound abruptly too
-// maybe look into ways to make compatible with pause game? doubtful, no api or way to check if game got paused or is paused
-
 init
 	nullTimer() ->
 		for i = 0 to bj_MAX_PLAYERS - 1

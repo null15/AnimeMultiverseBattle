@@ -11,15 +11,29 @@ import SoundSystem
 
 public class EffectTimeStopTracker
 	EffectsEntity sfx
+	effect actor
 	HashSet<unit> watchers
 	boolean destroyOnFinish
 	boolean timeStopped
 
 	construct(EffectsEntity sfx, boolean destroyOnFinish)
 		this.sfx = sfx
+		this.actor = sfx != null ? sfx.getActor() : null
 		this.destroyOnFinish = destroyOnFinish
 		this.watchers = new HashSet<unit>
 		this.timeStopped = false
+
+	function resolveEffectEntity() returns EffectsEntity
+		if this.actor == null
+			this.sfx = null
+			return null
+		let entity = this.actor.getEntity()
+		if entity == null
+			this.sfx = null
+			this.actor = null
+			return null
+		this.sfx = entity
+		return entity
 
 	function addWatcher(unit watcher)
 		if watcher == null
@@ -41,21 +55,20 @@ public class EffectTimeStopTracker
 		return false
 
 	function startTimeStop()
-		if this.sfx == null
+		if this.resolveEffectEntity() == null
 			return
-		let actor = this.sfx.getActor()
-		if actor != null
-			actor.startTimeStop()
+		if this.actor != null
+			this.actor.startTimeStop()
 
 	function stopTimeStop()
-		if this.sfx == null
+		if this.resolveEffectEntity() == null
 			return
-		let actor = this.sfx.getActor()
-		if actor != null
-			actor.stopTimeStop()
+		if this.actor != null
+			this.actor.stopTimeStop()
 
 	function applyInitialState()
-		if this.sfx == null
+		if this.resolveEffectEntity() == null
+			this.timeStopped = false
 			return
 		if this.shouldFreeze()
 			this.timeStopped = true
@@ -65,7 +78,8 @@ public class EffectTimeStopTracker
 			this.stopTimeStop()
 
 	function updateState()
-		if this.sfx == null
+		if this.resolveEffectEntity() == null
+			this.timeStopped = false
 			return
 		let freeze = this.shouldFreeze()
 		if freeze
@@ -77,22 +91,27 @@ public class EffectTimeStopTracker
 			this.stopTimeStop()
 
 	function release()
-		if this.sfx != null and this.destroyOnFinish
-			this.sfx = destroyEffectEntity(this.sfx)
+		let entity = this.resolveEffectEntity()
+		if this.destroyOnFinish and entity != null
+			destroyEffectEntity(entity)
 		this.sfx = null
+		this.actor = null
 		if this.watchers != null
 			destroy this.watchers
 		this.watchers = null
 		this.timeStopped = false
 
 	function getEffect() returns EffectsEntity
-		return this.sfx
+		return this.resolveEffectEntity()
 
 	ondestroy
 		this.sfx = null
+		this.actor = null
 		if this.watchers != null
 			destroy this.watchers
 		this.watchers = null
+
+// ------------------------------------------------------------ //
 
 let channelExclusionCounts = new HashMap<int, int>()
 
@@ -348,6 +367,8 @@ class TimeStopAwareSpell
 		this.timeScaleSources = null
 		this.channelSound = null
 
+// ------------------------------------------------------------ //
+
 public class ChannelSpell extends TimeStopAwareSpell
 	HashSet<unit> targets
 	boolean channelStarted
@@ -476,8 +497,8 @@ public class ChannelSpell extends TimeStopAwareSpell
 		if this.channelActive
 			this.finishChannel(true)
 
-	function onChannelFinish(boolean _orderCaster) returns boolean
-		return true
+	function onChannelFinish(boolean orderCaster) returns boolean
+		return orderCaster
 
 	function finishChannel(boolean orderCaster)
 		if not this.channelActive
