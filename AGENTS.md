@@ -109,6 +109,9 @@
 - When converting vJass code, prefer class-based designs to take advantage of Wurst semantics.
 - Do not rely on nonexistent frame APIs such as `BlzFrameGetAbsX` or `BlzFrameGetAbsY`.
 
+### Important note
+- User instructions take precedence and priority.
+
 ## Testing
 - Launch the map via the Wurst setup (`F1` → “Run a Wurst map”) and select `BaseMap.w3x` to exercise gameplay changes.
 
