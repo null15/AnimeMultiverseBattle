@@ -13,7 +13,22 @@ constant int CASTER_ANIMATION_INDEX					= 13
 constant real CASTER_ANIMATION_SPEED				= 1.5
 constant real CHANNEL_DURATION						= 6.
 
-// My pull ability, compatible with time stop. We extend ChannelSpell, so we can use stuff from that class
+/*
+My simple pull ability, compatible with time stop. We extend ChannelSpell, so we can use stuff from that class
+Think of a class as a box tied to an instance. If we extend to another box, then it means we can use the toys in that box.
+
+# Class explanation: Each object (ability in this case) has its own "box" when it gets created.
+This box can hold data tied to that instance, depending on what variables you put in the box.
+The box automatically cleans itself up when we no longer need it, to avoid leaks.
+
+# Cloning / spell steal: Cloned abilities are just separate boxes, tracked independently.
+Cooldown Reset on an ability and use it again directly after first cast, only means that the first instance is destroyed.
+Then it creates the new instance (box) of the spell.
+
+# Lingering effects: By default, re-casting destroys the old lingering instance (box) before creating a new one, so no stacking.
+To-do: If we want lingering effect, we could simply have a boolean "linger", true means it can linger.
+This means you can cast an ability, then cast it again and both "objects"/"instances" live together, until the lifespan is reached.
+*/
 class PullingAbilityTest extends ChannelSpell
 	// this "box" variables
 	unit caster
@@ -22,14 +37,21 @@ class PullingAbilityTest extends ChannelSpell
 	Pull pull
 
 	// construct means construction, and this is what we call when we create this "box"
-	// so we set this.caster = caster for example, which means:
+	//
+	// -> myBox = new PullingAbilityTest(parameter1, parameter2)
+	//      ^      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+	//   variable    construct called, now we created this box
+	//
+	// Usually we create the box on spell cast, you can see it onChannel function at the bottom
+	//
 	// this <-- this instance of the object
-	// this.caster = caster <-- now this instance's variable caster has the caster unit
-	// and can be used in the whole box
+	// this.caster = caster <-- now this instance of box's unit variable caster has the caster unit we put in the construct
+	// and this variable can be used in the whole box now
 	construct(unit caster, unit target)
 		// super means we create another "box", in the class ChannelSpell that we extended at the top
-		// super basically calls the class's "construct"
+		// basically just means "create this box too" that we extended to, "ChannelSpell" in this case
 		super(caster, PULL_TEST_ABILITY, 0.03125)
+		// the word "this" just means this current instance
 		this.caster = caster
 		this.target = target
 		this.elapsed = 0.
@@ -42,8 +64,8 @@ class PullingAbilityTest extends ChannelSpell
 			this.beginChannel(CHANNEL_DURATION)
 			this.startTicking()
 
-	// override just means we overwrite the onChannelTick function in the ChannelSpell class we extended
-	// for our custom behaviour on each channel tick
+	// override means we overwrite the onChannelTick function in the ChannelSpell class we extended
+	// we do this for our custom behaviour on each channel tick
 	override function onChannelTick()
 		if this.caster == null or not this.caster.isAlive()
 			this.finishChannel(true)
