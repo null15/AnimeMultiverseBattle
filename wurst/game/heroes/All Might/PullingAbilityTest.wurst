@@ -13,7 +13,7 @@ constant int CASTER_ANIMATION_INDEX					= 13
 constant real CASTER_ANIMATION_SPEED				= 1.5
 constant real CHANNEL_DURATION						= 6.
 
-/*
+/**
 My simple pull ability, compatible with time stop. We extend ChannelSpell, so we can use stuff from that class
 Think of a class as a box tied to an instance. If we extend to another box, then it means we can use the toys in that box.
 

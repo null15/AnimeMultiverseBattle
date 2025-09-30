@@ -1,43 +1,5 @@
 package ChannelAbility
 
-/*
-*
-* This system is our Core when creating abilities that should work perfectly with Time Stop related mechanic.
-*
-* Examples:
-* Example 1 - Looping beam that ticks every 0.25 seconds for three seconds.
-*     class BeamSpell extends ChannelSpell
-*             construct(unit caster)
-*                     super(caster, 'A000', 0.25)
-*             function start()
-*                     this.beginChannel(3.)
-*             override function onChannelTick()
-*                     // damage, move effects, etc.
-*
-* Example 2 - Instant strike that only needs one tick and forwards to helper functions.
-*     class InstantStrike extends ChannelSpell
-*             construct(unit caster)
-*                     super(caster, 'A001', 0.03)
-*             function start()
-*                     this.beginChannel(0.)
-*             override function onChannelTick()
-*                     this.runPrimaryHit()
-*             function runPrimaryHit()
-*                     this.runFollowUp()
-*             function runFollowUp()
-*                     // developer owned helper logic
-*
-* Example 3 - Protected channel that survives global exclusions.
-*     class SafeChannel extends ChannelSpell
-*             construct(unit caster)
-*                     super(caster, 'A002', 0.5)
-*             function start()
-*                     this.enableChannelExclusion()
-*                     this.beginChannel(5.)
-*             override function onChannelTick()
-*                     // perform work while the channel exclusion is active
-*/
-
 import HashMap
 import HashSet
 import ClosureTimers
@@ -579,6 +541,40 @@ class TimeStopAwareSpell
 /**
 * Recommended base for every ability that should cooperate with Time Stop.
 * The spell owns its channel state, targets, sounds, and other resources (RAII) and releases them as soon as finishChannel or finishSpell is called.
+*
+* This system is our Core when creating abilities that should work perfectly with Time Stop related mechanic.
+*
+* ## Example 1 - Looping beam that ticks every 0.25 seconds for three seconds.
+*	class BeamSpell extends ChannelSpell
+*		construct(unit caster)
+*			super(caster, 'A000', 0.25)
+*		function start()
+*			this.beginChannel(3.)
+*		override function onChannelTick()
+*			// damage, move effects, etc.
+*
+* ## Example 2 - Instant strike that only needs one tick and forwards to helper functions.
+*	class InstantStrike extends ChannelSpell
+*		construct(unit caster)
+*			super(caster, 'A001', 0.03)
+*		function start()
+*			this.beginChannel(0.)
+*		override function onChannelTick()
+*			this.runPrimaryHit()
+*		function runPrimaryHit()
+*			this.runFollowUp()
+*		function runFollowUp()
+*			// whatever you want here, etc
+*
+* ## Example 3 - Protected channel that survives global exclusions.
+*	class SafeChannel extends ChannelSpell
+*		construct(unit caster)
+*			super(caster, 'A002', 0.5)
+*		function start()
+*			this.enableChannelExclusion()
+*			this.beginChannel(5.)
+*		override function onChannelTick()
+*			// perform work while the channel exclusion is active
 */
 public class ChannelSpell extends TimeStopAwareSpell
 	HashSet<unit> targets
