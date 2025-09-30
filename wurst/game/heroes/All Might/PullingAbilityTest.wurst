@@ -13,13 +13,22 @@ constant int CASTER_ANIMATION_INDEX					= 13
 constant real CASTER_ANIMATION_SPEED				= 1.5
 constant real CHANNEL_DURATION						= 6.
 
+// My pull ability, compatible with time stop. We extend ChannelSpell, so we can use stuff from that class
 class PullingAbilityTest extends ChannelSpell
+	// this "box" variables
 	unit caster
 	unit target
 	real elapsed
 	Pull pull
 
+	// construct means construction, and this is what we call when we create this "box"
+	// so we set this.caster = caster for example, which means:
+	// this <-- this instance of the object
+	// this.caster = caster <-- now this instance's variable caster has the caster unit
+	// and can be used in the whole box
 	construct(unit caster, unit target)
+		// super means we create another "box", in the class ChannelSpell that we extended at the top
+		// super basically calls the class's "construct"
 		super(caster, PULL_TEST_ABILITY, 0.03125)
 		this.caster = caster
 		this.target = target
@@ -33,6 +42,8 @@ class PullingAbilityTest extends ChannelSpell
 			this.beginChannel(CHANNEL_DURATION)
 			this.startTicking()
 
+	// override just means we overwrite the onChannelTick function in the ChannelSpell class we extended
+	// for our custom behaviour on each channel tick
 	override function onChannelTick()
 		if this.caster == null or not this.caster.isAlive()
 			this.finishChannel(true)
@@ -48,6 +59,7 @@ class PullingAbilityTest extends ChannelSpell
 		this.elapsed += this.getTickPeriod()
 		print("Elapsed: " + this.elapsed.toString())
 
+	// when channel finish, this runs
 	override function onChannelFinish(boolean orderCaster) returns boolean
 		if this.target != null
 			Pull.stopActive(this.target)
@@ -55,7 +67,8 @@ class PullingAbilityTest extends ChannelSpell
 			if this.caster != null and this.caster.isAlive()
 				this.caster.issueImmediateOrder("stop")
 		return orderCaster
-		
+	
+	// for any cleanup related things
 	override function onCleanup()
 		if this.caster != null and active.has(this.caster)
 			if active.get(this.caster) == this
@@ -71,6 +84,8 @@ function onChannel()
 		let target = GetSpellTargetUnit()
 		if active.has(caster)
 			active.get(caster).stop(false)
+		// Here we create the box, using its "construct" as explained above
+		// the construct takes 2 parameters, so caster and target
 		let pull = new PullingAbilityTest(caster, target)
 		if pull != null and pull.isChannelActive()
 			active.put(caster, pull)

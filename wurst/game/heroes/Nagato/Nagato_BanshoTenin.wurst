@@ -9,7 +9,6 @@ import EffectsSystem
 import ClosureEvents
 import SoundSystem
 import TimeStopSpell
-import TimeStop
 
 constant string SOUND_LABEL_BANSHO_TENIN            = "NagatoBanshoTenin"
 constant SoundProfile snd_BanshoTenin				= new SoundProfile("Nagato\\BanshoTenin\\BanshoTenin.mp3", SOUND_LABEL_BANSHO_TENIN, false, true)
@@ -46,7 +45,6 @@ class BanshoTenin extends ChannelSpell
 			if caster != null and caster.isAlive()
 				caster.issueImmediateOrder("stop")
 		else
-			print("Pull")
 			this.beginChannel(BANSHO_PULL_DURATION)
 			this.setChannelSound(snd_BanshoTenin.playChannelForUnit(caster, NAGATO_BANSHO_TENIN, BANSHO_SOUND_RADIUS))
 			this.dirtFx = addEffectEntity(BANSHO_DIRT_FX, target.getPos3Real())
@@ -78,8 +76,6 @@ class BanshoTenin extends ChannelSpell
 			let damage = (baseDps + rampDps * this.elapsed) * this.getTickPeriod()
 			casterUnit.damageTarget(this.target, damage, ATTACK_TYPE_HERO)
 		else
-			this.target.clearTimeStop()
-			this.target.clearTimedPause()
 			UnitRemoveBuffsEx(this.target, false, true, true, true, true, true, true)
 			let defaultSpeed = this.target.getDefaultMovespeed()
 			if this.target.getMoveSpeed() < defaultSpeed
