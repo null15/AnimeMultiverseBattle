@@ -12,22 +12,20 @@ constant real CASTER_ANIMATION_SPEED				= 1.5
 constant real CHANNEL_DURATION						= 6.
 
 /**
-My simple pull ability, compatible with time stop. We extend ChannelSpell, so we can use stuff from that class
-Think of a class as a box tied to an instance. If we extend to another box, then it means we can use the toys in that box.
+	My simple pull ability, compatible with time stop. We extend ChannelSpell, so we can use stuff from that class
+	Think of a class as a box tied to an instance. If we extend to another box, then it means we can use the toys in that box.
 
-# Class explanation: Each object (ability in this case) has its own "box" when it gets created.
-This box can hold data tied to that instance, depending on what variables you put in the box.
-The box automatically cleans itself up when we no longer need it, to avoid leaks.
+	# Class explanation: Each object (ability in this case) has its own "box" when it gets created.
+	This box can hold data tied to that instance, depending on what variables you put in the box.
+	The box automatically cleans itself up when we no longer need it, to avoid leaks.
 
-# Cloning / spell steal: Cloned abilities are just separate boxes, tracked independently.
-Cooldown Reset on an ability and use it again directly after first cast, only means that the first instance is destroyed.
-Then it creates the new instance (box) of the spell.
+	# Cloning / spell steal: Cloned abilities are just separate boxes, tracked independently.
+	Cooldown Reset on an ability and use it again directly after first cast, only means that the first instance is destroyed.
+	Then it creates the new instance (box) of the spell.
 
-# Lingering effects: By default, re-casting destroys the old lingering instance (box) before creating a new one, so no stacking.
-
-To-do: If we want lingering effect, we could simply have a boolean "linger", true means it can linger.
-This means you can cast an ability, then cast it again and both "objects"/"instances" live together, until the lifespan is reached.
-Or we can do e.g. store a list or key them by slot/ID
+	# Lingering effects: By default, re-casting destroys the old lingering instance (box) before creating a new one, so no stacking.
+	However, the implementation to allow lingering exist, simply give the class (box) the allow linger "tag"
+	this.setAllowLingeringInstances(true)
 */
 class PullingAbilityTest extends ChannelSpell
 	// this "box" variables
