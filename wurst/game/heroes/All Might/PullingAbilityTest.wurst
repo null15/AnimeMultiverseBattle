@@ -26,8 +26,10 @@ Cooldown Reset on an ability and use it again directly after first cast, only me
 Then it creates the new instance (box) of the spell.
 
 # Lingering effects: By default, re-casting destroys the old lingering instance (box) before creating a new one, so no stacking.
+
 To-do: If we want lingering effect, we could simply have a boolean "linger", true means it can linger.
 This means you can cast an ability, then cast it again and both "objects"/"instances" live together, until the lifespan is reached.
+Or we can do e.g. store a list or key them by slot/ID
 */
 class PullingAbilityTest extends ChannelSpell
 	// this "box" variables
