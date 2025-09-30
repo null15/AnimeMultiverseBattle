@@ -1,5 +1,49 @@
 package TimeStopSpell
 
+/*
+* Examples
+* Example 1: Classic looping channel
+* class MyBeam extends ChannelSpell
+* 	unit target
+* 	construct(unit caster, unit target)
+* 		super(caster, MY_BEAM_ID, 0.03125)
+* 		this.target = target
+* 		this.addTarget(target)
+* 		this.beginChannel(3.)
+* 		this.startTicking()
+* 	override function onChannelTick()
+* 		if this.target != null
+* 			this.getCaster().damageTarget(this.target, 25.)
+* 	override function onChannelFinish(boolean orderCaster) returns boolean
+* 		callSomeCleanup()
+* 		return super.onChannelFinish(orderCaster)
+* Example 2: Single tick instant spell leveraging RAII
+* class MyInstantPunch extends ChannelSpell
+* 	construct(unit caster)
+* 		super(caster, MY_PUNCH_ID, 0.03125)
+* 		this.beginChannel(0.03125)
+* 		this.startTicking()
+* 	override function onChannelTick()
+* 		this.performPunch()
+* 		this.finishChannel(true)
+* 	function performPunch()
+* 		this.spawnImpactFx()
+* 		this.applyBonusDamage()
+* Example 3: External helper cooperation
+* class MyAura extends ChannelSpell
+* 	AuraHelper aura
+* 	construct(unit caster)
+* 		super(caster, MY_AURA_ID, 0.25)
+* 		this.aura = new AuraHelper(caster)
+* 		this.beginChannel(6.)
+* 		this.startTicking()
+* 	override function onChannelTick()
+* 		this.aura.refreshStacks()
+* 	override function onChannelFinish(boolean orderCaster) returns boolean
+* 		this.aura.release()
+* 		return true
+*/
+
 import HashMap
 import HashSet
 import ClosureTimers
@@ -9,6 +53,11 @@ import EntityManagement
 import TimeStop
 import SoundSystem
 
+/**
+* Tracks an individual effect or effect entity and mirrors Time Stop state.
+* Keeps the effect frozen when any watcher is frozen and resumes afterwards.
+* Optionally destroys the effect when the tracker is released or cleaned up.
+*/
 public class EffectTimeStopTracker
 	EffectsEntity sfx
 	effect actor
@@ -16,6 +65,11 @@ public class EffectTimeStopTracker
 	boolean destroyOnFinish
 	boolean timeStopped
 
+	/**
+	* Builds a tracker for the provided effect entity.
+	* sfx: Effect wrapper to monitor for Time Stop synchronization.
+	* destroyOnFinish: True if the effect should be destroyed on release.
+	*/
 	construct(EffectsEntity sfx, boolean destroyOnFinish)
 		this.sfx = sfx
 		this.actor = sfx != null ? sfx.getActor() : null
@@ -23,6 +77,11 @@ public class EffectTimeStopTracker
 		this.watchers = new HashSet<unit>
 		this.timeStopped = false
 
+	/**
+	* Resolves the current effect entity or null if the backing actor died.
+	* Refreshes the cached actor reference so later updates remain valid.
+	* Returns the latest effect entity instance being tracked.
+	*/
 	function resolveEffectEntity() returns EffectsEntity
 		if this.actor == null
 			this.sfx = null
@@ -35,17 +94,32 @@ public class EffectTimeStopTracker
 		this.sfx = entity
 		return entity
 
+	/**
+	* Registers a unit whose Time Stop state controls this effect.
+	* watcher: Unit that should freeze or resume the effect when frozen.
+	* Ignores null references to stay leak free.
+	*/
 	function addWatcher(unit watcher)
 		if watcher == null
 			return
 		this.watchers.add(watcher)
 
+	/**
+	* Registers multiple watcher units at once.
+	* units: Collection of units that should influence the effect freeze.
+	* Skips null collections and relies on addWatcher for validation.
+	*/
 	function addWatchers(HashSet<unit> units)
 		if units == null
 			return
 		for u in units
 			this.addWatcher(u)
 
+	/**
+	* Evaluates if any watcher is currently frozen by Time Stop.
+	* Returns true when the effect must be paused for synchronization.
+	* Returns false when the effect can run normally.
+	*/
 	function shouldFreeze() returns boolean
 		if this.watchers == null or this.watchers.isEmpty()
 			return false
@@ -54,18 +128,30 @@ public class EffectTimeStopTracker
 				return true
 		return false
 
+	/**
+	* Starts freezing the effect actor when Time Stop is active.
+	* Ensures the internal actor is valid before issuing the freeze call.
+	*/
 	function startTimeStop()
 		if this.resolveEffectEntity() == null
 			return
 		if this.actor != null
 			this.actor.startTimeStop()
 
+	/**
+	* Resumes playback for the tracked effect actor.
+	* No-op if the actor reference was already cleaned.
+	*/
 	function stopTimeStop()
 		if this.resolveEffectEntity() == null
 			return
 		if this.actor != null
 			this.actor.stopTimeStop()
 
+	/**
+	* Applies the initial freeze state immediately after registration.
+	* Helps persistent effects start paused if the watchers are frozen.
+	*/
 	function applyInitialState()
 		if this.resolveEffectEntity() == null
 			this.timeStopped = false
@@ -77,6 +163,10 @@ public class EffectTimeStopTracker
 			this.timeStopped = false
 			this.stopTimeStop()
 
+	/**
+	* Polls watcher state and toggles the effect freeze accordingly.
+	* Called during spell ticks to remain synchronized with Time Stop.
+	*/
 	function updateState()
 		if this.resolveEffectEntity() == null
 			this.timeStopped = false
@@ -90,6 +180,10 @@ public class EffectTimeStopTracker
 			this.timeStopped = false
 			this.stopTimeStop()
 
+	/**
+	* Releases references and optionally destroys the effect entity.
+	* Called when the owning spell is cleaned or finishes safely.
+	*/
 	function release()
 		let entity = this.resolveEffectEntity()
 		if this.destroyOnFinish and entity != null
@@ -101,6 +195,10 @@ public class EffectTimeStopTracker
 		this.watchers = null
 		this.timeStopped = false
 
+	/**
+	* Returns the currently tracked effect entity reference.
+	* Can return null when the effect was destroyed.
+	*/
 	function getEffect() returns EffectsEntity
 		return this.resolveEffectEntity()
 
@@ -113,8 +211,17 @@ public class EffectTimeStopTracker
 
 // ------------------------------------------------------------ //
 
+/*
+* Tracks channel ability IDs that should ignore Time Stop interruptions.
+* Prevents duplicated exclusion registrations when multiple spells coexist.
+*/
 let channelExclusionCounts = new HashMap<int, int>()
 
+/**
+* Registers an ability ID as Time Stop immune for channel orders.
+* abilityId: Raw ability ID that should stay valid while channeling.
+* Safe-guards against zero or duplicate registrations.
+*/
 function addChannelExclusion(int abilityId)
 	if abilityId == 0
 		return
@@ -126,6 +233,11 @@ function addChannelExclusion(int abilityId)
 	if count == 1
 		registerTimeStopChannelExclusion(abilityId)
 
+/**
+* Removes a previously registered channel exclusion.
+* abilityId: Raw ability ID that should resume normal Time Stop rules.
+* Automatically unregisters when the reference count reaches zero.
+*/
 function removeChannelExclusion(int abilityId)
 	if abilityId == 0
 		return
@@ -139,6 +251,11 @@ function removeChannelExclusion(int abilityId)
 	else
 		channelExclusionCounts.put(abilityId, count)
 
+/**
+* Base spell that manages Time Stop aware bookkeeping.
+* Provides RAII style tracking for effects, units, and caster overrides.
+* Extend this when manual channel control is not required.
+*/
 class TimeStopAwareSpell
 	unit caster
 	int abilityId
@@ -152,6 +269,11 @@ class TimeStopAwareSpell
 	ChannelSoundPlayback channelSound
 	boolean cleanedUp
 
+	/**
+	* Stores the caster, ability ID, and tick cadence.
+	* caster: Unit that owns the spell instance and is tracked.
+	* tickPeriod: Seconds between each periodic tick call.
+	*/
 	construct(unit caster, int abilityId, real tickPeriod)
 		this.caster = caster
 		this.abilityId = abilityId
@@ -165,15 +287,31 @@ class TimeStopAwareSpell
 		if caster != null
 			this.registerUnit(caster)
 
+	/**
+	* Fetches the caster associated with this spell instance.
+	* Returns null if the caster is no longer available.
+	*/
 	function getCaster() returns unit
 		return this.caster
 
+	/**
+	* Provides the raw ability ID tied to this spell instance.
+	* Useful when comparing against orders or exclusions.
+	*/
 	function getAbilityId() returns int
 		return this.abilityId
 
+	/**
+	* Returns the tick period used for periodic callbacks.
+	* Allows derived spells to query the cadence they inherit.
+	*/
 	function getTickPeriod() returns real
 		return this.tickPeriod
 
+	/**
+	* Starts the periodic callback loop if not already running.
+	* Uses ClosureTimers to invoke tick at the configured cadence.
+	*/
 	function startTicking()
 		if this.periodic != null
 			return
@@ -183,17 +321,33 @@ class TimeStopAwareSpell
 		this.periodic = doPeriodically(this.tickPeriod) (CallbackPeriodic c) ->
 			inst.tick()
 
+	/**
+	* Stops the periodic callback loop if one is active.
+	* Releases the underlying closure timer resource.
+	*/
 	function stopTicking()
 		if this.periodic != null
 			destroy this.periodic
 			this.periodic = null
 
+	/**
+	* Hook that runs before each periodic tick.
+	* Override in subclasses to handle preconditions or skipping logic.
+	*/
 	function onBeforeTick()
 		// override
 
+	/**
+	* Hook that runs on every periodic tick.
+	* Override to implement actual spell behavior.
+	*/
 	function onTick()
 		// override
 
+	/**
+	* Internal tick driver handling safety checks and bookkeeping.
+	* Invokes onBeforeTick and onTick when appropriate.
+	*/
 	function tick()
 		if this.cleanedUp
 			return
@@ -206,6 +360,10 @@ class TimeStopAwareSpell
 			return
 		this.onTick()
 
+	/**
+	* Updates freeze state on all registered effect trackers.
+	* Keeps persistent effects synchronized during Time Stop.
+	*/
 	function updateTrackedEffects()
 		if this.trackedEffects == null or this.trackedEffects.isEmpty()
 			return
@@ -213,18 +371,30 @@ class TimeStopAwareSpell
 			if tracker != null
 				tracker.updateState()
 
+	/**
+	* Registers a unit whose Time Stop state matters for the spell.
+	* watcher: Unit to track for pause detection and overrides.
+	*/
 	function registerUnit(unit watcher)
 		if watcher == null
 			return
 		if this.trackedUnits != null
 			this.trackedUnits.add(watcher)
 
+	/**
+	* Registers multiple units for Time Stop tracking at once.
+	* units: Collection of units to be forwarded to registerUnit.
+	*/
 	function registerUnits(HashSet<unit> units)
 		if units == null
 			return
 		for u in units
 			this.registerUnit(u)
 
+	/**
+	* Checks if any registered unit is currently affected by Time Stop.
+	* Returns true when the spell should consider pausing work.
+	*/
 	function anyTrackedUnitTimeStopped() returns boolean
 		if this.trackedUnits == null or this.trackedUnits.isEmpty()
 			return false
@@ -233,6 +403,11 @@ class TimeStopAwareSpell
 				return true
 		return false
 
+	/**
+	* Registers an effect for Time Stop synchronized updates.
+	* sfx: Effect entity to track, destroyOnFinish controls cleanup.
+	* Returns the tracker used for manual watcher registration.
+	*/
 	function registerEffect(EffectsEntity sfx, boolean destroyOnFinish) returns EffectTimeStopTracker
 		if sfx == null
 			return null
@@ -241,49 +416,85 @@ class TimeStopAwareSpell
 		tracker.applyInitialState()
 		return tracker
 
+	/**
+	* Convenience overload that destroys the effect automatically on release.
+	* sfx: Effect entity to track and clean afterwards.
+	*/
 	function registerEffect(EffectsEntity sfx) returns EffectTimeStopTracker
 		return this.registerEffect(sfx, true)
 
+	/**
+	* Registers an effect and immediately binds a watcher unit.
+	* watcher: Unit whose Time Stop state should control the effect.
+	*/
 	function registerEffectWithUnit(EffectsEntity sfx, unit watcher) returns EffectTimeStopTracker
 		let tracker = this.registerEffect(sfx, true)
 		if tracker != null
 			tracker.addWatcher(watcher)
 		return tracker
 
+	/**
+	* Registers an effect and binds multiple watcher units.
+	* watchers: Collection passed to the tracker for freeze decisions.
+	*/
 	function registerEffectWithUnits(EffectsEntity sfx, HashSet<unit> watchers) returns EffectTimeStopTracker
 		let tracker = this.registerEffect(sfx, true)
 		if tracker != null
 			tracker.addWatchers(watchers)
 		return tracker
 
+	/**
+	* Registers a persistent effect that survives cleanup and binds one watcher.
+	* watcher: Unit that should control the effect freeze state.
+	*/
 	function registerPersistentEffectWithUnit(EffectsEntity sfx, unit watcher) returns EffectTimeStopTracker
 		let tracker = this.registerEffect(sfx, false)
 		if tracker != null
 			tracker.addWatcher(watcher)
 		return tracker
 
+	/**
+	* Registers a persistent effect and binds multiple watcher units.
+	* watchers: Collection of controllers kept for freeze updates.
+	*/
 	function registerPersistentEffectWithUnits(EffectsEntity sfx, HashSet<unit> watchers) returns EffectTimeStopTracker
 		let tracker = this.registerEffect(sfx, false)
 		if tracker != null
 			tracker.addWatchers(watchers)
 		return tracker
 
+	/**
+	* Stores the looping channel sound handle for safe pause/resume.
+	* snd: Playback helper returned by SoundSystem.
+	*/
 	function setChannelSound(ChannelSoundPlayback snd)
 		if this.channelSound != null and this.channelSound != snd
 			this.channelSound.stop()
 		this.channelSound = snd
 
+	/**
+	* Stops and clears the current channel sound if one exists.
+	* Useful when the spell finishes or pauses indefinitely.
+	*/
 	function stopChannelSound()
 		if this.channelSound != null
 			this.channelSound.stop()
 		this.channelSound = null
 
+	/**
+	* Registers a unit whose frozen state should freeze the caster animation.
+	* source: Additional unit to consult when overriding caster time scale.
+	*/
 	function registerTimeScaleSource(unit source)
 		if source == null
 			return
 		if this.timeScaleSources != null
 			this.timeScaleSources.add(source)
 
+	/**
+	* Determines whether the caster animation should be frozen.
+	* Returns true when any registered source is frozen but the caster is not.
+	*/
 	function shouldOverrideCasterTimeScale() returns boolean
 		let casterUnit = this.caster
 		if casterUnit == null
@@ -299,6 +510,10 @@ class TimeStopAwareSpell
 				return true
 		return false
 
+	/**
+	* Applies a zero time scale override to the caster.
+	* Stores the previous value for restoration.
+	*/
 	function startCasterTimeScaleOverride()
 		if this.casterTimeScaleOverridden
 			return
@@ -309,6 +524,10 @@ class TimeStopAwareSpell
 		casterUnit.setEntityTimeScale(0.)
 		this.casterTimeScaleOverridden = true
 
+	/**
+	* Restores the caster time scale to its previous value.
+	* No-op if the override was never applied.
+	*/
 	function stopCasterTimeScaleOverride()
 		if not this.casterTimeScaleOverridden
 			return
@@ -317,12 +536,20 @@ class TimeStopAwareSpell
 			casterUnit.setEntityTimeScale(this.casterTimeScaleBeforeOverride)
 		this.casterTimeScaleOverridden = false
 
+	/**
+	* Evaluates and toggles the caster time scale override state.
+	* Runs every tick to remain in sync with Time Stop sources.
+	*/
 	function updateCasterTimeScaleOverride()
 		if this.shouldOverrideCasterTimeScale()
 			this.startCasterTimeScaleOverride()
 		else
 			this.stopCasterTimeScaleOverride()
 
+	/**
+	* Releases all tracked effect resources.
+	* Called when the spell finishes to avoid lingering handles.
+	*/
 	function cleanupEffects()
 		if this.trackedEffects == null or this.trackedEffects.isEmpty()
 			return
@@ -331,9 +558,17 @@ class TimeStopAwareSpell
 				tracker.release()
 		this.trackedEffects.clear()
 
+	/**
+	* Hook invoked after the spell has finished cleaning internal state.
+	* Override to release subclass owned resources.
+	*/
 	function onCleanup()
 		// override
 
+	/**
+	* Completes the spell lifecycle and triggers cleanup.
+	* Ensures ticking, sounds, overrides, and effects are stopped.
+	*/
 	function finishSpell()
 		if this.cleanedUp
 			return
@@ -369,6 +604,11 @@ class TimeStopAwareSpell
 
 // ------------------------------------------------------------ //
 
+/**
+* Channel based spell that integrates Time Stop aware lifecycle.
+* Adds state for channel duration, targets, and finish behavior.
+* Extend this class for both looping and instant abilities.
+*/
 public class ChannelSpell extends TimeStopAwareSpell
 	HashSet<unit> targets
 	boolean channelStarted
@@ -379,6 +619,11 @@ public class ChannelSpell extends TimeStopAwareSpell
 	boolean skipTick
 	boolean channelExclusionActive
 
+	/**
+	* Initializes channel bookkeeping and inherited tracking.
+	* caster: Unit that begins the channel, abilityId links to the order.
+	* tickPeriod: Seconds between channel ticks.
+	*/
 	construct(unit caster, int abilityId, real tickPeriod)
 		super(caster, abilityId, tickPeriod)
 		this.targets = new HashSet<unit>
@@ -390,42 +635,78 @@ public class ChannelSpell extends TimeStopAwareSpell
 		this.skipTick = false
 		this.channelExclusionActive = false
 
+	/**
+	* Registers a target unit for convenience and time stop tracking.
+	* target: Unit that should be affected by the channel.
+	*/
 	function addTarget(unit target)
 		if target == null
 			return
 		this.targets.add(target)
 		this.registerUnit(target)
 
+	/**
+	* Controls whether onChannelTick should run while caster is frozen.
+	* allow: True to keep ticking during Time Stop, false to pause.
+	*/
 	function setAllowTicksDuringTimeStop(boolean allow)
 		this.allowTicksDuringTimeStop = allow
 
+	/**
+	* Marks this ability as channel exclusion aware.
+	* Prevents the global Time Stop from forcibly cancelling the channel.
+	*/
 	function enableChannelExclusion()
 		if this.channelExclusionActive
 			return
 		addChannelExclusion(this.getAbilityId())
 		this.channelExclusionActive = true
 
+	/**
+	* Removes the channel exclusion when the spell no longer needs it.
+	* Should be called before the spell instance is destroyed.
+	*/
 	function disableChannelExclusion()
 		if not this.channelExclusionActive
 			return
 		removeChannelExclusion(this.getAbilityId())
 		this.channelExclusionActive = false
 
+	/**
+	* Indicates whether the channel is currently running.
+	* Returns false once finishChannel has been executed.
+	*/
 	function isChannelActive() returns boolean
 		return this.channelActive
 
+	/**
+	* Returns true once beginChannel has been invoked successfully.
+	* Helps differentiate pre-cast setup from live channeling.
+	*/
 	function isChannelStarted() returns boolean
 		return this.channelStarted
 
+	/**
+	* External stop helper that finishes the channel early.
+	* orderCaster: True to issue the finish order, false to clear silently.
+	*/
 	function stop(boolean orderCaster)
 		this.finishChannel(orderCaster)
 
+	/**
+	* Registers multiple target units for tracking convenience.
+	* units: HashSet of targets forwarded to addTarget.
+	*/
 	function addTargets(HashSet<unit> units)
 		if units == null
 			return
 		for u in units
 			this.addTarget(u)
 
+	/**
+	* Starts the channel lifecycle and optionally sets a duration.
+	* duration: Seconds of channeling, 0 means indefinite.
+	*/
 	function beginChannel(real duration)
 		if this.channelStarted
 			return
@@ -437,9 +718,17 @@ public class ChannelSpell extends TimeStopAwareSpell
 		if casterUnit != null
 			casterUnit.startChanneling(this.getAbilityId(), duration)
 
+	/**
+	* Hook to pause channel consumption without cancelling the spell.
+	* Override to block ticking while keeping the channel active.
+	*/
 	function shouldPauseChannel() returns boolean
 		return false
 
+	/**
+	* Validates channel state before onChannelTick executes.
+	* Handles caster death, cancellation, completion, and Time Stop pauses.
+	*/
 	override function onBeforeTick()
 		if not this.channelActive
 			this.skipTick = true
@@ -477,29 +766,57 @@ public class ChannelSpell extends TimeStopAwareSpell
 			if not this.allowTicksDuringTimeStop and casterUnit.isTimeStopped()
 				this.skipTick = true
 				return
+	/**
+	* Forwards the periodic callback into onChannelTick when allowed.
+	* Skips the tick when skipTick was flagged in onBeforeTick.
+	*/
 	override function onTick()
 		if this.skipTick
 			return
 		this.onChannelTick()
 
+	/**
+	* Main channel callback executed when the spell is active.
+	* Override to implement custom behavior per tick.
+	*/
 	function onChannelTick()
 		// override
 
+	/**
+	* Handles cases where the caster is dead or missing.
+	* Default implementation finishes the channel without ordering.
+	*/
 	function handleCasterInvalid()
 		if this.channelActive
 			this.finishChannel(false)
 
+	/**
+	* Handles cases where the channel order was interrupted.
+	* Default implementation finishes the channel without ordering.
+	*/
 	function handleChannelLost()
 		if this.channelActive
 			this.finishChannel(false)
 
+	/**
+	* Invoked once the channel duration naturally expires.
+	* Default implementation finishes the channel and orders completion.
+	*/
 	function handleChannelCompleted()
 		if this.channelActive
 			this.finishChannel(true)
 
+	/**
+	* Hook invoked whenever finishChannel is called.
+	* Return true to finalize the spell, false to keep the instance alive.
+	*/
 	function onChannelFinish(boolean orderCaster) returns boolean
 		return orderCaster
 
+	/**
+	* Central channel teardown used by the various handlers.
+	* orderCaster: True to issue the finish order, false to clear forcibly.
+	*/
 	function finishChannel(boolean orderCaster)
 		if not this.channelActive
 			return
@@ -515,6 +832,10 @@ public class ChannelSpell extends TimeStopAwareSpell
 		if shouldFinalize
 			this.finishSpell()
 
+	/**
+	* Clears target tracking when the channel spell finishes.
+	* Override for additional custom cleanup before destruction.
+	*/
 	override function onCleanup()
 		if this.targets != null
 			this.targets.clear()
