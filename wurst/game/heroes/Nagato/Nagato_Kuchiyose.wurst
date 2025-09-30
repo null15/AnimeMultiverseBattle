@@ -8,7 +8,7 @@ import EntityManagement
 import EntitySystem
 import EffectsSystem
 import SoundSystem
-import TimeStopSpell
+import ChannelAbility
 import HashSet
 import TimeStop
 

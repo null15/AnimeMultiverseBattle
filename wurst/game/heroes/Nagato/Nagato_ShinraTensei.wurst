@@ -10,7 +10,7 @@ import HashSet
 import EntitySystem
 import EffectsSystem
 import SoundSystem
-import TimeStopSpell
+import ChannelAbility
 import EntityManagement
 
 constant string SOUND_LABEL_SHINRA_TENSEI               = "NagatoShinraTensei"

@@ -8,7 +8,7 @@ import EntitySystem
 import EffectsSystem
 import ClosureEvents
 import SoundSystem
-import TimeStopSpell
+import ChannelAbility
 
 constant string SOUND_LABEL_BANSHO_TENIN            = "NagatoBanshoTenin"
 constant SoundProfile snd_BanshoTenin				= new SoundProfile("Nagato\\BanshoTenin\\BanshoTenin.mp3", SOUND_LABEL_BANSHO_TENIN, false, true)

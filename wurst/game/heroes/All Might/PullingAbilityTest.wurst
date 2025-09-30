@@ -2,7 +2,7 @@ package PullingAbilityTest
 
 import objectIDs
 import Pull
-import TimeStopSpell
+import ChannelAbility
 import EntityManagement
 import EntitySystem
 import HashMap
