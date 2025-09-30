@@ -5,10 +5,8 @@ import Pull
 import ChannelAbility
 import EntityManagement
 import EntitySystem
-import HashMap
 import ClosureTimers
 
-constant HashMap<unit, PullingAbilityTest> active	= new HashMap<unit, PullingAbilityTest>()
 constant int CASTER_ANIMATION_INDEX					= 13
 constant real CASTER_ANIMATION_SPEED				= 1.5
 constant real CHANNEL_DURATION						= 6.
@@ -94,9 +92,6 @@ class PullingAbilityTest extends ChannelSpell
 	
 	// for any cleanup related things
 	override function onCleanup()
-		if this.caster != null and active.has(this.caster)
-			if active.get(this.caster) == this
-				active.remove(this.caster)
 		this.target = null
 		this.pull = null
 		this.caster = null
@@ -106,13 +101,10 @@ function onChannel()
 	if GetSpellAbilityId() == PULL_TEST_ABILITY
 		let caster = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
-		if active.has(caster)
-			active.get(caster).stop(false)
 		// Here we create the box, using its "construct" as explained above
 		// the construct takes 2 parameters, so caster and target
 		let pull = new PullingAbilityTest(caster, target)
 		if pull != null and pull.isChannelActive()
-			active.put(caster, pull)
 			nullTimer() -> 
 				caster
 				..setAnimation(CASTER_ANIMATION_INDEX)
@@ -123,8 +115,8 @@ function onChannel()
 function onEnd()
 	if GetSpellAbilityId() == PULL_TEST_ABILITY
 		let caster = GetTriggerUnit()
-		if caster != null and active.has(caster)
-			active.get(caster).finishChannel(false)
+		if caster != null
+			stopActiveChannels(caster, PULL_TEST_ABILITY, false)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())

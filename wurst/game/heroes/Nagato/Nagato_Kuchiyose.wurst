@@ -1,7 +1,6 @@
 package Nagato_Kuchiyose
 
 import objectIDs
-import HashMap
 import Teleport
 import ClosureTimers
 import EntityManagement
@@ -40,7 +39,6 @@ constant SoundProfile snd_KuchiyoseChant = new SoundProfile("Nagato\\Kuchiyose\\
 constant real KUCHIYOSE_SOUND_RADIUS = 700.
 constant int ANIMATION_CHANNEL = 8
 constant int ANIMATION_END = 17
-constant HashMap<unit, SummonAnimalPath> active = new HashMap<unit, SummonAnimalPath>()
 
 class SummonAnimalPath extends ChannelSpell
 	vec2 targetPos
@@ -240,10 +238,6 @@ class SummonAnimalPath extends ChannelSpell
 			this.stopSummoningSound()
 			this.stopChantSound()
 			this.stopPoofSound()
-		let casterUnit = this.getCaster()
-		if casterUnit != null and active.has(casterUnit)
-			if active.get(casterUnit) == this
-				active.remove(casterUnit)
 		if success
 			this.playCastEndSounds()
 			this.startSuccessfulFinish()
@@ -364,10 +358,6 @@ class SummonAnimalPath extends ChannelSpell
 		if this.channelWindTrackers != null
 			destroy this.channelWindTrackers
 			this.channelWindTrackers = null
-		let casterUnit = this.getCaster()
-		if casterUnit != null and active.has(casterUnit)
-			if active.get(casterUnit) == this
-				active.remove(casterUnit)
 		this.animalPath = null
 		this.animalPathSoundSource = null
 		this.summoningSound = null
@@ -389,11 +379,8 @@ function onChannel()
 			printTimedToPlayer("Cannot summon there.", SUMMON_CHANNEL_TIME, caster.getOwner())
 			caster.issueImmediateOrder("stop")
 			return
-		if active.has(caster)
-			active.get(caster).finishChannel(false)
 		let inst = new SummonAnimalPath(caster, targetPos)
 		if inst != null and inst.isChannelActive()
-			active.put(caster, inst)
 			nullTimer() ->
 				if caster != null
 					caster..setAnimation(ANIMATION_CHANNEL)..setEntityTimeScale(CASTER_CHANNEL_ANIMATION_TIME_SCALE)..queueAnimation("spell,one")
@@ -403,8 +390,8 @@ function onChannel()
 function onEnd()
 	if GetSpellAbilityId() == NAGATO_SUMMON_ANIMAL_PATH
 		let caster = GetTriggerUnit()
-		if caster != null and active.has(caster)
-			let inst = active.get(caster)
+		if caster != null
+			let inst = getActiveChannel(caster, NAGATO_SUMMON_ANIMAL_PATH) castTo SummonAnimalPath
 			if inst != null
 				inst.finishChannel(inst.hasCompletedChannel())
 

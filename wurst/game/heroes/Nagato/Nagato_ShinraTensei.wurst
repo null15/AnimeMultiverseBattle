@@ -5,7 +5,6 @@ import Knockback
 import Missiles
 import ClosureForGroups
 import ClosureTimers
-import HashMap
 import HashSet
 import EntitySystem
 import EffectsSystem
@@ -39,7 +38,6 @@ constant real SHINRA_TENSEI_COLLISION_SLOW_FACTOR		= 0.6
 constant real SHINRA_TENSEI_COLLISION_SLOW_DURATION		= 2.
 constant int CASTER_ANIMATION_INDEX						= 12
 constant real CASTER_ANIMATION_SPEED					= 0.5
-constant HashMap<unit, ShinraTensei> active				= new HashMap<unit, ShinraTensei>()
 
 class ShinraTensei extends ChannelSpell
 	HashSet<unit> affected
@@ -164,12 +162,7 @@ class ShinraTensei extends ChannelSpell
 				u.setMoveSpeed(baseSpeed)
 
 	override function onChannelFinish(boolean orderCaster) returns boolean
-		let casterUnit = this.getCaster()
-		if casterUnit != null and active.has(casterUnit)
-			if active.get(casterUnit) == this
-				active.remove(casterUnit)
-			return true
-		return false
+		return true
 
 	override function onCleanup()
 		if this.affected != null
@@ -185,11 +178,8 @@ function onChannel()
 		let caster = GetTriggerUnit()
 		if caster == null
 			return
-		if active.has(caster)
-			active.get(caster).finishChannel(false)
 		let inst = new ShinraTensei(caster)
 		if inst != null and inst.isChannelActive()
-			active.put(caster, inst)
 			nullTimer() ->
 				caster.setAnimation(CASTER_ANIMATION_INDEX)
 				caster.setEntityTimeScale(CASTER_ANIMATION_SPEED)
@@ -199,8 +189,8 @@ function onChannel()
 function onStop()
 	if GetSpellAbilityId() == NAGATO_SHINRA_TENSEI
 		let caster = GetTriggerUnit()
-		if caster != null and active.has(caster)
-			active.get(caster).finishChannel(false)
+		if caster != null
+			stopActiveChannels(caster, NAGATO_SHINRA_TENSEI, false)
 
 init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, () -> onChannel())

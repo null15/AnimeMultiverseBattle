@@ -585,6 +585,8 @@ public class ChannelSpell extends TimeStopAwareSpell
 	boolean allowTicksDuringTimeStop
 	boolean skipTick
 	boolean channelExclusionActive
+	boolean allowLingeringInstances
+	boolean registeredWithManager
 
 	/**
 	* Creates a channel spell with its caster, ability id, and tick period.
@@ -602,6 +604,8 @@ public class ChannelSpell extends TimeStopAwareSpell
 		this.allowTicksDuringTimeStop = false
 		this.skipTick = false
 		this.channelExclusionActive = false
+		this.allowLingeringInstances = false
+		this.registeredWithManager = false
 
 	/**
 	* Adds a unit to the target set so it is tracked, paused, and released automatically.
@@ -618,6 +622,25 @@ public class ChannelSpell extends TimeStopAwareSpell
 	*/
 	function setAllowTicksDuringTimeStop(boolean allow)
 		this.allowTicksDuringTimeStop = allow
+
+	/**
+	* Controls whether multiple instances from the same caster may remain active simultaneously.
+	* allow: True keeps existing instances alive, false stops the previous channel before registering this one.
+	*/
+	function setAllowLingeringInstances(boolean allow)
+		this.allowLingeringInstances = allow
+
+	/**
+	* Returns true when this instance is allowed to coexist with other casts from the same caster.
+	*/
+	function allowsLingeringInstances() returns boolean
+		return this.allowLingeringInstances
+
+	/**
+	* Returns true while this spell is tracked inside the channel manager.
+	*/
+	function isRegisteredWithManager() returns boolean
+		return this.registeredWithManager
 
 	/**
 	* Marks this spell as excluded from global channel cancellation.
@@ -680,6 +703,27 @@ public class ChannelSpell extends TimeStopAwareSpell
 		let casterUnit = this.getCaster()
 		if casterUnit != null
 			casterUnit.startChanneling(this.getAbilityId(), duration)
+		this.registerChannelInstance()
+
+	/**
+	* Registers the spell instance so the manager can enforce lingering rules and lookups.
+	*/
+	function registerChannelInstance()
+		if this.registeredWithManager
+			return
+		if not this.channelActive
+			return
+		if registerChannelSpellInstance(this)
+			this.registeredWithManager = true
+
+	/**
+	* Removes the spell instance from the manager registry.
+	*/
+	function unregisterChannelInstance()
+		if not this.registeredWithManager
+			return
+		if unregisterChannelSpellInstance(this)
+			this.registeredWithManager = false
 
 	/**
 	* Override to pause the countdown without cancelling the channel.
@@ -793,11 +837,133 @@ public class ChannelSpell extends TimeStopAwareSpell
 	* Clears tracked targets. Override to clean custom data before the instance is destroyed.
 	*/
 	override function onCleanup()
+		this.unregisterChannelInstance()
 		if this.targets != null
 			this.targets.clear()
-
+	
 	ondestroy
+		this.unregisterChannelInstance()
 		this.disableChannelExclusion()
 		if this.targets != null
 			destroy this.targets
 		this.targets = null
+let activeChannelSpellsByCaster = new HashMap<unit, HashMap<int, HashSet<ChannelSpell>>>()
+
+function registerChannelSpellInstance(ChannelSpell spell) returns boolean
+	if spell == null
+		return false
+	let caster = spell.getCaster()
+	if caster == null
+		return false
+	let abilityId = spell.getAbilityId()
+	if abilityId == 0
+		return false
+	var abilityMap = activeChannelSpellsByCaster.has(caster) ? activeChannelSpellsByCaster.get(caster) : null
+	if abilityMap == null
+		abilityMap = new HashMap<int, HashSet<ChannelSpell>>()
+		activeChannelSpellsByCaster.put(caster, abilityMap)
+	var instances = abilityMap.has(abilityId) ? abilityMap.get(abilityId) : null
+	if instances == null
+		instances = new HashSet<ChannelSpell>()
+		abilityMap.put(abilityId, instances)
+	LinkedList<ChannelSpell> toStop = null
+	if not spell.allowsLingeringInstances() and not instances.isEmpty()
+		for other in instances
+			if other != null and other != spell
+				if toStop == null
+					toStop = new LinkedList<ChannelSpell>()
+				toStop.add(other)
+	if toStop != null
+		for other in toStop
+			if other != null and other != spell
+				other.stop(false)
+		destroy toStop
+		abilityMap = activeChannelSpellsByCaster.has(caster) ? activeChannelSpellsByCaster.get(caster) : null
+		if abilityMap == null
+			abilityMap = new HashMap<int, HashSet<ChannelSpell>>()
+			activeChannelSpellsByCaster.put(caster, abilityMap)
+		instances = abilityMap.has(abilityId) ? abilityMap.get(abilityId) : null
+		if instances == null
+			instances = new HashSet<ChannelSpell>()
+			abilityMap.put(abilityId, instances)
+	instances.add(spell)
+	return true
+
+function unregisterChannelSpellInstance(ChannelSpell spell) returns boolean
+	if spell == null
+		return false
+	let caster = spell.getCaster()
+	if caster == null
+		return false
+	if not activeChannelSpellsByCaster.has(caster)
+		return false
+	let abilityMap = activeChannelSpellsByCaster.get(caster)
+	if abilityMap == null
+		activeChannelSpellsByCaster.remove(caster)
+		return false
+	let abilityId = spell.getAbilityId()
+	if not abilityMap.has(abilityId)
+		if abilityMap.size() <= 0
+			activeChannelSpellsByCaster.remove(caster)
+			destroy abilityMap
+		return false
+	let instances = abilityMap.get(abilityId)
+	if instances != null
+		instances.remove(spell)
+		if instances.isEmpty()
+			abilityMap.remove(abilityId)
+			destroy instances
+	if abilityMap.size() <= 0
+		activeChannelSpellsByCaster.remove(caster)
+		destroy abilityMap
+	return true
+
+function channelSpellGetInstances(unit caster, int abilityId) returns HashSet<ChannelSpell>
+	if caster == null
+		return null
+	if not activeChannelSpellsByCaster.has(caster)
+		return null
+	let abilityMap = activeChannelSpellsByCaster.get(caster)
+	if abilityMap == null
+		return null
+	if not abilityMap.has(abilityId)
+		return null
+	return abilityMap.get(abilityId)
+
+public function getActiveChannel(unit caster, int abilityId) returns ChannelSpell
+	let instances = channelSpellGetInstances(caster, abilityId)
+	if instances == null
+		return null
+	for spell in instances
+		if spell != null and spell.isChannelActive()
+			return spell
+	return null
+
+function getActiveChannels(unit caster, int abilityId) returns LinkedList<ChannelSpell>
+	let instances = channelSpellGetInstances(caster, abilityId)
+	if instances == null or instances.isEmpty()
+		return null
+	let result = new LinkedList<ChannelSpell>()
+	for spell in instances
+		if spell != null and spell.isChannelActive()
+			result.add(spell)
+	if result.isEmpty()
+		destroy result
+		return null
+	return result
+
+public function stopActiveChannels(unit caster, int abilityId, boolean orderCaster)
+	let instances = channelSpellGetInstances(caster, abilityId)
+	if instances == null or instances.isEmpty()
+		return
+	let toStop = new LinkedList<ChannelSpell>()
+	for spell in instances
+		if spell != null
+			toStop.add(spell)
+	for spell in toStop
+		if spell != null
+			spell.finishChannel(orderCaster)
+	destroy toStop
+
+function stopActiveChannels(unit caster, int abilityId)
+	stopActiveChannels(caster, abilityId, false)
