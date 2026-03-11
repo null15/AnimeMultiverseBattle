@@ -7,11 +7,15 @@ enum Element
 	EARTH
 	WATER
 	LIGHTNING
+	WIND
+	ICE
 
 public LinkedList<int>		 FIRE_SPELLS			 = new LinkedList<int>()
 public LinkedList<int>		 EARTH_SPELLS			 = new LinkedList<int>()
 public LinkedList<int>		 WATER_SPELLS			 = new LinkedList<int>()
 public LinkedList<int>		 LIGHTNING_SPELLS		 = new LinkedList<int>()
+public LinkedList<int>		 WIND_SPELLS		     = new LinkedList<int>()
+public LinkedList<int>		 ICE_SPELLS		         = new LinkedList<int>()
 
 public function registerElementalSpell(Element element, int abilId)
 	switch element
@@ -23,6 +27,10 @@ public function registerElementalSpell(Element element, int abilId)
 			WATER_SPELLS.add(abilId)
 		case Element.LIGHTNING
 			LIGHTNING_SPELLS.add(abilId)
+		case Element.WIND
+			WIND_SPELLS.add(abilId)
+		case Element.ICE
+			ICE_SPELLS.add(abilId)			
 
 public function getSpellsByElement(Element element) returns LinkedList<int>
 	switch element
@@ -34,3 +42,7 @@ public function getSpellsByElement(Element element) returns LinkedList<int>
 			return WATER_SPELLS
 		case Element.LIGHTNING
 			return LIGHTNING_SPELLS
+		case Element.WIND
+			return WIND_SPELLS
+		case Element.ICE
+			return ICE_SPELLS
